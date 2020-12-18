@@ -1,0 +1,54 @@
+.statusInputText{
+    display: inline-block;
+		float: right;
+}
+.statusInputSubmit{
+	float: right;
+	width: 29%;
+	margin-right:3rem;
+}
+.bx--toggle-input__label .bx--toggle__switch{
+	margin-top:0;
+}
+.tableTextInput{
+	float:none;
+}
+.numberTextInput{
+	width:80px
+}
+.numberTextInput input[type='number']{
+	 min-width: 1.375rem;
+}
+.hiddenDiv{
+	display:none
+}
+.displayFlex{
+	display: flex;
+}
+.widgetNameInputText{ 
+	display: inline-block;
+}
+.bx--data-table td, .bx--data-table tbody th{
+	background:#fff
+}
+.bx--dropdown .bx--list-box__field{
+	background: #f4f4f4;
+}
+.bx--data-table tr:nth-child(n+3) td:last-child .bx--list-box__menu { 
+	bottom: calc(100% + 1px);;
+}
+.bx--data-table tr:first-child td:last-child .bx--list-box__menu { 
+	top: calc(100% + 1px);;
+}
+.widgetNameInputText .bx--form-item{
+	min-width:300px;
+}
+
+
+.bx--form .bx--form-item .bx--select, .bx--select-input__wrapper{
+	width:100%;
+}
+.bx--form .bx--form-item select{
+	width: 100%;
+	max-width: 100%;
+}

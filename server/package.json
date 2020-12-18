@@ -1,0 +1,56 @@
+{
+  "name": "mylinkforall",
+  "version": "0.0.0",
+  "engines": {
+    "node": "10.19.0"
+  },
+  "private": true,
+  "scripts": {
+    "start": "DEBUG=express-sequelize node ./bin/www",
+    "start-dev": "cross-env DEBUG=express-sequelize nodemon ./bin/www",
+    "test": "mocha",
+    "test-unit": "cross-env NODE_ENV=test ./node_modules/.bin/mocha test/unit/*.test.js",
+    "test-integration": "cross-env NODE_ENV=test ./node_modules/.bin/mocha test/integration/*.test.js"
+  },
+  "dependencies": {
+    "async": "^3.2.0",
+    "axios": "^0.21.0",
+    "bcrypt": "^5.0.0",
+    "bluebird": "^3.7.2",
+    "body-parser": "^1.19.0",
+    "cjs": "0.0.11",
+    "compression": "^1.7.4",
+    "connect-session-sequelize": "^7.0.0",
+    "cors": "^2.8.5",
+    "debug": "^4.1.1",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "express-validator": "^6.6.0",
+    "fs": "0.0.1-security",
+    "hbs": "^4.1.1",
+    "helmet": "^3.23.3",
+    "i18n": "^0.10.0",
+    "ibm-platform-services": "^0.17.2",
+    "in-app-purchase": "^1.11.4",
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0",
+    "node-fetch": "^2.6.0",
+    "nodemailer": "^6.4.15",
+    "passport": "^0.4.1",
+    "pg": "^8.2.1",
+    "react-s3-uploader": "^5.0.0",
+    "requests": "^0.3.0",
+    "sequelize": "^6.3.0",
+    "sequelize-cli": "^6.2.0",
+    "serve-favicon": "^2.5.0"
+  },
+  "devDependencies": {
+    "cross-env": "^3.2.4",
+    "expect.js": "^0.3.1",
+    "mocha": "^3.0.2",
+    "nodemon": "^2.0.2",
+    "supertest": "^2.0.0",
+    "chai": "^4.1.2",
+    "node-mocks-http": "^1.6.7"
+  }
+}

@@ -1,0 +1,23 @@
+.bx--content {
+  transform:none
+}
+
+.bx--table-toolbar {
+  overflow: visible;
+  z-index: 2;
+}
+
+.bx--list-box {
+  background-color: #ffffff;
+  height: 3rem;
+  max-height: 2.9rem; 
+  border-bottom:none
+}
+
+.bx--list-box:hover {
+  background-color: #ffffff;
+}
+
+.bx--data-table tbody  {
+	background: #ffffff;
+}
