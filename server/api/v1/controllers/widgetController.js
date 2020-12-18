@@ -127,13 +127,13 @@ exports.getWidget = [
 		else {
 			try {
 				
-					dbLayer.widget.findOne({
-							where: {id:widgetID},
-							attributes : ['name','url','status'],
+					dbLayer.widget_connection.findOne({
+						where: {widget_id:widgetID},							
+						attributes : ['is_github_connected','repo_id','repo_name','repo_owner','is_slack_connected','webhook','channel_name'],
 							include: [ 
 										{
-											model:dbLayer.widget_connection,
-											attributes : ['is_github_connected','repo_id','repo_name','repo_owner','is_slack_connected','webhook','channel_name'],
+											model:dbLayer.widget,
+											attributes : ['name','url','status'],
 										}
 								],
 							order: [['id', 'ASC']],
@@ -144,23 +144,18 @@ exports.getWidget = [
 							return res.status(200).json(tools.successResponseObj([],startDate,endDate,resource,req.url));				
 						}  
 						var widgetData = widget.get();
-						widgetData.is_github_connected = false;
-						widgetData.is_slack_connected = false;
-						widgetData.repo_id = ""
-						widgetData.repo_name = ""
-						widgetData.repo_owner = ""
-						widgetData.webhook = ""
-						widgetData.channel_name = ""
-						if(widgetData.widget_connection) {
-							widgetData.is_github_connected  = widgetData.widget_connection.is_github_connected 
-							widgetData.repo_id  = widgetData.widget_connection.repo_id 
-							widgetData.repo_name  = widgetData.widget_connection.repo_name 
-							widgetData.repo_owner  = widgetData.widget_connection.repo_owner 
-							widgetData.channelName  = widgetData.widget_connection.channel_name 
-							widgetData.webhook  = widgetData.widget_connection.webhook 
+						widgetData.name = widgetData.widget.name;
+						widgetData.url = widgetData.widget.url;
+						widgetData.status = widgetData.widget.status;
+						widgetData.is_github_connected  = widgetData.is_github_connected 
+						widgetData.repo_id  = widgetData.repo_id 
+						widgetData.repo_name  = widgetData.repo_name 
+						widgetData.repo_owner  = widgetData.repo_owner 
+						widgetData.channelName  = widgetData.channel_name 
+						widgetData.webhook  = widgetData.webhook 
 							
-						}
-						delete widgetData.widget_connection
+						
+						delete widgetData.widget
 						return res.status(200).json(tools.successResponseObj(widget,startDate,endDate,resource,req.url));
 						
 						
