@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   Header,
   HeaderName,
@@ -7,10 +8,13 @@ import {
   SideNavItems,
   SideNavLink,
   HeaderMenuButton,
+  HeaderGlobalAction,
+  HeaderGlobalBar,
   
 } from 'carbon-components-react';
 
-import { UserMultiple32,Document32, ColorSwitch32 } from '@carbon/icons-react';
+
+import { UserMultiple32,Document32, ColorSwitch32,Logout20 } from '@carbon/icons-react';
 
 
 import { Link } from 'react-router-dom';
@@ -18,10 +22,12 @@ import { Link } from 'react-router-dom';
 const hideSideNav = () => {
     var sidenav = document.getElementsByClassName('global_sidenav');
     sidenav[0].classList.remove('bx--side-nav--expanded');
-  }
+}
 
-const AppHeader = ({onClickSideNavExpand,isSideNavExpanded}) => (
+
+const AppHeader = ({onClickSideNavExpand,isSideNavExpanded, onClickSignOut,userData}) => {
 	
+	return (
 	<Header aria-label="in App Feedback" onClick={ isSideNavExpanded === true ? onClickSideNavExpand : null}>
 	  <SkipToContent />
 	  <HeaderMenuButton
@@ -33,6 +39,15 @@ const AppHeader = ({onClickSideNavExpand,isSideNavExpanded}) => (
 	  <HeaderName href="#" prefix="IBM">
 		[In App Feedback]
 	  </HeaderName>
+						<HeaderGlobalBar>
+						<HeaderGlobalAction
+							aria-label="App Switcher"
+							isActive
+							onClick={(event) => {onClickSignOut(event)}}
+						>
+							<Logout20 />
+						</HeaderGlobalAction>
+					</HeaderGlobalBar>
 	  <SideNav 
 		aria-label="Side navigation" 
 		expanded={isSideNavExpanded} className="global_sidenav">
@@ -49,6 +64,6 @@ const AppHeader = ({onClickSideNavExpand,isSideNavExpanded}) => (
 		</SideNavItems>
 	  </SideNav>
 	</Header>
-      
-);
+	)
+};
 export default AppHeader;

@@ -1,22 +1,38 @@
 import React from 'react';
-
+import { connect} from 'react-redux'
 
 import { DataTable, TableContainer, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,TableToolbar,TableBatchActions,TableBatchAction,TableToolbarContent,TableSelectAll,TableSelectRow,Breadcrumb, BreadcrumbItem,MultiSelect,OverflowMenu,OverflowMenuItem,Pagination,TableToolbarMenu,TableToolbarAction,DataTableSkeleton,ComposedModal,ModalBody,ModalFooter,InlineLoading,Button} from 'carbon-components-react';
-//TableToolbarAction
 
-//import { TrashCan32 as Delete, Add16 as Add, SettingsAdjust32 as Filter } from '@carbon/icons-react';
 import { TrashCan32 as Delete,SettingsAdjust32 as Filter } from '@carbon/icons-react';
 
 import axios from "axios";
 
 
 /*********** Data GRID ************/
-//import { rowData } from "./TableDummyData";
-import { columns } from "./TableDummyHeader";
+import { columns } from "./TableHeader";
 import  Rating  from "../../components/Rating/Rating";
 
+const mapStateToProps = (state) => {
+	return {
+			isLogged: state.auth.isLogged,
+			access_token:state.auth.access_token,
+			api_key:state.auth.api_key,
+			refresh_token:state.auth.refresh_token,
+			account_id: state.auth.account_id, 
+			email: state.auth.email, 
+			name: state.auth.name, 
+			role: state.auth.role
+			
+		};
+};
 
-export default class FeedbackPage extends React.Component {
+const mapDispatchToProps = (dispatch) => {
+    return {
+        saveLogoutState: (data) => dispatch(data),
+    }
+}	
+
+class FeedbackPage extends React.Component {
 	
 	constructor(props) {
 		super(props);	
@@ -67,7 +83,7 @@ export default class FeedbackPage extends React.Component {
 		type = this.state.rows[rowIndex].rating_type
 			 rating = this.state.rows[rowIndex].rating
 		}
-		return <Rating  type={type} rating={rating} />
+		return <Rating key={rowIndex} type={type} rating={rating} />
 	}
 	
   handleOnHeaderChange  = (e) => {	
@@ -95,19 +111,33 @@ export default class FeedbackPage extends React.Component {
   /******************** API CALL ******************************/
   getFeedbacks = () => {
 		this.setState({ isLoading: true });
-		axios.get(process.env.REACT_APP_API_ENDPOINT+`feedbacks/`)
-		.then(result => {
-			this.setState({
-				rows: result.data.data,
+		
+		var config = {
+				method: 'get',
+				url:process.env.REACT_APP_API_ENDPOINT+`feedbacks/`,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+		};
+		
+		axios(config)
+		.then(response => {
+				this.setState({
+				rows: response.data.data,
 				isLoading: false,
 			});
 		})
-		.catch(error =>
+		.catch((error) => {
+
 			this.setState({
-			error,
-			isLoading: false
-			})
-		);
+				error,
+				isLoading: false
+			});
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+		});
+		
 	}; 
   
 	deleteFeedback = (rowID,rowIndex) => {
@@ -117,9 +147,17 @@ export default class FeedbackPage extends React.Component {
 				description: "Submitting" 
 		});	
 		
-		axios.delete(process.env.REACT_APP_API_ENDPOINT+`feedbacks/`+rowID)
-			.then((response) => {
-				this.setState({ 
+		var config = {
+				method: 'delete',
+				url:process.env.REACT_APP_API_ENDPOINT+`feedbacks/`+rowID,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+		};
+		
+		axios(config)
+		.then(response => {
+					this.setState({ 
 						isSubmitting: false,
 						success: true,
 						description: "Deleted" 
@@ -141,10 +179,17 @@ export default class FeedbackPage extends React.Component {
 								pageSize: this.state.pageSize
 							});
 					}
-				 
-			}, (error) => {
-				console.log(error);
+					})
+		.catch((error) => {
+			this.setState({
+				error,
+				isLoading: false
 			});
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+		});
+		
 	};
 	
   render() {	
@@ -307,3 +352,4 @@ export default class FeedbackPage extends React.Component {
     );
   }
 }
+export default connect(mapStateToProps,mapDispatchToProps)(FeedbackPage);

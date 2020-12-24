@@ -2,8 +2,8 @@
  * User controller for API endpoint.
  * Author: Whizpool.
  * Version: 1.0.0
- * Release Date: 28-May-2020
- * Last Updated: 29-May-2020
+ * Release Date: 09-Dec-2020
+ * Last Updated: 24-Dec-2020
  */
 
 /**
@@ -30,8 +30,11 @@ const { body, validationResult } = require('express-validator');
 const { sanitizeBody } = require('express-validator');
 
 
+const { IamAuthenticator } = require('ibm-platform-services/auth');
+
+
 /**
-   * @function getAccessToken
+   * @function UserVerifyFromIBM
    * @param {Object} req request object
    * @param {Object} res response object
    * @returns {Object} response object
@@ -39,8 +42,9 @@ const { sanitizeBody } = require('express-validator');
 */
 var axios = require('axios');
 var qs = require('qs');
-exports.getAccessToken = [
+exports.UserVerifyFromIBM = [
  
+	 body('apikey').isLength({ min: 1 }).trim().withMessage('API Key must be specified.'),
     // Process request after validation and sanitization.
     (req, res, next) => {
 
@@ -59,79 +63,105 @@ exports.getAccessToken = [
 		}
 		else {
 			try {
-						const iamIdentityService = require('ibm-platform-services/iam-identity/v1');
-
+					const iamIdentity = require('ibm-platform-services/iam-identity/v1');
 				
-					/*
-					var data = qs.stringify({
-					 'grant_type': 'urn:ibm:params:oauth:grant-type:apikey',
-					'apikey': 'DI1n_GHLmOuRt_3AiqKglh4ABotkgbg2PsTe5UIjdZrC' 
-					});
-					var config = {
-						method: 'post',
-						url: 'https://iam.cloud.ibm.com/identity/token',
-						headers: { 
-							'Content-Type': 'application/x-www-form-urlencoded', 
-							'Cookie': 'sessioncookie="57807040b5b4ce64"'
-						},
-						data : data
-					};
-
-					axios(config)
-					.then(function (response) {
-						console.log(JSON.stringify(response.data));
-						return res.status(200).json(tools.successResponseObj(response.data,startDate,endDate,resource,req.url));
-					})
-					.catch(function (error) {
-							return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
-					});
-					
-				==========================================		
-					const UserManagementV1 = require('ibm-platform-services/user-management/v1');
-				
-					const { IamAuthenticator } = require('ibm-platform-services/auth');
-					
 					const authenticator = new IamAuthenticator({
-						apikey: 'DI1n_GHLmOuRt_3AiqKglh4ABotkgbg2PsTe5UIjdZrC' ,
+						apikey: req.body.apikey,
 					});
-
-					const userManagementService = new UserManagementV1({
+				
+					
+					const iamIdentityService = new iamIdentity({
 							authenticator,                                          
-							serviceUrl: 'https://user-management.cloud.ibm.com', 
+							//serviceUrl: 'https://user-management.cloud.ibm.com', 
 						}
 					);
+	
+					const params = {};
+					//Check SuperAdmin record in the db.
+					dbLayer.user.findOne({
+						where: {
+							id: 1
+						 }
+					})
+					.then(async(user) => {
+						if(!user) {
+							
+							var message = 'user not found';
+								var	error = {
+									"msg": "user not found",
+									"param": "",
+									"location": "body"
+								};				
+								return res.status(404).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+								
+						} else {
+							let userObj = user.get();
+							
+								iamIdentityService.listApiKeys(params)
+								.then(response => {
+									let apiResponse  = response.result.apikeys;
+									//apikeyEtag = response.headers['etag'];
+									let isValidAccount = false;
+									for(i = 0; i < apiResponse.length;i++) {
+											var apiData = apiResponse[i];
+											if(apiData.account_id == userObj.account_id) {		
+													isValidAccount = true;
+													break;
+											}
+									}				
+									if(isValidAccount) {
+										
+											//Get Access Token
+											let access_token = ""
+											var data = qs.stringify({
+											 'grant_type': 'urn:ibm:params:oauth:grant-type:apikey',
+											 'apikey': req.body.apikey,
+											 'response_type':'cloud_iam'
+											});
+											var config = {
+												method: 'post',
+												url: 'https://iam.cloud.ibm.com/identity/token',
+												headers: { 
+													'Content-Type': 'application/x-www-form-urlencoded', 
+													'Cookie': 'sessioncookie="57807040b5b4ce64"'
+												},
+												data : data
+											};
 
-				const params = {
-						accountId: '7c62a18e282e46738e7c1205a73aaa59',
-						state: 'ACTIVE'
-					};
-
-					userManagementService.listUsers(params)
-						.then(response => {
-								console.log(JSON.stringify(response.result, null, 2));
-								res.status(200).json(tools.successResponseObj(response.result,startDate,endDate,resource,req.url));
-						})
-						.catch(err => {
-						console.warn(err)
-						});
-					*/
-
-						const params = {
-							id: 'ApiKey-7626fd98-6acc-4edf-b9ec-5f5eff1f4818',
-						};
-
-						iamIdentityService.getApiKey(params)
-							.then(response => {
-								apikeyEtag = response.headers['etag'];
-								console.log(JSON.stringify(response.result, null, 2));
-								res.status(200).json(tools.successResponseObj(response.result,startDate,endDate,resource,req.url));
-							})
-							.catch(err => {
-								console.warn(err);
-							});
-
-				}     
-					// catch error if the operation wasn't successful
+										axios(config)
+										.then(function (response) {
+											var successResponseObj = {}
+											successResponseObj.access_token = response.data.access_token
+											successResponseObj.refresh_token = response.data.refresh_token
+											successResponseObj.account_id = apiData.account_id
+											return res.status(200).json(tools.successResponseObj(successResponseObj,startDate,endDate,resource,req.url));
+											//return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+											
+										})
+										.catch(function (error) {
+												var message = 'Authentication failed';
+												return res.status(401).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+										});
+										
+									}	 else {
+										var message = 'Authentication failed';
+										return res.status(401).json(tools.errorResponseObj([],message,startDate,endDate,resource,req.url));
+									}
+									
+								})
+								.catch(err => {
+									var message = "operation wasn't successful";
+									return res.status(500).json(tools.errorResponseObj(err,err.message,startDate,endDate,resource,req.url));
+								});
+						}
+					})
+					.catch((error) => {		  
+						var message = "operation wasn't successful";
+						return res.status(401).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+						
+					});
+				} 
+				// catch error if the operation wasn't successful
 					catch(error) {
 						var message = "operation wasn't successful";
 						return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
@@ -139,6 +169,8 @@ exports.getAccessToken = [
         }
     }
 ];
+
+
 /**
    * @function fetchusers
    * @param {Object} req request object
@@ -167,35 +199,24 @@ exports.fetchUsers = [
 		else {
 			try {
 				
-					dbLayer.user.findAll({
-							where: {},
-							attributes : ['id','name','email','role','status'],
-							order: [['id', 'ASC']],
-							//limit: Limit,
-					})
-					.then(async function(users) {
-						
-						if (!users) {				
-							return res.status(200).json(tools.successResponseObj([],startDate,endDate,resource,req.url));				
-						}  
-						var usersList = []						
-						for(var i =0 ; i < users.length;i++)
-						{
-							var usersObj = users[i].get();
-							usersObj.id = usersObj.id.toString()
-							usersList.push(usersObj);
-							
+					//Using Curl Call with access token
+					var config = {
+						method: 'get',
+						url: 'https://user-management.cloud.ibm.com/v2/accounts/'+req.body.accountid+'/users',
+						headers: { 
+							'Authorization': 'Bearer '+req.body.access_token
 						}
-						return res.status(200).json(tools.successResponseObj(usersList,startDate,endDate,resource,req.url));
-						
-						
-					})
-					.catch((error) => {		  
-						// catch error if the operation wasn't successful
-						var message = 'users fetching failed';
-						return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
-						
-					});     
+					};
+					axios(config)
+							.then(function (response) {
+								return res.status(200).json(tools.successResponseObj(response.data,startDate,endDate,resource,req.url));
+								
+						})
+						.catch(function (error) {
+								var message = 'Authentication failed';
+								return res.status(400).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+						});
+					
 				}     
 			// catch error if the operation wasn't successful
 			catch(error) {
@@ -207,17 +228,18 @@ exports.fetchUsers = [
 ];
 
 /**
-   * @function createUsers
+   * @function inviteUsers
    * @param {Object} req request object
    * @param {Object} res response object
    * @returns {Object} response object
    * @description gets all available results
 */
-exports.createUsers = [
+exports.inviteUsers = [
  
     // Validate fields.
+    body('email').isLength({ min: 1 }).trim().withMessage('User email must be specified.'),
     body('name').isLength({ min: 1 }).trim().withMessage('user name must be specified.'),
-    body('url').isLength({ min: 1 }).trim().withMessage('user URL must be specified.'),
+    body('role').isLength({ min: 1 }).trim().withMessage('Role must be specified.'),
    
     // Sanitize fields.
     sanitizeBody('name').escape(),
@@ -243,31 +265,76 @@ exports.createUsers = [
 			}
 			else {
 				
-				var userPostData = {
-					creater_name: "John Doe",
-					name: req.body.name,
-					url: req.body.url,
-				}
-				var user = new dbLayer.user(userPostData);	
-				try {
-						user.save({
-							user
-						}).then(async function(result) {
-							
-							var usersObj = result.get();			
-							usersObj.id = usersObj.id.toString()
-							return res.status(200).json(tools.successResponseObj(usersObj,startDate,endDate,resource,req.url));
-						})		
-				}
-				catch(error) {
-					//console.log('The error log ' + error);
-					var message = "Error creating user";
-					return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
-				}
+						// InviteUser
+						const inviteUserModel = {
+							email: req.body.email,
+							account_role: 'Member'
+						};
+
+						// Role
+						const roleModel = {
+							role_id: 'crn:v1:bluemix:public:iam::::role:'+req.body.role
+						};
+
+						// Attribute
+						const attributeModel = {
+							name: 'accountId',
+							value: req.body.accountid
+						};
+
+						// Attribute
+						const attributeModel2 = {
+							name: 'resourceGroupId',
+							value: '*'
+						};
+
+						// Resource
+						const resourceModel = {
+							attributes: [attributeModel, attributeModel2]
+						};
+
+						// InviteUserIamPolicy
+						//const inviteUserIamPolicyModel = {type: 'access',roles: [roleModel],resources: [resourceModel]};
+						const inviteUserIamPolicyModel = {
+							type: 'access',
+							roles: [roleModel],
+							resources: [resourceModel]
+						};
+
+					
+						const params = {
+							users: [inviteUserModel],
+							iamPolicy: [inviteUserIamPolicyModel],
+							//accessGroups: ['AccessGroupId-PublicAccess']
+						};
+									
+						console.log(JSON.stringify(params))
+						var config = {
+							method: 'post',
+							url: 'https://user-management.cloud.ibm.com/v2/accounts/'+req.body.accountid+'/users',
+							headers: { 
+								'Authorization': 'Bearer '+req.body.access_token,
+								'Content-Type': 'application/json'
+							},
+							data:params
+					};	
+				
+					axios(config)
+							.then(function (result) {
+								console.log(result.data.resources)
+								return res.status(200).json(tools.successResponseObj(result.data.resources,startDate,endDate,resource,req.url));
+								
+						})
+						.catch(function (error) {
+							return res.status(400).json(tools.errorResponseObj(error,error.message,startDate,endDate,resource,req.url));
+					});
+				
+					
 				
 			}
     }
 ];
+
 
 
 /**
@@ -375,25 +442,30 @@ exports.deleteUser = [
 			var startDate = req.session.startDate;
 			var endDate = req.session.lastRequestDate;
 			var resource = "user";
-			const userID = req.params.id;
+			const IAMID = req.params.id;
 			// Extract the validation errors from a request.
 			//const errors = validationResult(req);
-			//Here we also need to delete the feedback and relevant items		
-			dbLayer.user.destroy({
-				where: {
-				id: userID,
-			 }
-			}).then(() => {
-				
-				return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));
-				
-			})
-			.catch((error) => {		  
-				var message =  'User record failed';
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
-				
-			});
+			//Here we also need to delete the feedback and relevant items	
+
+			//Using Curl Call with access token
+				var config = {
+					method: 'delete',
+					url: 'https://user-management.cloud.ibm.com/v2/accounts/'+req.body.accountid+'/users/'+IAMID,
+					headers: { 
+						'Authorization': 'Bearer '+req.body.access_token
+					}
+				};
+				console.log(config)
+				axios(config)
+						.then(function (response) {
+							return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));
+							
+					})
+					.catch(function (error) {
+							var message = 'Authentication failed';
+							return res.status(400).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+					});
+						
 	}
 
 ];
-

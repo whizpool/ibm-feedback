@@ -2,8 +2,8 @@
  * User controller for API endpoint.
  * Author: Whizpool.
  * Version: 1.0.0
- * Release Date: 28-May-2020
- * Last Updated: 29-May-2020
+ * Release Date: 09-Dec-2020
+ * Last Updated: 24-Dec-2020
  */
 
 /**
@@ -42,8 +42,6 @@ exports.fetchWidgets = [
     // Process request after validation and sanitization.
     (req, res, next) => {
 
-		//var startDate = tools.convertMillisecondsToStringDate(req.session.startDate);		
-		//var endDate = tools.convertMillisecondsToStringDate(req.session.lastRequestDate);
 		var startDate = req.session.startDate;
 		var endDate = req.session.lastRequestDate;
 		var resource = "widgets";
@@ -110,8 +108,6 @@ exports.getWidget = [
     // Process request after validation and sanitization.
     (req, res, next) => {
 
-		//var startDate = tools.convertMillisecondsToStringDate(req.session.startDate);		
-		//var endDate = tools.convertMillisecondsToStringDate(req.session.lastRequestDate);
 		var startDate = req.session.startDate;
 		var endDate = req.session.lastRequestDate;
 		var resource = "widgets";
@@ -189,6 +185,7 @@ exports.createWidgets = [
     // Validate fields.
     body('name').isLength({ min: 1 }).trim().withMessage('Widget name must be specified.'),
     body('url').isLength({ min: 1 }).trim().withMessage('Widget URL must be specified.'),
+    //body('creater_name').isLength({ min: 1 }).trim().withMessage('Creater Name must be specified.'),
    
     // Sanitize fields.
     sanitizeBody('name').escape(),
@@ -196,15 +193,12 @@ exports.createWidgets = [
     // Process request after validation and sanitization.
     (req, res, next) => {
 
-			//var startDate = tools.convertMillisecondsToStringDate(req.session.startDate);		
-			//var endDate = tools.convertMillisecondsToStringDate(req.session.lastRequestDate);
 			var startDate = req.session.startDate;
 			var endDate = req.session.lastRequestDate;
 			var resource = "widgets";
 			
 			// Extract the validation errors from a request.
 			const errors = validationResult(req);
-			//const userData = req.body.userData;		
 
 			if (!errors.isEmpty()) {
 				// There are errors. Render form again with sanitized values/errors messages.
@@ -215,7 +209,7 @@ exports.createWidgets = [
 			else {
 				
 				var widgetPostData = {
-					creater_name: "John Doe",
+					creater_name: req.body.user_name,
 					name: req.body.name,
 					url: req.body.url,
 				}
@@ -570,8 +564,6 @@ exports.UpdateWidgetQuestions = [
     // Process request after validation and sanitization.
     async (req, res, next) => {
 
-		//var startDate = tools.convertMillisecondsToStringDate(req.session.startDate);		
-		//var endDate = tools.convertMillisecondsToStringDate(req.session.lastRequestDate);
 		var startDate = req.session.startDate;
 		var endDate = req.session.lastRequestDate;
 		var resource = "widgets";
@@ -669,8 +661,6 @@ exports.unlinkConnection = [
     // Process request after validation and sanitization.
     async (req, res, next) => {
 
-		//var startDate = tools.convertMillisecondsToStringDate(req.session.startDate);		
-		//var endDate = tools.convertMillisecondsToStringDate(req.session.lastRequestDate);
 		var startDate = req.session.startDate;
 		var endDate = req.session.lastRequestDate;
 		var resource = "widgets";

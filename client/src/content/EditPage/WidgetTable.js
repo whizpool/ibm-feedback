@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { connect} from 'react-redux'
 import {
   DataTable,
   TableContainer,
@@ -39,24 +40,40 @@ const closest = function(el, selector, rootNode) {
   //   console.log('matchesSelector:', matchesSelector);
   while (el) {
     const flagRoot = el === rootNode;
-    //     console.log('flagRoot:', flagRoot);
     if (flagRoot || matchesSelector.call(el, selector)) {
       if (flagRoot) {
         el = null;
-        //         console.log('flagRoot set el to null:', el);
       }
-      //       console.log('break!');
       break;
     }
     el = el.parentElement;
-    //     console.log('el = el.parentElement:', el);
   }
-  //   console.log('closest:', el);
-  //el.setAttribute('style', 'border: 50px solid red;');
+ 
   return el;
 };
 
+const mapStateToProps = (state) => {
+	return {
+			isLogged: state.auth.isLogged,
+			access_token:state.auth.access_token,
+			api_key:state.auth.api_key,
+			refresh_token:state.auth.refresh_token,
+			account_id: state.auth.account_id, 
+			email: state.auth.email, 
+			name: state.auth.name, 
+			role: state.auth.role
+			
+		};
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        saveLogoutState: (data) => dispatch(data),
+    }
+}	
+
 class WidgetTable extends PureComponent {
+	
 	constructor(props) {
     super(props);
 
@@ -93,13 +110,10 @@ class WidgetTable extends PureComponent {
     console.log('onDragStart');
     const target = this.getTrNode(e.target);
     if (target) {
-      //       e.dataTransfer.setData('Text', '');
       e.dataTransfer.effectAllowed = 'move';
       console.log('target.parentElement:', target.parentElement);
       target.parentElement.ondragenter = this.onDragEnter;
       target.parentElement.ondragover = function(ev) {
-        //         console.log('Tbody ondragover:',ev)
-        //         ev.target.dataTransfer.effectAllowed = 'none'
         ev.preventDefault();
         return true;
       };
@@ -131,8 +145,7 @@ class WidgetTable extends PureComponent {
   }
 
   getTrNode(target) {
-    //     console.log('dragContainer:', this.refs.dragContainer)
-    //     return closest(target, 'tr', this.refs.dragContainer.tableNode);
+   
     return closest(target, 'tr');
   }
 
@@ -168,7 +181,6 @@ class WidgetTable extends PureComponent {
 	
 	ToggleSwitch = (RowIndex, header) => {
 		var rowIndex = RowIndex - 1
-		//console.log(this.state.rows[rowIndex][header])
 		return (this.state.rowStatusID).indexOf(rowIndex) > -1 ? 
 			<InlineLoading
 				style={{ marginLeft: '1rem' }}
@@ -205,7 +217,6 @@ class WidgetTable extends PureComponent {
 		var currentRowIndex = rowIndex-1;
 		var ratingHTML = []
 		var row = this.state.rows[currentRowIndex]
-		//console.log(this.state.rows[rowIndex][header])
 		var limitOption = <p key={cellID} style={{textAlign: "center"}}><Subtract /></p>;
 		if(row && row.limit > 0 ) {
 			limitOption = <div key={cellID} style={{ float: "left",display:"flex",alignItems:"center"}}><TextInput
@@ -294,36 +305,61 @@ class WidgetTable extends PureComponent {
 	getWidgetsQuestion = () => {
 		
 		this.setState({ isLoading: true });
-		axios.post(process.env.REACT_APP_API_ENDPOINT+`widgets/question`,{id:this.props.recordID})
+		
+		var config = {
+				method: 'post',
+				url:process.env.REACT_APP_API_ENDPOINT+`widgets/question`,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+				data :{id:this.props.recordID}
+		};
+		axios(config)
 		.then(result => {
-			//console.log(result.data.data)
-			this.setState({
-				rows: result.data.data,
-				isLoading: false,
-			});
+				this.setState({
+					rows: result.data.data,
+					isLoading: false,
+				});
 		})
-		.catch(error =>
+		.catch((error) => {
+
 			this.setState({
 				error,
 				isLoading: false
-			})
-		);
+			});
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+		});
 	};
 	
 	createWidgetsQuestion = (name, url) => {
-		console.log(JSON.stringify(this.state.rows))
-		axios.post(process.env.REACT_APP_API_ENDPOINT+`widgets/update_question`,{id:this.props.recordID,rows:JSON.stringify(this.state.rows)})
-			.then((response) => {			
-				this.setState({ 
+		var config = {
+				method: 'post',
+				url:process.env.REACT_APP_API_ENDPOINT+`widgets/update_question`,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+				data : {id:this.props.recordID,rows:JSON.stringify(this.state.rows)}
+		};
+		axios(config)
+		.then(result => {
+			this.setState({ 
 						isSubmitting: false,
 						success: false,
 						description: "Submitted" 
 				});
-				
-			
-			}, (error) => {
-				console.log(error);
+		})
+		.catch((error) => {
+
+			this.setState({
+				error,
+				isLoading: false
 			});
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+		});
 	};
 	
   render() {
@@ -419,4 +455,4 @@ class WidgetTable extends PureComponent {
   }
 }
 
-export default WidgetTable;
+export default connect(mapStateToProps,mapDispatchToProps)(WidgetTable);

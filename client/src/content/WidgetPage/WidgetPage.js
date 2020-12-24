@@ -1,24 +1,44 @@
 import React from 'react';
+import {connect } from 'react-redux'
 
-
-import { DataTable, TableContainer, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,TableToolbar,TableBatchActions,TableBatchAction,TableToolbarContent,Button,TableSelectAll,TableSelectRow,Breadcrumb, BreadcrumbItem,MultiSelect,OverflowMenu,OverflowMenuItem,Pagination,TextInput,Form,DataTableSkeleton,Toggle,ComposedModal,ModalHeader,ModalBody,ModalFooter,InlineLoading} from 'carbon-components-react';
+import { DataTable, TableContainer, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,TableToolbar,TableBatchActions,TableBatchAction,TableToolbarContent,Button,TableSelectAll,TableSelectRow,Breadcrumb, BreadcrumbItem,MultiSelect,OverflowMenu,OverflowMenuItem,Pagination,TextInput,Form,DataTableSkeleton,Toggle,ComposedModal,ModalHeader,ModalBody,ModalFooter,InlineLoading,InlineNotification} from 'carbon-components-react';
 
 import { TrashCan32 as Delete, Add16 as Add } from '@carbon/icons-react';
 
 import axios from "axios";
 /*********** Data GRID ************/
-//import { rowData } from "./TableDummyData";
-import { columns } from "./TableDummyHeader";
+import { columns } from "./TableHeader";
 
 
 var validUrl = require('valid-url');
 let checkFlag = true;
 
-export default class WidgetPage extends React.Component {
+const mapStateToProps = (state) => {
+	return {
+			isLogged: state.auth.isLogged,
+			access_token:state.auth.access_token,
+			api_key:state.auth.api_key,
+			refresh_token:state.auth.refresh_token,
+			account_id: state.auth.account_id, 
+			email: state.auth.email, 
+			name: state.auth.name, 
+			role: state.auth.role
+			
+		};
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        saveLogoutState: (data) => dispatch(data),
+    }
+}	
+
+class WidgetPage extends React.Component {
 	
 	constructor(props) {
 		super(props);	
 		this.state = {
+			errorMessage:false,
 		  widgetModalOpen: false,
 		  deleteModalOpen: false,
 		  isLoading: false,
@@ -145,39 +165,61 @@ export default class WidgetPage extends React.Component {
 				ariaLive: "Off",
 				description: "Submitting" 
 		});	
-		axios.delete(process.env.REACT_APP_API_ENDPOINT+`widgets/`+rowID)
-			.then((response) => {
-				this.setState({ 
-						isSubmitting: false,
-						success: true,
-						description: "Deleted" 
-				});
-				let rows = this.state.rows
-				if (rows.length > 0) {
-					rows.splice(rowIndex, 1);
-					this.setState({ rows});
-				}	
-				//verify last index.		
-				var startItem = (this.state.page - 1) * this.state.pageSize;
-				var endItem = startItem + this.state.pageSize;
-					
-					var displayedRows = this.state.rows.slice(startItem, endItem);
-					if(displayedRows.length === 0 ){
-						this.setState({
-								page: (this.state.page-1),
-								pageSize: this.state.pageSize
-							});
-					}
-				 
-			}, (error) => {
-				console.log(error);
+		
+		var config = {
+				method: 'delete',
+				url:process.env.REACT_APP_API_ENDPOINT+`widgets/`+rowID,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+		};
+		
+		axios(config)
+		.then(response => {
+			this.setState({ 
+					isSubmitting: false,
+					success: true,
+					description: "Deleted" 
 			});
+			let rows = this.state.rows
+			if (rows.length > 0) {
+				rows.splice(rowIndex, 1);
+				this.setState({ rows});
+			}	
+			//verify last index.		
+			var startItem = (this.state.page - 1) * this.state.pageSize;
+			var endItem = startItem + this.state.pageSize;
+				
+				var displayedRows = this.state.rows.slice(startItem, endItem);
+				if(displayedRows.length === 0 ){
+					this.setState({
+							page: (this.state.page-1),
+							pageSize: this.state.pageSize
+						});
+				}
+		})
+		.catch((error) => {
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+		});
+		
 	};
 	
 	
 	createWidgets = (name, url) => {
-		axios.post(process.env.REACT_APP_API_ENDPOINT+`widgets/`,{name:name,url:url})
-			.then((response) => {			
+		
+		var config = {
+				method: 'post',
+				url:process.env.REACT_APP_API_ENDPOINT+`widgets/`,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+				data:{name:name,url:url}
+		};
+		
+		axios(config)
+		.then(response => {
 				let gridData = this.state.rows; 
 				gridData.unshift(response.data.data)
 				this.setState({ 
@@ -188,28 +230,50 @@ export default class WidgetPage extends React.Component {
 				this.setState((state) => {
 					return gridData
 				 });
-			
-			}, (error) => {
-				console.log(error);
-			});
+		})
+		.catch((error) => {
+			this.setState({ 
+						errorMessage: true,
+						isSubmitting: false,
+						ariaLive: "Off",
+						description: "Submitting" 
+					});	
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+		});
+		
 	};
 	
 	getWidgets = () => {
 		this.setState({ isLoading: true });
-		axios
-		.get(process.env.REACT_APP_API_ENDPOINT+`widgets/`)
-		.then(result => {
-			this.setState({
-				rows: result.data.data,
+		
+		var config = {
+				method: 'get',
+				url:process.env.REACT_APP_API_ENDPOINT+`widgets/`,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+		};
+		
+		axios(config)
+		.then(response => {
+				this.setState({
+				rows: response.data.data,
 				isLoading: false,
 			});
 		})
-		.catch(error =>
+		.catch((error) => {
+
 			this.setState({
-			error,
-			isLoading: false
-			})
-		);
+				error,
+				isLoading: false
+			});
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+		});
+		
 	};
 	
 	UpdateWidgetStatus = (e,rowIndex) => {
@@ -224,8 +288,18 @@ export default class WidgetPage extends React.Component {
 		
 		var checkBoxValue = e.currentTarget.checked;
 		
-		axios.post(process.env.REACT_APP_API_ENDPOINT+`widgets/status/`,{id:rowID ,status:checkBoxValue})
-			.then((response) => {				
+		
+		var config = {
+				method: 'get',
+				url:process.env.REACT_APP_API_ENDPOINT+`widgets/status/`,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+				data:{id:rowID ,status:checkBoxValue}
+		};
+		
+		axios(config)
+		.then(response => {
 				let gridData = this.state.rows;
 				gridData[rowIndex].status = checkBoxValue
 				this.setState({
@@ -236,15 +310,19 @@ export default class WidgetPage extends React.Component {
 				this.setState({
 					rowStatusID:myRowIDs,
 				});
-				
-			}, (error) => {
-				//Error Message
-				var myRowIDs = this.state.rowStatusID;				
+		})
+		.catch((error) => {
+
+			var myRowIDs = this.state.rowStatusID;				
 				myRowIDs.splice(myRowIDs.indexOf(rowIndex), 1);
 				this.setState({
 					rowStatusID:myRowIDs,
 				});
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
 		});
+		
 	}
 	
 	ToggleSwitch = (rowIndex) => {
@@ -315,6 +393,14 @@ export default class WidgetPage extends React.Component {
 								invalidText="Please enter a widget url.."
 							/>			  
 						</Form>
+						{this.state.errorMessage  ? 
+									<InlineNotification
+										kind="error"
+										subtitle={<span>Unabl to create widget please try again.</span>}
+										title="Failed"
+									/> : ""
+							}
+									
 					</ModalBody>
 					<ModalFooter>
 						<Button kind="secondary" onClick={(event) => {this.closeModal(event)}}>Cancel</Button>
@@ -469,3 +555,5 @@ export default class WidgetPage extends React.Component {
 		);
   	}
 }
+
+export default connect(mapStateToProps,mapDispatchToProps)(WidgetPage);

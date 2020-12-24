@@ -1,7 +1,7 @@
 export const columns = [
   {
     header: 'Name',
-    key: 'name',
+    key: 'firstname',
   },
   {
 		header: 'Email',

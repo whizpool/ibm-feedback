@@ -1,9 +1,9 @@
 /**
- * Database widgets model.
+ * Database feedback model.
  * Author: Whizpool.
  * Version: 1.0.0
  * Release Date: ‎09-Dec-2020
- * Last Updated: 09-Dec-2020
+ * Last Updated: 24-Dec-2020
  */
 
 /**
@@ -12,13 +12,11 @@
 var express = require('express');
 var router = express.Router();
 var feedbackController = require('../controllers/feedbackController');
+const Authorize = require("../../../modules/Authorize");
 
-router.get("/",feedbackController.fetchFeedbacks);
-router.get("/:id",feedbackController.viewFeedback);
-router.delete("/:id",feedbackController.deletefeedback);
-//router.post("/",feedbackController.createUsers);
-//router.post("/",feedbackController.updateUsers);
-//
+router.get("/",Authorize.verifyToken,feedbackController.fetchFeedbacks);
+router.get("/:id",Authorize.verifyToken,feedbackController.viewFeedback);
+router.delete("/:id",Authorize.verifyToken,feedbackController.deletefeedback);
 
 module.exports = router;
  

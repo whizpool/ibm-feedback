@@ -1,33 +1,29 @@
 import React from 'react';
 
 
-import { Star24 as Star, StarFilled24 as StarFilled, StarHalf24 as StarHalf, 
-
-NumberSmall_124 as NumberSmall1,
-NumberSmall_224 as NumberSmall2,
-NumberSmall_324 as NumberSmall3,
-NumberSmall_424 as NumberSmall4,
-NumberSmall_524 as NumberSmall5,
-Number_124 as Number1,
-Number_224 as Number2,
-Number_324 as Number3,
-Number_424 as Number4,
-Number_524 as Number5,
-
-
-FaceDissatisfied24 as FaceDissatisfied,
-FaceSatisfiedFilled24 as FaceSatisfiedFilled,
-FaceNeutral24 as FaceNeutral, 
-FaceNeutralFilled24 as FaceNeutralFilled,
-FaceSatisfied24 as FaceSatisfied,
-FaceDissatisfiedFilled24 as FaceDissatisfiedFilled,
-
-
-
+import { 
+	Star24 as Star, 
+	StarFilled24 as StarFilled, 
+	StarHalf24 as StarHalf, 
+	NumberSmall_124 as NumberSmall1,
+	NumberSmall_224 as NumberSmall2,
+	NumberSmall_324 as NumberSmall3,
+	NumberSmall_424 as NumberSmall4,
+	NumberSmall_524 as NumberSmall5,
+	Number_124 as Number1,
+	Number_224 as Number2,
+	Number_324 as Number3,
+	Number_424 as Number4,
+	Number_524 as Number5,
+	FaceDissatisfied24 as FaceDissatisfied,
+	FaceSatisfiedFilled24 as FaceSatisfiedFilled,
+	FaceNeutral24 as FaceNeutral, 
+	FaceNeutralFilled24 as FaceNeutralFilled,
+	FaceSatisfied24 as FaceSatisfied,
+	FaceDissatisfiedFilled24 as FaceDissatisfiedFilled,
 } from '@carbon/icons-react';
 
 const Rating = ({type,rating}) => {
-		//return <span><StarFilled />{type}</span>
 		var ratingHTML = []
 		if(type === 'star') {
 			for(var i =1 ; i <= 5;i++) {

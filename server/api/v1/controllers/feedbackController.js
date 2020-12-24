@@ -2,8 +2,8 @@
  * feedback controller for API endpoint.
  * Author: Whizpool.
  * Version: 1.0.0
- * Release Date: 28-May-2020
- * Last Updated: 29-May-2020
+ * Release Date: 9-Dec-2020
+ * Last Updated: 24-Dec-2020
  */
 
 /**
@@ -153,7 +153,6 @@ exports.fetchFeedbacks = [
    * @returns {Object} response object
    * @description gets all available results
 */
-
 exports.viewFeedback =function(req, res , next) {
 	
 	var startDate = req.session.startDate;

@@ -32,7 +32,11 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false
 	  },
-		api_key: {
+	api_key: {
+        type: Sequelize.STRING,
+        allowNull: false
+	  },
+	account_id: {
         type: Sequelize.STRING,
         allowNull: false
 	  },

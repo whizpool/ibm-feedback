@@ -1,4 +1,5 @@
-import React from 'react';
+import React from 'react'
+import { connect} from 'react-redux';
 
 import { Breadcrumb, BreadcrumbItem,InlineLoading} from 'carbon-components-react';
 import {  Grid, Row, Column,Toggle,ContentSwitcher,Switch,TextInput } from 'carbon-components-react';
@@ -10,10 +11,29 @@ import SnippetPage from "./SnippetPage";
 import {Edit24 as Edit ,Save24 as Save } from '@carbon/icons-react';
 import axios from "axios";
 
+const mapStateToProps = (state) => {
+	return {
+			isLogged: state.auth.isLogged,
+			access_token:state.auth.access_token,
+			api_key:state.auth.api_key,
+			refresh_token:state.auth.refresh_token,
+			account_id: state.auth.account_id, 
+			email: state.auth.email, 
+			name: state.auth.name, 
+			role: state.auth.role
+			
+		};
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        saveLogoutState: (data) => dispatch(data),
+    }
+}	
 
 var validUrl = require('valid-url');
 let checkFlag = true;
-export default class EditPage extends React.Component {
+class EditPage extends React.Component {
 
 	
 	constructor(props) {
@@ -121,7 +141,6 @@ export default class EditPage extends React.Component {
   };
 	
 	SaveTextBox = (widgetTextBox) => {
-		//event.preventDefault();
 		if (this.checkForm()) {
 			
 			switch(widgetTextBox) {
@@ -149,45 +168,82 @@ export default class EditPage extends React.Component {
 		let name = this.state.widgetName
 		let url = this.state.widgetURL
 		
-		axios.post(process.env.REACT_APP_API_ENDPOINT+`widgets/update/`+this.state.recordID,{name:name,url:url})
-			.then((response) => {			
-					switch(widgetTextBox) {
-						case 'widgetName':				
-								this.setState({ isWidgetNameLoading: false });
-							break;
-						case 'widgetURL':
-							this.setState({ isWidgetURLLoading: false });
-							break;
-						default:
-							this.setState({ isWidgetNameLoading: false },{ isWidgetURLLoading: false });
-					}	
-			
-			
-			}, (error) => {
-				console.log(error);
+		var config = {
+				method: 'post',
+				url:process.env.REACT_APP_API_ENDPOINT+`widgets/update/`+this.state.recordID,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+				data : {name:name,url:url}
+		};
+		axios(config)
+		.then(response => {
+				switch(widgetTextBox) {
+				case 'widgetName':				
+						this.setState({ isWidgetNameLoading: false });
+					break;
+				case 'widgetURL':
+					this.setState({ isWidgetURLLoading: false });
+					break;
+				default:
+					this.setState({ isWidgetNameLoading: false },{ isWidgetURLLoading: false });
+			}	
+		})
+		.catch((error) => {
+
+			this.setState({
+				error,
+				isLoading: false
 			});
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+		});
+		
 	};
 	
 	UpdateWidgetStatus = (e) => {
 		this.setState({ isLoading: true });
 		var checkBoxValue = e.currentTarget.checked;
 		
-		axios.post(process.env.REACT_APP_API_ENDPOINT+`widgets/status/`,{id:this.state.recordID ,status:checkBoxValue})
-			.then((response) => {	
-				this.setState({
+		var config = {
+				method: 'post',
+				url:process.env.REACT_APP_API_ENDPOINT+`widgets/status/`,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+				data : {id:this.state.recordID ,status:checkBoxValue}
+		};
+		axios(config)
+		.then(result => {
+			this.setState({
 					widgetStatus:checkBoxValue,
 					isLoading: false,
 				});
-				
-			}, (error) => {
-				//Error Message
-				console.log(error);
+		})
+		.catch((error) => {
+
+			this.setState({
+				error,
+				isLoading: false
+			});
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
 		});
 	}
 	
 	getWidgets = () => {
 		//this.setState({ isLoading: true });
-		axios.get(process.env.REACT_APP_API_ENDPOINT+`widgets/`+this.state.recordID)
+		
+		var config = {
+				method: 'get',
+				url:process.env.REACT_APP_API_ENDPOINT+`widgets/`+this.state.recordID,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+		};
+		axios(config)
 		.then(result => {
 			var dataObj = result.data.data
 			this.setState({
@@ -198,24 +254,25 @@ export default class EditPage extends React.Component {
 				isLoading: false,
 			});
 		})
-		.catch(error =>
+		.catch((error) => {
+
 			this.setState({
-			error,
-			isLoading: false
-			})
-		);
+				error,
+				isLoading: false
+			});
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+		});
+		
 	};
 	updateWidgetData = (widgetData) => {					
 			this.setState({
 				widgetData: widgetData,
 			});
 	}
-	//let useparams = useParams()
-	
-	//const [selectedIndex,setselectedIndex] = useState(TabIndex)
-	
 	render() {	
-  return <section className="bx--col-lg-13">
+		return <section className="bx--col-lg-13">
 					<Breadcrumb>
 						<BreadcrumbItem href="/"  >Widgets</BreadcrumbItem>
 						<BreadcrumbItem href="#"  isCurrentPage >Edit Widgets</BreadcrumbItem>
@@ -357,3 +414,4 @@ export default class EditPage extends React.Component {
 			</section>;
 	}
 }
+export default connect(mapStateToProps,mapDispatchToProps)(EditPage);

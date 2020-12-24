@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect} from 'react-redux'
 
 import {Grid, Row, Column,Button ,ComposedModal,ModalHeader,ModalBody,ModalFooter,InlineLoading,TextInput,Form,Select,SelectItem} from 'carbon-components-react';
 import {LogoGithub32 as GitHub, LogoSlack32 as Slack, CheckmarkFilled24 as Verified} from '@carbon/icons-react';
@@ -8,7 +9,27 @@ import axios from "axios";
 var validUrl = require('valid-url');
 let checkFlag = true;
 
-export default class ConfigurePage extends React.Component {
+const mapStateToProps = (state) => {
+	return {
+			isLogged: state.auth.isLogged,
+			access_token:state.auth.access_token,
+			api_key:state.auth.api_key,
+			refresh_token:state.auth.refresh_token,
+			account_id: state.auth.account_id, 
+			email: state.auth.email, 
+			name: state.auth.name, 
+			role: state.auth.role
+			
+		};
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        saveLogoutState: (data) => dispatch(data),
+    }
+}	
+
+class ConfigurePage extends React.Component {
 	
 	constructor(props) {
 		super(props);	
@@ -105,6 +126,7 @@ export default class ConfigurePage extends React.Component {
 		event.preventDefault();
 		if (this.checkForm()) {
 			this.setState({ isSubmitting: true });
+			
 			axios.get(this.state.githuburl+'/user/repos?type=all',{
 			headers: {
 				'Authorization': `token ${this.state.gitHubPAC}` ,
@@ -146,12 +168,19 @@ export default class ConfigurePage extends React.Component {
 		let RepoUrl= repo[0].html_url;
 		let OwnerName= repo[0].owner.login;
 		let ApiResponse = JSON.stringify(this.state.api_response);
-		//console.log(ApiResponse)
 		this.setState({ isSubmitting:true });
-		axios.post(process.env.REACT_APP_API_ENDPOINT+`widgets/github/`+this.props.recordID,{pac:this.state.gitHubPAC,api_url:this.state.githuburl,api_response:ApiResponse,repo_id:this.state.gitHubRepoID,repo_name:RepoName,repo_url:RepoUrl,repo_owner:OwnerName})
-			.then((response) => {			
-				
-				this.setState({ 
+		
+		var config = {
+				method: 'post',
+				url:process.env.REACT_APP_API_ENDPOINT+`widgets/github/`+this.props.recordID,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+				data : {pac:this.state.gitHubPAC,api_url:this.state.githuburl,api_response:ApiResponse,repo_id:this.state.gitHubRepoID,repo_name:RepoName,repo_url:RepoUrl,repo_owner:OwnerName}
+		};
+		axios(config)
+		.then(response => {
+			this.setState({ 
 						isSubmitting: false,
 						success: true,
 						description: "Submitted" 
@@ -162,22 +191,35 @@ export default class ConfigurePage extends React.Component {
 				widgetUpdateData.repo_id = this.state.gitHubRepoID
 				widgetUpdateData.repo_name = RepoName
 				this.props.updateWidgetData(widgetUpdateData)
-				
-			
-			}, (error) => {
-				console.log(error);
+		})
+		.catch((error) => {
+
+			this.setState({
+				error,
+				isLoading: false
 			});
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+		});
+		
 			
 	};	
 	
 	saveSlackData = () => {
-		
-		//console.log(ApiResponse)
 		this.setState({ isSubmitting:true });
-		axios.post(process.env.REACT_APP_API_ENDPOINT+`widgets/slack/`+this.props.recordID,{webhook:this.state.webhook,channel:this.state.channelName})
-			.then((response) => {			
-				
-				this.setState({ 
+		
+		var config = {
+				method: 'post',
+				url:process.env.REACT_APP_API_ENDPOINT+`widgets/slack/`+this.props.recordID,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+				data : {webhook:this.state.webhook,channel:this.state.channelName}
+		};
+		axios(config)
+		.then(response => {
+			this.setState({ 
 						isSubmitting: false,
 						success: true,
 						description: "Submitted" 
@@ -188,20 +230,34 @@ export default class ConfigurePage extends React.Component {
 				widgetUpdateData.webhook = this.state.webhook
 				widgetUpdateData.channelName = this.state.channelName
 				this.props.updateWidgetData(widgetUpdateData)
-				
-			
-			}, (error) => {
-				console.log(error);
+		})
+		.catch((error) => {
+
+			this.setState({
+				error,
+				isLoading: false
 			});
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+		});
+		
 			
 	};	
 	
 	unlinkConnection = (connection_type) => {
-		//console.log(ApiResponse)
 		this.setState({ isSubmitting:true });
-		axios.post(process.env.REACT_APP_API_ENDPOINT+`widgets/unlink_connection/`+this.props.recordID,{type:connection_type})
-			.then((response) => {			
-			
+		
+		var config = {
+				method: 'post',
+				url:process.env.REACT_APP_API_ENDPOINT+`widgets/unlink_connection/`+this.props.recordID,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+				data : {type:connection_type}
+		};
+		axios(config)
+		.then(response => {
 				var widgetUpdateData = this.props.widgetData;
 				if(connection_type.toLowerCase() === "github") {
 					widgetUpdateData.is_github_connected = false
@@ -225,18 +281,24 @@ export default class ConfigurePage extends React.Component {
 						webhook: "" ,
 						channelName: "" ,
 				});
-				
-			}, (error) => {
-				console.log(error);
+		})
+		.catch((error) => {
+
+			this.setState({
+				error,
+				isLoading: false
 			});
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+		});
 			
 	};
 	
   render() {	  
 		
   return (
-			<>
-			
+		<>
 			<ComposedModal size="sm" open={this.state.gitHubModalOpen} preventCloseOnClickOutside={true} >
 					<ModalHeader>
 						<h4>Connect GitHub</h4>
@@ -436,3 +498,5 @@ export default class ConfigurePage extends React.Component {
     );
   }
 }
+
+export default connect(mapStateToProps,mapDispatchToProps)(ConfigurePage);
