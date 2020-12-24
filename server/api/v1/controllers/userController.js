@@ -304,7 +304,7 @@ exports.inviteUsers = [
 					
 						const params = {
 							users: [inviteUserModel],
-							iamPolicy: [inviteUserIamPolicyModel],
+							//iamPolicy: [inviteUserIamPolicyModel],
 							//accessGroups: ['AccessGroupId-PublicAccess']
 						};
 									
