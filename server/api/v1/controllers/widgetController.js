@@ -123,7 +123,8 @@ exports.getWidget = [
 		else {
 			try {
 				
-					dbLayer.widget_connection.findOne({
+					
+					/* dbLayer.widget_connection.findOne({
 						where: {widget_id:widgetID},							
 						attributes : ['is_github_connected','repo_id','repo_name','repo_owner','is_slack_connected','webhook','channel_name'],
 							include: [ 
@@ -134,25 +135,46 @@ exports.getWidget = [
 								],
 							order: [['id', 'ASC']],
 							//limit: Limit,
+					}) */
+					dbLayer.widget.findOne({
+						where: {id:widgetID},							
+						attributes : ['name','url','status'],
+							include: [ 
+										{
+											model:dbLayer.widget_connection,
+											attributes : ['is_github_connected','repo_id','repo_name','repo_owner','is_slack_connected','webhook','channel_name'],
+										}
+								],
+							order: [['id', 'ASC']],
+							//limit: Limit,
 					})
 					.then(async function(widget) {
 						if (!widget) {				
 							return res.status(200).json(tools.successResponseObj([],startDate,endDate,resource,req.url));				
 						}  
 						var widgetData = widget.get();
-						widgetData.name = widgetData.widget.name;
-						widgetData.url = widgetData.widget.url;
-						widgetData.status = widgetData.widget.status;
-						widgetData.is_github_connected  = widgetData.is_github_connected 
-						widgetData.repo_id  = widgetData.repo_id 
-						widgetData.repo_name  = widgetData.repo_name 
-						widgetData.repo_owner  = widgetData.repo_owner 
-						widgetData.channelName  = widgetData.channel_name 
-						widgetData.webhook  = widgetData.webhook 
 							
+						widgetData.name = widgetData.name;
+						widgetData.url = widgetData.url;
+						widgetData.status = widgetData.status;
 						
-						delete widgetData.widget
-						return res.status(200).json(tools.successResponseObj(widget,startDate,endDate,resource,req.url));
+						widgetData.is_github_connected  = false
+						widgetData.repo_id  = ""
+						widgetData.repo_name  = ""
+						widgetData.repo_owner  = ""
+						widgetData.channelName  = ""
+						widgetData.webhook  = false
+							
+						if(widgetData.widget_connections.length >  0) {
+							widgetData.is_github_connected  = widgetData.widget_connections.is_github_connected 
+							widgetData.repo_id  = widgetData.widget_connections.repo_id 
+							widgetData.repo_name  = widgetData.widget_connections.repo_name 
+							widgetData.repo_owner  = widgetData.widget_connections.repo_owner 
+							widgetData.channelName  = widgetData.widget_connections.channel_name 
+							widgetData.webhook  = widgetData.widget_connections.webhook 
+						}
+						delete widgetData.widget_connections
+						return res.status(200).json(tools.successResponseObj(widgetData,startDate,endDate,resource,req.url));
 						
 						
 					})

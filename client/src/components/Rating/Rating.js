@@ -62,16 +62,16 @@ const Rating = ({type,rating}) => {
 				
 				switch(parseInt(rating)) {
 					case 1:
-						ratingHTML.push(<><span key={rating}><FaceDissatisfiedFilled /></span><span><FaceNeutral /></span><span><FaceSatisfied /></span></>)
+						ratingHTML.push(<span key={rating}><FaceDissatisfiedFilled /><FaceNeutral /><FaceSatisfied /></span>)
 						break;	
 					case 2:
-							ratingHTML.push(<><span key={rating}><FaceDissatisfied /></span><span><FaceNeutralFilled /></span><span><FaceSatisfied /></span></>)
+							ratingHTML.push(<span key={rating}><FaceDissatisfied /><FaceNeutralFilled /><FaceSatisfied /></span>)
 							break;
 					 case 3:
-							ratingHTML.push(<><span key={rating}><FaceDissatisfied /></span><span><FaceNeutral /></span><span><FaceSatisfiedFilled /></span></>)
+							ratingHTML.push(<span key={rating}><FaceDissatisfied /><FaceNeutral /><FaceSatisfiedFilled /></span>)
 							break;
 					 default:
-							ratingHTML.push(<><span key={rating}><FaceDissatisfied /></span><span><FaceNeutral /></span><span><FaceSatisfied /></span></>)
+							ratingHTML.push(<span key={rating}><FaceDissatisfied /><FaceNeutral /><FaceSatisfied /></span>)
 						 break;
 				}						 
 			

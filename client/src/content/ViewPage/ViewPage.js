@@ -1,33 +1,20 @@
 import React, { useState } from 'react';
+
 import { useHistory } from 'react-router-dom';
 import  Rating  from "../../components/Rating/Rating";
 import { Breadcrumb, BreadcrumbItem} from 'carbon-components-react';
 import {  Grid, Row, Column,Button,Loading } from 'carbon-components-react';
-import { connect} from 'react-redux'
+import { useSelector} from 'react-redux'
 import axios from "axios";
 
-const mapStateToProps = (state) => {
-	return {
-			isLogged: state.auth.isLogged,
-			access_token:state.auth.access_token,
-			api_key:state.auth.api_key,
-			refresh_token:state.auth.refresh_token,
-			account_id: state.auth.account_id, 
-			email: state.auth.email, 
-			name: state.auth.name, 
-			role: state.auth.role
-			
-		};
-};
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        saveLogoutState: (data) => dispatch(data),
-    }
-}	
 
 const ViewPage = () => {
+	
 	const history = useHistory()
+	
+	const accessToken = useSelector(state => state.auth.access_token)
+	
 	const [rows, setrows] = useState([]);
 	const [isLoading, setisLoading] = useState(0);
 	const [isNextButtonDisabled, setisNextButtonDisabled] = useState(1);
@@ -43,7 +30,7 @@ const ViewPage = () => {
 				method: 'get',
 				url:process.env.REACT_APP_API_ENDPOINT+`feedbacks/`+recordID,
 				headers: { 
-					'Authorization': 'Bearer '+this.props.access_token
+					'Authorization': 'Bearer '+accessToken
 				},
 		};
 		
@@ -157,4 +144,4 @@ const ViewPage = () => {
 			</section>
 ;
 };
-export default connect(mapStateToProps,mapDispatchToProps)(ViewPage);
+export default ViewPage;
