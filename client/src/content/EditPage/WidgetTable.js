@@ -31,7 +31,7 @@ import { columns } from "./TableHeader";
 
 const closest = function(el, selector, rootNode) {
   rootNode = rootNode || document.body;
-  console.log('rootNode:', rootNode);
+  //console.log('rootNode:', rootNode);
   const matchesSelector =
     el.matches ||
     el.webkitMatchesSelector ||
@@ -97,7 +97,7 @@ class WidgetTable extends PureComponent {
   }
 
 	onMouseDown(e) {
-    console.log('onMouseDown');
+    //console.log('onMouseDown');
     const target = this.getTrNode(e.target);
     if (target) {
       target.setAttribute('draggable', true);
@@ -107,32 +107,32 @@ class WidgetTable extends PureComponent {
   }
 
   onDragStart(e) {
-    console.log('onDragStart');
+    //console.log('onDragStart');
     const target = this.getTrNode(e.target);
     if (target) {
       e.dataTransfer.effectAllowed = 'move';
-      console.log('target.parentElement:', target.parentElement);
+      //console.log('target.parentElement:', target.parentElement);
       target.parentElement.ondragenter = this.onDragEnter;
       target.parentElement.ondragover = function(ev) {
         ev.preventDefault();
         return true;
       };
       const dragIndex = target.rowIndex - 1;
-      console.log('dragIndex:', dragIndex);
+      //console.log('dragIndex:', dragIndex);
       this.setState({ dragIndex, draggedIndex: dragIndex });
     }
   }
 
   onDragEnter(e) {
     const target = this.getTrNode(e.target);
-    console.log('onDragEnter TR index:', target.rowIndex - 1);
+    //console.log('onDragEnter TR index:', target.rowIndex - 1);
     this.setState({
       draggedIndex: target ? target.rowIndex - 1 : -1,
     });
   }
 
   onDragEnd(e) {
-    console.log('onDragEnd');
+    //console.log('onDragEnd');
     const target = this.getTrNode(e.target);
     if (target) {
       target.setAttribute('draggable', false);
@@ -152,7 +152,7 @@ class WidgetTable extends PureComponent {
   changeRowIndex() {
     const result = {};
     const currentState = this.state;
-    console.log('currentState:', currentState);
+    //console.log('currentState:', currentState);
     result.dragIndex = result.draggedIndex = -1;
     if (
       currentState.dragIndex >= 0 &&
@@ -207,7 +207,7 @@ class WidgetTable extends PureComponent {
 			gridData[rowIndex]["display_text_value"] = elementValue
 		}
 		gridData[rowIndex][header] = elementValue
-		console.log(gridData)
+		//console.log(gridData)
 		this.setState({
 			 rows:gridData
 		});
@@ -268,11 +268,17 @@ class WidgetTable extends PureComponent {
 					}					
 					ratingHTML.push( <div key={cellID} ><Select
 							onChange={(e)=>this.UpdateWidgetRowsValue(e, currentRowIndex,header)}
-							defaultValue={(row.option_id) ? row.option_id : ""}
+							defaultValue={(row.option_id) ? row.option_id : "placeholder-item"}
 							id="widget-rating"
 							name="widgetrating"
 							labelText=""
 						>
+						<SelectItem
+							disabled
+							hidden
+							value="placeholder-item"
+							text="Select Rating"
+						/>
 						{ratingOptions}
 						</Select>
 						</div>)

@@ -621,7 +621,7 @@ exports.UpdateWidgetQuestions = [
 												widgetQuestionData.is_active = dataObj.is_active
 												widgetQuestionData.limit = dataObj.limit
 												widgetQuestionData.option_id = dataObj.option_id
-												console.log(widgetQuestionData)
+												//console.log(widgetQuestionData)
 												await obj.update(widgetQuestionData);
 											
 										}
