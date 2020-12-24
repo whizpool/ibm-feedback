@@ -27,10 +27,8 @@ const Rating = ({type,rating}) => {
 		var ratingHTML = []
 		if(type === 'star') {
 			for(var i =1 ; i <= 5;i++) {
-				if(i < rating)
+				if(i <= rating)
 					ratingHTML.push(<span key={i}><StarFilled /></span>)
-				else if( parseInt(rating)+1 === i)
-					ratingHTML.push(<span key={i}><StarHalf /></span>)
 				else
 					ratingHTML.push(<span key={i}><Star /></span>)
 			}
