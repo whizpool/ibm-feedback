@@ -62,7 +62,7 @@ exports.fetchUserFeedbackWidget = [
 				return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
 		}
 		else {
-			try {
+			try {				 
 				 
 					dbLayer.widget_question.findAll({
 							where: {widget_id:req.body.id},
@@ -105,7 +105,7 @@ exports.fetchUserFeedbackWidget = [
 							}
 						} 
 					
-						var feedbackWidgetHTMLStr = '<header>Please fill out the following fields</header><section><form role="form" method="post" id="feedback_form"><input type="hidden" id="widget_id" name="widget_id" />'+feedbackWidget+'<div style="width:100%"><div role="alert" kind="error" class="bx--inline-notification bx--inline-notification--error" style="max-width: inherit;width: inherit;"><div class="bx--inline-notification__text-wrapper"><div class="bx--inline-notification__subtitle"><span>&nbsp;&nbsp;&nbsp;A screenshot will be sent with your feedback</span></div></div></div></div><div style="width:100%"><button id="submitForm" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Submit Feedback</button></div></form></section><script>$("#feedback_form").submit(function(e){e.preventDefault();var a=$(this);return $.ajax({type:"POST",url:BaseUrl+"/savefeedback",data:a.serialize(),success:function(e){$("#widgetHTML").html(e.data)}}),!1});</script>';
+						var feedbackWidgetHTMLStr = '<header>Please fill out the following fields</header><section><form role="form" method="post" id="feedback_form"><input type="hidden" id="widget_id" name="widget_id" />'+feedbackWidget+'<div style="width:100%"><div role="alert" kind="error" class="bx--inline-notification bx--inline-notification--error" style="max-width: inherit;width: inherit;"><div class="bx--inline-notification__text-wrapper"><div class="bx--inline-notification__subtitle"><span>&nbsp;&nbsp;&nbsp;A screenshot will be sent with your feedback</span></div></div></div></div><div style="width:100%"><button id="submitForm" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Submit Feedback</button></div></form></section><script>$("#feedback_form").submit(function(e){e.preventDefault();var a=$(this);return $.ajax({type:"POST",url:BaseUrl+"/savefeedback",data:a.serialize(),success:function(e){$("#widgetHTML").html(e.data);}}),!1});</script>';
 							
 				
 						//return res.status(200).json(tools.successResponseObj(feedbackWidget,startDate,endDate,resource,req.url));
@@ -165,7 +165,11 @@ exports.saveUserFeedbackData = [
 		else {
 			try {				 
 					//var feedbackData = await viewUserFeedback(1);
-					//return res.status(200).json(tools.successResponseObj(feedbackData,startDate,endDate,resource,req.url));
+					
+					//var feedbackWidgetHTMLStr = '<header>Thank you for submitting your feedback</header><section>'+feedbackData+'</section><div style="width:100%"><button id="dismiss" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Dismiss</button></div><script>$("#dismiss").on("click",function(){$(".feedback-box").removeClass("show");});</script>';
+					
+					
+					return res.status(200).json(tools.successResponseObj(feedbackWidgetHTMLStr,startDate,endDate,resource,req.url));
 				
 					var feedbackPostData = {
 						widget_id: req.body.widget_id,
@@ -191,7 +195,7 @@ exports.saveUserFeedbackData = [
 								var feedback_answer = new dbLayer.feedback_answer(feedbackAnswerData);									
 								feedback_answer.save({feedback_answer});
 							}
-							var feedbackWidgetHTMLStr = '<header>Thank you for submitting your feedback</header><div style="width:100%"><button id="dismiss" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Dismiss</button></div><script>$("#dismiss").on("click",function(){$(".feedback-box").removeClass("show");});</script>';				
+							var feedbackWidgetHTMLStr = '<header>Thank you for submitting your feedback</header><section>'+feedbackData+'</section><div style="width:100%"><button id="dismiss" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Dismiss</button></div><script>$("#dismiss").on("click",function(){$(".feedback-box").removeClass("show");});</script>';			
 					
 								return res.status(200).json(tools.successResponseObj(feedbackWidgetHTMLStr,startDate,endDate,resource,req.url));
 						})		
@@ -314,10 +318,6 @@ function viewUserFeedback(feedbackID) {
 						attributes : ['id','widget_id','screen_shot','createdAt'],
 						include: [ 
 							{
-								model: dbLayer.widget,
-								attributes : ['name','url']
-							},	
-							{
 								model: dbLayer.feedback_answer,
 								//attributes : ['answer'],
 								include: [ 
@@ -336,6 +336,7 @@ function viewUserFeedback(feedbackID) {
 								],
 							},
 						],
+						order: dbLayer.sequelize.literal('"feedback_answers->widget_question"."order" ASC')
 				})
 				.then( async function(feedback) {
 					if (!feedback) {
@@ -347,12 +348,7 @@ function viewUserFeedback(feedbackID) {
 					var feedbackView = ""
 						
 					var feedbacksObj = feedback.get();
-					//feedbacksObj.id = feedbacksObj.id.toString()
-					feedbacksObj.widget_id = feedbacksObj.widget_id.toString()
-					feedbacksObj.name = feedbacksObj.widget.name
-					feedbacksObj.url = feedbacksObj.widget.url
-					feedbacksObj.date = tools.convertMillisecondsTodateFormat(feedbacksObj.createdAt);
-					//feedbacksObj.elements = [];
+				
 					for(var j =0 ; j < feedbacksObj.feedback_answers.length;j++)
 					{
 						var answerObj = feedbacksObj.feedback_answers[j].get();
@@ -368,9 +364,10 @@ function viewUserFeedback(feedbackID) {
 						Options['type'] = fieldtype
 						Options['name'] = fieldName
 						Options['answer'] = answerObj.answer
-						Options['ratingType'] = ratingType
+						Options['rating_type'] = ratingType
 						feedbackView += createHTMLViewElement(Options)
 					}
+					feedbackView += "<img src='"+feedbacksObj.screen_shot+"' style='height: 200px' />"
 					
 					return feedbackView;
 					
@@ -391,25 +388,23 @@ function createHTMLViewElement(Options) {
 	
 	var elementLabel = Options['name'];
 	var elementValue = Options['answer'];
-
+	console.log(Options['type'])
 	switch( Options['type']) {
 		case "singleline":
-				htmlElementStr = '<div class="bx--form-item bx--text-input-wrapper"> '+
-													'<label for="text-input-3" class="bx--label">'+elementLabel+'</label>'+
-													'<div class="bx--text-input__field-wrapper">'+elementValue+'</div></div>';
-				break;								
 		case "multiline":
-				break;
 		case "number":
-				break;
 		case "string":		
-					htmlElementStr = '<div class="bx--form-item">'+
-														'<label for="text-area-4" class="bx--label">'+elementLabel+'</label>'+														
-														'<div class="bx--text-area__wrapper">'+elementValue+'</div> </div>'
-
+				htmlElementStr = '<div class="bx--form-item bx--text-input-wrapper"> '+
+													'<h5 style="font-weight: bold;">'+elementLabel+'</h5>'+
+													'<div style="margin: 10px 0px; font-size: 15px;">'+elementValue+'</div></div><br>';
 				break;
 		case "select":
-					var htmlRatingStr = "";
+					if( Options['rating_type'] != "" ){
+					
+					htmlElementStr = '<div class="bx--form-item bx--text-input-wrapper"> '+
+													'<h5 style="font-weight: bold;">'+elementLabel+'</h5>'+
+													'<div style="margin: 10px 0px; font-size: 15px;">'+createRatingView( Options['rating_type'],elementValue)+'</div></div><br>';
+					}
 					/*
 					if(Options['question'] && Options['rating_type'] > 0 ){
 						htmlRatingStr = createUserRatingHTML(Options['rating_type'],elementID);
@@ -422,8 +417,7 @@ function createHTMLViewElement(Options) {
 					*/													
 														
 				break;
-		case "choice":		
-				break;
+		
 									
 												
 	}
@@ -432,4 +426,92 @@ function createHTMLViewElement(Options) {
 	
 }
 
+function createRatingView(type, value) {
+	var ratingHTML = ""
+	if(type === 'star') {
+			for(var i =1 ; i <= 5;i++) {
+				if(i <= value)
+					  ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/star--filled.svg' style='width:30px' />"
+				else
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/star.svg' style='width:30px' />"
+			}
+		}	
+		if(type === 'number') {
+			
+			switch(parseInt(value)) {
+				case 1:					
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--1.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--2.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--3.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--4.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--5.svg' style='width:30px' />"
+					 
+					break;
+				case 2:
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--1.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--2.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--3.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--4.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--5.svg' style='width:30px' />"
+					
+					break;	
+				case 3:
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--1.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--2.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--3.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--4.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--5.svg' style='width:30px' />"	
+					break;
+				case 4:
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--1.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--2.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--3.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--4.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--5.svg' style='width:30px' />"	
+					break;
+				case 5:
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--1.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--2.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--3.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--4.svg' style='width:30px' />"
+					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--5.svg' style='width:30px' />"	
+					break;
+				 default:
+						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--1.svg' style='width:30px' />"
+						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--2.svg' style='width:30px' />"
+						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--3.svg' style='width:30px' />"
+						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--4.svg' style='width:30px' />"
+						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--5.svg' style='width:30px' />"
+				 break;	
+			}
+		}
 
+		if(type === 'smiley') {
+				
+				switch(parseInt(value)) {
+					case 1:
+						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--dissatisfied--filled.svg' style='width:30px' />"
+						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--neutral.svg' style='width:30px' />"
+						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--satisfied.svg' style='width:30px' />"
+						break;	
+					case 2:
+							ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--dissatisfied.svg' style='width:30px' />"
+						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--neutral.svg--filled' style='width:30px' />"
+						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--satisfied.svg' style='width:30px' />"
+							break;
+					 case 3:
+							ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--dissatisfied--filled.svg' style='width:30px' />"
+						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--neutral.svg' style='width:30px' />"
+						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--satisfied.svg--filled' style='width:30px' />"
+							break;
+					 default:
+							ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--dissatisfied.svg' style='width:30px' />"
+						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--neutral.svg' style='width:30px' />"
+						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--satisfied.svg' style='width:30px' />"
+						 break;
+				}						 
+			
+		}		
+		return ratingHTML;
+		
+}

@@ -50,7 +50,9 @@ button:hover { background-color: #f3830b; }
   position: fixed;
   bottom: 0;
   right: 0;
-  display: inline-block;
+  /*display: inline-block;*/
+  display: flex;
+  align-items: flex-end;
   width: 400px;
   -moz-perspective: 1000;
   -webkit-perspective: 1000;
@@ -59,7 +61,9 @@ button:hover { background-color: #f3830b; }
 }
 
 .feedback-box .content {
-  height: 100%
+  min-height: 94vh;
+	height: 100;
+	overflow: auto;
 	filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
   opacity: 0;
   background: white;
@@ -84,6 +88,7 @@ button:hover { background-color: #f3830b; }
 
 
 .feedback-box.show { pointer-events: auto; }
+.show2 { height:100%;overflow:auto; }
 
 .feedback-box.show .content {
   -moz-transform: rotateY(0deg);
@@ -129,7 +134,7 @@ button:hover { background-color: #f3830b; }
   padding-right: 2px;
 }
 .start_rating label:before {
-  content: url(http://localhost:3000/assets/star.svg);
+  content: url(https://inapp-feedback.doctors-finder.com/assets/star.svg);
   font-size: 42px;
   color: #CCCCCC;
   line-height: 1;
@@ -140,7 +145,7 @@ button:hover { background-color: #f3830b; }
 .start_rating input:checked ~ label:before, 
 .start_rating:not(:checked) > label:hover:before, 
 .start_rating:not(:checked) > label:hover ~ label:before {
- content: url(http://localhost:3000/assets/star--filled.svg);
+ content: url(https://inapp-feedback.doctors-finder.com/assets/star--filled.svg);
  
 }
 
