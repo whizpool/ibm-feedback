@@ -18,5 +18,11 @@ router.get("/",Authorize.verifyToken,feedbackController.fetchFeedbacks);
 router.get("/:id",Authorize.verifyToken,feedbackController.viewFeedback);
 router.delete("/:id",Authorize.verifyToken,feedbackController.deletefeedback);
 
+//userfeedbackController
+
+var userfeedbackController = require('../controllers/userfeedbackController');
+router.post("/savefeedback",userfeedbackController.saveUserFeedbackData);
+router.post("/getmywidget",userfeedbackController.fetchUserFeedbackWidget);
+
 module.exports = router;
  

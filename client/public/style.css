@@ -1,0 +1,277 @@
+/************ Feedback *************/
+
+a { text-decoration: none; }
+
+a.close {
+  z-index: 10;
+  color: rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  font-weight: 600;
+  padding: 20px;
+  display: inline-block;
+  -moz-transition: color 0.3s ease;
+  -o-transition: color 0.3s ease;
+  -webkit-transition: color 0.3s ease;
+  transition: color 0.3s ease;
+}
+a.close:hover { color: rgba(0, 0, 0, 0.7); }
+button {
+  background-color: #F58F23;
+  color: #fff;
+  border: none;
+  padding: 10px 30px;
+  cursor: pointer;
+  font-weight: 300;
+  font-size: 16px;
+  -moz-transition: background-color 0.3s ease;
+  -o-transition: background-color 0.3s ease;
+  -webkit-transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease;
+}
+button:active, button:focus { outline: none; }
+button#feedback {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  display: inline-block;
+  -moz-border-radius: 4px 0 0 0;
+  -webkit-border-radius: 4px;
+  border-radius: 4px 0 0 0;
+}
+
+button:hover { background-color: #f3830b; }
+
+/************ Start feedback *************/
+
+.feedback-box {
+  z-index: 10;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  display: inline-block;
+  width: 400px;
+  -moz-perspective: 1000;
+  -webkit-perspective: 1000;
+  perspective: 1000;
+  pointer-events: none;
+}
+
+.feedback-box .content {
+  height: 100%
+	filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+  opacity: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-right: none;
+  border-bottom: none;
+  -moz-transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  -moz-transform-origin: 100% 100%;
+  -ms-transform-origin: 100% 100%;
+  -webkit-transform-origin: 100% 100%;
+  transform-origin: 100% 100%;
+  -moz-transform: rotateY(-180deg);
+  -webkit-transform: rotateY(-180deg);
+  transform: rotateY(-180deg);
+  -moz-transition: all 0.4s cubic-bezier(0.685, -0.245, 0.19, 1.315);
+  -o-transition: all 0.4s cubic-bezier(0.685, -0.245, 0.19, 1.315);
+  -webkit-transition: all 0.4s cubic-bezier(0.685, -0.245, 0.19, 1.315);
+  transition: all 0.4s cubic-bezier(0.685, -0.245, 0.19, 1.315);
+}
+
+
+.feedback-box.show { pointer-events: auto; }
+
+.feedback-box.show .content {
+  -moz-transform: rotateY(0deg);
+  -webkit-transform: rotateY(0deg);
+  transform: rotateY(0deg);
+  filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);
+  opacity: 1;
+}
+
+
+.feedback-box header {
+  z-index: 10;
+  color: #000;
+  font-weight: 400;
+  font-size: 18px;
+  height: 55px;
+  line-height: 55px;
+	padding-left:10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.feedback-box section {
+  padding: 20px;
+  overflow: hidden;
+  -moz-transition: all ease;
+  -o-transition: all ease;
+  -webkit-transition: all ease;
+  transition: all ease;
+}
+
+/************ Start start_rating *************/
+
+
+.start_rating label {
+  float: right;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+.start_rating label:not(:first-of-type) {
+  padding-right: 2px;
+}
+.start_rating label:before {
+  content: url(http://localhost:3000/assets/star.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.start_rating input {
+  display: none;
+}
+.start_rating input:checked ~ label:before, 
+.start_rating:not(:checked) > label:hover:before, 
+.start_rating:not(:checked) > label:hover ~ label:before {
+ content: url(http://localhost:3000/assets/star--filled.svg);
+ 
+}
+
+/************ Number Rating *************/
+
+
+.number_rating label{
+  float: right;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+.number_rating label:not(:first-of-type) {
+  padding-right: 2px;
+}
+.number_rating .number_1_rating_label:before {
+  content: url(number--small--1.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.number_rating .number_2_rating_label:before {
+  content: url(number--small--2.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.number_rating .number_3_rating_label:before {
+  content: url(number--small--3.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.number_rating .number_4_rating_label:before {
+  content: url(number--small--4.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.number_rating .number_5_rating_label:before {
+  content: url(number--small--5.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.number_rating input {
+  display: none;
+}
+.number_rating input:checked ~ .number_1_rating_label:before, 
+.number_rating:not(:checked) > .number_1_rating_label:hover:before, 
+.number_rating:not(:checked) > .number_1_rating_label:hover ~ .number_1_rating_label:before {
+ content: url(number--1.svg);
+}
+
+
+.number_rating input:checked ~ .number_2_rating_label:before, 
+.number_rating:not(:checked) > .number_2_rating_label:hover:before, 
+.number_rating:not(:checked) > .number_2_rating_label:hover ~ .number_2_rating_label:before {
+ content: url(number--2.svg);
+}
+
+.number_rating input:checked ~ .number_3_rating_label:before, 
+.number_rating:not(:checked) > .number_3_rating_label:hover:before, 
+.number_rating:not(:checked) > .number_3_rating_label:hover ~ .number_3_rating_label:before {
+ content: url(number--3.svg);
+}
+
+.number_rating input:checked ~ .number_4_rating_label:before, 
+.number_rating:not(:checked) > .number_4_rating_label:hover:before, 
+.number_rating:not(:checked) > .number_4_rating_label:hover ~ .number_4_rating_label:before {
+ content: url(number--4.svg);
+}
+.number_rating input:checked ~ .number_5_rating_label:before, 
+.number_rating:not(:checked) > .number_5_rating_label:hover:before, 
+.number_rating:not(:checked) > .number_5_rating_label:hover ~ .number_5_rating_label:before {
+ content: url(number--5.svg);
+}
+
+
+/************ Smily Rating *************/
+
+
+.smiley_rating label{
+  float: right;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+.smiley_rating label:not(:first-of-type) {
+  padding-right: 2px;
+}
+.smiley_rating .smiley_1_rating_label:before {
+  content: url(face--dissatisfied.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.smiley_rating .smiley_2_rating_label:before {
+  content: url(face--neutral.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.smiley_rating .smiley_3_rating_label:before {
+  content: url(face--satisfied.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+
+.smiley_rating input {
+  display: none;
+}
+.smiley_rating input:checked ~ .smiley_1_rating_label:before, 
+.smiley_rating:not(:checked) > .smiley_1_rating_label:hover:before, 
+.smiley_rating:not(:checked) > .smiley_1_rating_label:hover ~ .smiley_1_rating_label:before {
+ content: url(face--dissatisfied--filled.svg);
+}
+
+
+.smiley_rating input:checked ~ .smiley_2_rating_label:before, 
+.smiley_rating:not(:checked) > .smiley_2_rating_label:hover:before, 
+.smiley_rating:not(:checked) > .smiley_2_rating_label:hover ~ .smiley_2_rating_label:before {
+ content: url(face--neutral--filled.svg);
+}
+
+.smiley_rating input:checked ~ .smiley_3_rating_label:before, 
+.smiley_rating:not(:checked) > .smiley_3_rating_label:hover:before, 
+.smiley_rating:not(:checked) > .smiley_3_rating_label:hover ~ .smiley_3_rating_label:before {
+ content: url(face--satisfied--filled.svg);
+}
+

@@ -396,7 +396,7 @@ class EditPage extends React.Component {
 						</Row>
 						<Row className={`${this.state.selectedIndex === 1  ? "":"hiddenDiv"}`}>
 							<Column sm={12} md={12} lg={12}>
-										<SnippetPage />
+										<SnippetPage 	recordID={this.state.recordID} widgetURL={this.state.widgetURL}/>
 							</Column>
 						</Row>
 						<Row className={`${this.state.selectedIndex === 2  ? "":"hiddenDiv"}`}>

@@ -4,7 +4,7 @@ import React from 'react';
 import { 
 	Star24 as Star, 
 	StarFilled24 as StarFilled, 
-	StarHalf24 as StarHalf, 
+	//StarHalf24 as StarHalf, 
 	NumberSmall_124 as NumberSmall1,
 	NumberSmall_224 as NumberSmall2,
 	NumberSmall_324 as NumberSmall3,
