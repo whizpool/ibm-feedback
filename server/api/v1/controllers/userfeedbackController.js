@@ -88,14 +88,6 @@ exports.fetchUserFeedbackWidget = [
 							
 							var questionObj = questions[i].get();
 							questionObj.rating_type = ""
-							/*questionObj.widget_id = questionObj.widget_id.toString()
-							questionObj.question_id = questionObj.question_id
-							questionObj.display_text_value = questionObj.display_text
-							questionObj.is_required = questionObj.is_required
-							questionObj.is_active = questionObj.is_active
-							questionObj.limit = questionObj.limit
-							questionObj.option_id = (questionObj.option_id) ? questionObj.option_id : "0"										
-							*/
 							if(questionObj.option_id) {
 								questionObj.rating_type = (await dbLayer.question_option.findOne({where: {id: questionObj.option_id},attributes : ['value']})).value;	
 							}
@@ -106,9 +98,7 @@ exports.fetchUserFeedbackWidget = [
 						} 
 					
 						var feedbackWidgetHTMLStr = '<header>Please fill out the following fields</header><section><form role="form" method="post" id="feedback_form"><input type="hidden" id="widget_id" name="widget_id" />'+feedbackWidget+'<div style="width:100%"><div role="alert" kind="error" class="bx--inline-notification bx--inline-notification--error" style="max-width: inherit;width: inherit;"><div class="bx--inline-notification__text-wrapper"><div class="bx--inline-notification__subtitle"><span>&nbsp;&nbsp;&nbsp;A screenshot will be sent with your feedback</span></div></div></div></div><div style="width:100%"><button id="submitForm" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Submit Feedback</button></div></form></section><script>$("#feedback_form").submit(function(e){e.preventDefault();var a=$(this);return $.ajax({type:"POST",url:BaseUrl+"/savefeedback",data:a.serialize(),success:function(e){$("#widgetHTML").html(e.data);}}),!1});</script>';
-							
 				
-						//return res.status(200).json(tools.successResponseObj(feedbackWidget,startDate,endDate,resource,req.url));
 						return res.status(200).json(tools.successResponseObj(feedbackWidgetHTMLStr,startDate,endDate,resource,req.url));
 						
 						
@@ -140,13 +130,7 @@ exports.fetchUserFeedbackWidget = [
 */
 exports.saveUserFeedbackData = [
  
-		//body('id').isLength({ min: 1 }).trim().withMessage('ID must be specified.'),
-		//body('url').isLength({ min: 1 }).trim().withMessage('URL must be specified.'),
-   
-    // Sanitize fields.
-    //sanitizeBody('id').escape(),
 		
-    // Process request after validation and sanitization.
    async (req, res, next) => {
 
 		//var startDate = tools.convertMillisecondsToStringDate(req.session.startDate);		
@@ -164,16 +148,10 @@ exports.saveUserFeedbackData = [
 		}
 		else {
 			try {				 
-					//var feedbackData = await viewUserFeedback(1);
-					
-					//var feedbackWidgetHTMLStr = '<header>Thank you for submitting your feedback</header><section>'+feedbackData+'</section><div style="width:100%"><button id="dismiss" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Dismiss</button></div><script>$("#dismiss").on("click",function(){$(".feedback-box").removeClass("show");});</script>';
-					
-					
-					return res.status(200).json(tools.successResponseObj(feedbackWidgetHTMLStr,startDate,endDate,resource,req.url));
-				
+								
 					var feedbackPostData = {
 						widget_id: req.body.widget_id,
-						screen_shot: 'http://localhost:3000/assets/RE4wB5e.jpg',
+						screen_shot: 'https://inapp-feedback.doctors-finder.com/assets/RE4wB5e.jpg',
 					}
 					
 					var feedback = new dbLayer.feedback(feedbackPostData);	
@@ -186,16 +164,20 @@ exports.saveUserFeedbackData = [
 					
 							for(let i=0;i<Object.keys(req.body).length;i++){
 								let key = Object.keys(req.body)[i]
+								if(key != "widget_id") {
 								var [_,wq_id] = key.split("_"); 								
 								var feedbackAnswerData = {}
 								feedbackAnswerData.feedback_id = feedbackData.id;	
-								feedbackAnswerData.widget_question_id = wq_id
+									feedbackAnswerData.widget_question_id = parseInt(wq_id)
 								feedbackAnswerData.answer = req.body[key]
-								
-								var feedback_answer = new dbLayer.feedback_answer(feedbackAnswerData);									
-								feedback_answer.save({feedback_answer});
+									var feedbackAnswer = new dbLayer.feedback_answer(feedbackAnswerData);									
+									await feedbackAnswer.save({feedbackAnswer});
+								}
 							}
-							var feedbackWidgetHTMLStr = '<header>Thank you for submitting your feedback</header><section>'+feedbackData+'</section><div style="width:100%"><button id="dismiss" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Dismiss</button></div><script>$("#dismiss").on("click",function(){$(".feedback-box").removeClass("show");});</script>';			
+							var feedbackHTMLview = await viewUserFeedback(feedbackData.id);
+							//var feedbackHTMLview = test
+								
+							var feedbackWidgetHTMLStr = '<header>Thank you for submitting your feedback</header><section>'+feedbackHTMLview+'</section><div style="width:100%"><button id="dismiss" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Dismiss</button></div><script>$("#dismiss").on("click",function(){$(".feedback-box").removeClass("show");});</script>';			
 					
 								return res.status(200).json(tools.successResponseObj(feedbackWidgetHTMLStr,startDate,endDate,resource,req.url));
 						})		
@@ -254,13 +236,10 @@ function createHTMLElement(Options) {
 					if(Options['question'] && Options['option_id'] > 0 ){
 						htmlRatingStr = createUserRatingHTML(Options['rating_type'],elementID);
 					}
-					
-						htmlElementStr = '<div class="bx--form-item">'+
-														'<label for="text-area-4" class="bx--label">'+elementLabel+'</label>'+														
-														'<div class="bx--text-area__wrapper">'+htmlRatingStr+
-														'</div></div>'
-														
-														
+					htmlElementStr = '<div class="bx--form-item">'+
+													'<label for="text-area-4" class="bx--label">'+elementLabel+'</label>'+														
+													'<div class="bx--text-area__wrapper">'+htmlRatingStr+
+													'</div></div>'
 				break;
 		case "choice":		
 				break;
@@ -308,8 +287,6 @@ function createUserRatingHTML(rating_type, elementID){
 	
 }
 
-
-
 function viewUserFeedback(feedbackID) {
 	
 		
@@ -319,17 +296,12 @@ function viewUserFeedback(feedbackID) {
 						include: [ 
 							{
 								model: dbLayer.feedback_answer,
-								//attributes : ['answer'],
 								include: [ 
 									{
 											model:dbLayer.widget_question,
-											where:{},
-											required: true,
-											//attributes : ['option_id','limit'],
 											include: [ 
 												{
 													model:dbLayer.question,
-													where:{}
 											}
 										],												
 									}
@@ -356,7 +328,7 @@ function viewUserFeedback(feedbackID) {
 						var fieldtype = answerObj.widget_question.question.type;
 						var ratingType = "";
 						if(fieldName == "Rate Us") {
-							var optionID = answerObj.widget_question.option_id
+							var optionID = parseInt(answerObj.widget_question.option_id)
 							ratingType = (await dbLayer.question_option.findOne({where: {id: optionID},attributes : ['value']})).value;	
 						}
 					
@@ -513,5 +485,4 @@ function createRatingView(type, value) {
 			
 		}		
 		return ratingHTML;
-		
 }
