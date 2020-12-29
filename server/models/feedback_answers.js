@@ -31,7 +31,7 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false
 	  },
 	  answer: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         allowNull: false
 	  },
   }, {
