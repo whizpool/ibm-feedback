@@ -178,8 +178,9 @@ class AdminPage extends React.Component {
 		var deleteRowIDs = []
 		var widgetRows = this.state.selectedWidgetRows	
 		widgetRows.map((row) => {		
-			deleteRowIDs.push(gridData.find(obj => obj.id === row.id).iam_id)
-		})
+			return deleteRowIDs.push(gridData.find(obj => obj.id === row.id).iam_id)
+			
+		})		
 		this.setState({ 
 				isSubmitting: true,
 				ariaLive: "Off",
