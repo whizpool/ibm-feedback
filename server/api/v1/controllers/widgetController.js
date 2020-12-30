@@ -616,7 +616,7 @@ exports.UpdateWidgetQuestions = [
 			try {
 					var dataRow = JSON.parse(req.body.rows);
 					
-					console.log(dataRow[0].widget_question_id)
+					//console.log(dataRow[0].widget_question_id)
 					//If first rows Does not contains widget_question_id or its values 0 than it mean we need to create the question otherwise we have to update it.
 					if(dataRow[0].widget_question_id > 0 ){						
 						//update Function
@@ -626,7 +626,7 @@ exports.UpdateWidgetQuestions = [
 							
 							var dataObj = dataRow[i];
 			
-							await dbLayer.widget_question.findOne({ id:dataObj.widget_question_id,widget_id:req.body.id })
+							await dbLayer.widget_question.findOne({where:{id:dataObj.widget_question_id}})
 								.then(async function(obj) {
 										// update
 										if(obj) {
