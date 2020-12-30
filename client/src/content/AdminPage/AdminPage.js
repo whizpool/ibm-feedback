@@ -317,11 +317,10 @@ class AdminPage extends React.Component {
 									value={this.state.AdminName || ""}
 													onChange={this.saveData}
 									labelText="Admin Name"
-									placeholder="Enter name"
-									style={{ marginBottom: '1rem' }}
+									placeholder="Enter name"									
 									invalid={this.state.AdminNameInvalid}
-									invalidText="Please enter a Admin name.."						
-								/>
+									invalidText="Please enter a Admin name"						
+								/> <br/>
 								<TextInput
 									id="email"
 									name="AdminEmail"
@@ -329,10 +328,10 @@ class AdminPage extends React.Component {
 									onChange={this.saveData}
 									labelText="Email Address"
 									placeholder="Enter email address"
-									invalid={this.state.AdminEmailInvalid}
-									style={{ marginBottom: '1rem' }}
-									invalidText="Please enter a email address.."
+									invalid={this.state.AdminEmailInvalid}									
+									invalidText="Please enter a email address"
 								/>
+								<br/>
 								<Dropdown
 										ariaLabel="Dropdown"
 										id="admin-role"
@@ -344,7 +343,7 @@ class AdminPage extends React.Component {
 										titleText="Role"
 										direction="top"
 										invalid={this.state.AdminRoleInvalid}
-										invalidText="Please select admin role.."	
+										invalidText="Please select admin role"	
 									/>				  
 						</Form>
 					</ModalBody>

@@ -147,6 +147,7 @@ class WidgetPage extends React.Component {
 			headers.sort(function (a, b) {
 				return a.id - b.id;
 			});
+			
 			const rows = state.rows.map((row) => {
 				return {
 					...row
@@ -230,6 +231,7 @@ class WidgetPage extends React.Component {
 				this.setState((state) => {
 					return gridData
 				 });
+				
 		})
 		.catch((error) => {
 			this.setState({ 
@@ -288,9 +290,8 @@ class WidgetPage extends React.Component {
 		
 		var checkBoxValue = e.currentTarget.checked;
 		
-		
 		var config = {
-				method: 'get',
+				method: 'post',
 				url:process.env.REACT_APP_API_ENDPOINT+`widgets/status/`,
 				headers: { 
 					'Authorization': 'Bearer '+this.props.access_token
@@ -376,12 +377,11 @@ class WidgetPage extends React.Component {
 								value={this.state.widgetName || ""}
 								onChange={this.saveData}
 								labelText="Widget Name"
-								placeholder="Enter widget name"
-								style={{ marginBottom: '1rem' }}
+								placeholder="Enter widget name"								
 								invalid={this.state.widgetNameInvalid}
-								invalidText="Please enter a widget name.."
-										
+								invalidText="Please enter a widget name"
 							/>
+							<br/>
 							<TextInput
 								id="widgetURL"
 								name="widgetURL"
@@ -390,7 +390,7 @@ class WidgetPage extends React.Component {
 								labelText="Enter URL"
 								placeholder="Enter URL"
 								invalid={this.state.widgetURLInvalid}
-								invalidText="Please enter a widget url.."
+								invalidText="Please enter a widget url"
 							/>			  
 						</Form>
 						{this.state.errorMessage  ? 
@@ -420,7 +420,7 @@ class WidgetPage extends React.Component {
 				<ComposedModal size="sm" open={this.state.deleteModalOpen} preventCloseOnClickOutside={true} >
 					
 					<ModalBody>
-						<p  style={{ fontSize: '2rem',marginTop: '2rem' }}>Are you sure you want to delete it.</p>
+						<p  style={{ fontSize: '2rem',marginTop: '2rem' }}>Are you sure you want to delete it?</p>
 					</ModalBody>
 					<ModalFooter>
 						<Button kind="secondary" onClick={(event) => {this.closeModal(event)}}>Cancel</Button>

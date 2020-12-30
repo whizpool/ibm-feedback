@@ -20,6 +20,7 @@ var env = process.env.NODE_ENV || 'development',
     config = require('../../../config/config.' + env);
 	
 var tools = require('../../../modules/tools');
+var objectStroage = require('../../../modules/object_stroage');
 var dbLayer = require('../../../modules/dbLayer');
 const { Op } = require("sequelize");
 
@@ -96,8 +97,9 @@ exports.fetchUserFeedbackWidget = [
 								feedbackWidget += questionHTML+"<br/>"		
 							}
 						} 
+						var APIHOST = req.protocol + '://' + req.get('host') +"/"+ config.apipath
 					
-						var feedbackWidgetHTMLStr = '<header>Please fill out the following fields</header><section><form role="form" method="post" id="feedback_form"><input type="hidden" id="widget_id" name="widget_id" />'+feedbackWidget+'<div style="width:100%"><div role="alert" kind="error" class="bx--inline-notification bx--inline-notification--error" style="max-width: inherit;width: inherit;"><div class="bx--inline-notification__text-wrapper"><div class="bx--inline-notification__subtitle"><span>&nbsp;&nbsp;&nbsp;A screenshot will be sent with your feedback</span></div></div></div></div><div style="width:100%"><button id="submitForm" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Submit Feedback</button></div></form></section><script>$("#feedback_form").submit(function(e){e.preventDefault();var a=$(this);return $.ajax({type:"POST",url:BaseUrl+"/savefeedback",data:a.serialize(),success:function(e){$("#widgetHTML").html(e.data);}}),!1});</script>';
+						var feedbackWidgetHTMLStr = '<header>Please fill out the following fields</header><section><form role="form" method="post" id="feedback_form"><input type="hidden" id="widget_id" name="widget_id" /><input type="hidden" name="image" id="image" value="" />'+feedbackWidget+'<div style="width:100%"><div role="alert" kind="error" class="bx--inline-notification bx--inline-notification--error" style="max-width: inherit;width: inherit;"><div class="bx--inline-notification__text-wrapper"><div class="bx--inline-notification__subtitle"><span>&nbsp;&nbsp;&nbsp;A screenshot will be sent with your feedback</span></div></div></div></div><div style="width:100%"><button id="submitForm" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Submit Feedback</button></div></form></section><script>html2canvas(document.body).then(function(e){document.getElementById("image").value=e.toDataURL("image/jpeg",.9),$("#feedback_form").submit(function(e){e.preventDefault();var a=$(this);return $.ajax({type:"POST",url:"'+APIHOST+'/savefeedback",data:a.serialize(),beforeSend:function(){$("#widgetHTML").html("<div style=\'display: flex;justify-content: center;align-items: center;overflow: hidden\'><div data-loading class=\'bx--loading\'><svg class=\'bx--loading__svg\' viewBox=\'-75 -75 150 150\'><title>Loading</title><circle class=\'bx--loading__stroke\' cx=\'0\' cy=\'0\' r=\'37.5\' /></svg></div></div>")},success:function(e){$("#widgetHTML").html(e.data)}}),!1})});</script>';
 				
 						return res.status(200).json(tools.successResponseObj(feedbackWidgetHTMLStr,startDate,endDate,resource,req.url));
 						
@@ -128,8 +130,7 @@ exports.fetchUserFeedbackWidget = [
    * @returns {Object} response object
    * @description gets all available results
 */
-exports.saveUserFeedbackData = [
- 
+exports.saveUserFeedbackData = [ 
 		
    async (req, res, next) => {
 
@@ -148,10 +149,14 @@ exports.saveUserFeedbackData = [
 		}
 		else {
 			try {				 
+					let ImageData= req.body.image;
+					let imageType= "image/jpeg"
+					let ImageName = Date.now().toString();
+					var objectStroageData = await objectStroage.UploadObject(ImageData,imageType,ImageName);					
 								
 					var feedbackPostData = {
 						widget_id: req.body.widget_id,
-						screen_shot: 'https://inapp-feedback.doctors-finder.com/assets/RE4wB5e.jpg',
+						screen_shot: ImageName,
 					}
 					
 					var feedback = new dbLayer.feedback(feedbackPostData);	
@@ -164,7 +169,7 @@ exports.saveUserFeedbackData = [
 					
 							for(let i=0;i<Object.keys(req.body).length;i++){
 								let key = Object.keys(req.body)[i]
-								if(key != "widget_id") {
+								if(key != "widget_id" && key != "image") {
 								var [_,wq_id] = key.split("_"); 								
 								var feedbackAnswerData = {}
 								feedbackAnswerData.feedback_id = feedbackData.id;	
@@ -173,9 +178,9 @@ exports.saveUserFeedbackData = [
 									var feedbackAnswer = new dbLayer.feedback_answer(feedbackAnswerData);									
 									await feedbackAnswer.save({feedbackAnswer});
 								}
-							}
+							}						
+							
 							var feedbackHTMLview = await viewUserFeedback(feedbackData.id);
-							//var feedbackHTMLview = test
 								
 							var feedbackWidgetHTMLStr = '<header>Thank you for submitting your feedback</header><section>'+feedbackHTMLview+'</section><div style="width:100%"><button id="dismiss" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Dismiss</button></div><script>$("#dismiss").on("click",function(){$(".feedback-box").removeClass("show");});</script>';			
 					
@@ -209,14 +214,15 @@ function createHTMLElement(Options) {
 	
 	var elementLabel = Options['display_text'];
 	var elementPlaceHolder = Options['display_text'];
-	var elementID = Options['id'];
+	
+	var elementID = "elementid_"+Options['id'];
 
 	switch( Options['question']['type']) {
 		case "singleline":
 				htmlElementStr = '<div class="bx--form-item bx--text-input-wrapper"> '+
 													'<label for="text-input-3" class="bx--label">'+elementLabel+'</label>'+
 													'<div class="bx--text-input__field-wrapper">'+
-													'<input id="elementid_'+elementID+'" name="elementid_'+elementID+'" type="text" class="bx--text-input" placeholder="'+elementPlaceHolder+'" '+ (Options['is_required'] ? "required" : "")+ '>'+
+													'<input id="'+elementID+'" name="'+elementID+'" type="text" class="bx--text-input" placeholder="'+elementPlaceHolder+'" '+ (Options['is_required'] ? "required" : "")+ '>'+
 													'</div></div>';
 				break;								
 		case "multiline":
@@ -227,7 +233,7 @@ function createHTMLElement(Options) {
 					htmlElementStr = '<div class="bx--form-item">'+
 														'<label for="text-area-4" class="bx--label">'+elementLabel+'</label>'+														
 														'<div class="bx--text-area__wrapper">'+
-															'<textarea id="elementid_'+elementID+'"  name="elementid_'+elementID+'" class="bx--text-area bx--text-area--invalid bx--text-area--v2" maxlength="'+Options['limit']+'" rows="4" cols="50" placeholder="'+elementLabel+'"></textarea>'+
+															'<textarea id="'+elementID+'"  name="'+elementID+'" class="bx--text-area bx--text-area--invalid bx--text-area--v2" maxlength="'+Options['limit']+'" rows="4" cols="50" placeholder="'+elementLabel+'"></textarea>'+
 														'</div> </div>'
 
 				break;
@@ -258,27 +264,27 @@ function createUserRatingHTML(rating_type, elementID){
 	switch(rating_type){
 		case 'star':
 			htmlRatingStr = '<div class="start_rating">'+
-												'<input type="radio" id="star5" name="elementid_'+elementID+'"  value="5" /><label for="star5"></label>'+
-												'<input type="radio" id="star4" name="elementid_'+elementID+'"  value="4" /><label for="star4"></label>'+
-												'<input type="radio" id="star3" name="elementid_'+elementID+'"  value="3" /><label for="star3"></label>'+
-												'<input type="radio" id="star2" name="elementid_'+elementID+'"  value="2" /><label for="star2"></label>'+
-												'<input type="radio" id="star1" name="elementid_'+elementID+'"  value="1" /><label for="star1"></label>'+
+												'<input type="radio" id="star5" name="'+elementID+'"  value="5" /><label for="star5"></label>'+
+												'<input type="radio" id="star4" name="'+elementID+'"  value="4" /><label for="star4"></label>'+
+												'<input type="radio" id="star3" name="'+elementID+'"  value="3" /><label for="star3"></label>'+
+												'<input type="radio" id="star2" name="'+elementID+'"  value="2" /><label for="star2"></label>'+
+												'<input type="radio" id="star1" name="'+elementID+'"  value="1" /><label for="star1"></label>'+
 										'</div>';
 				break;	
 		case 'smiley':
 			htmlRatingStr = '<div class="number_rating">'+
-														'<input type="radio" id="number5" class="number5" name="elementid_'+elementID+'" value="5" /><label class=" number_5_rating_label " for="number5"></label>'+
-														'<input type="radio" id="number4" class="number4" name="elementid_'+elementID+'" value="4" /><label class="number_4_rating_label " for="number4"></label>'+
-														'<input type="radio" id="number3" class="number3" name="elementid_'+elementID+'"  value="3" /><label class="number_3_rating_label " for="number3"></label>'+
-														'<input type="radio" id="number2" class="number2" name="elementid_'+elementID+'"  value="2" /><label class="number_2_rating_label " for="number2"></label>'+
-														'<input type="radio" id="number1" class="number1" name="elementid_'+elementID+'" value="1" /><label class="number_1_rating_label " for="number1"></label>'+
+														'<input type="radio" id="number5" class="number5" name="'+elementID+'" value="5" /><label class=" number_5_rating_label " for="number5"></label>'+
+														'<input type="radio" id="number4" class="number4" name="'+elementID+'" value="4" /><label class="number_4_rating_label " for="number4"></label>'+
+														'<input type="radio" id="number3" class="number3" name="'+elementID+'"  value="3" /><label class="number_3_rating_label " for="number3"></label>'+
+														'<input type="radio" id="number2" class="number2" name="'+elementID+'"  value="2" /><label class="number_2_rating_label " for="number2"></label>'+
+														'<input type="radio" id="number1" class="number1" name="'+elementID+'" value="1" /><label class="number_1_rating_label " for="number1"></label>'+
 											'</div>';
 				break;	
 		case 'number':
 				htmlRatingStr = '<div class="smiley_rating">'+
-												'<input type="radio" id="satisfied" class="satisfied" name="elementid_'+elementID+'"  value="3" /><label class="smiley_3_rating_label " for="satisfied"></label>'+
-												'<input type="radio" id="neutral" class="neutral" name="elementid_'+elementID+'"  value="2" /><label class="smiley_2_rating_label " for="neutral"></label>'+
-												'<input type="radio" id="dissatisfied" class="dissatisfied" name="elementid_'+elementID+'" value="1" /><label class="smiley_1_rating_label " for="dissatisfied"></label>'+
+												'<input type="radio" id="satisfied" class="satisfied" name="'+elementID+'"  value="3" /><label class="smiley_3_rating_label " for="satisfied"></label>'+
+												'<input type="radio" id="neutral" class="neutral" name="'+elementID+'"  value="2" /><label class="smiley_2_rating_label " for="neutral"></label>'+
+												'<input type="radio" id="dissatisfied" class="dissatisfied" name="'+elementID+'" value="1" /><label class="smiley_1_rating_label " for="dissatisfied"></label>'+
 										'</div>';
 				break;	
 		
@@ -288,8 +294,6 @@ function createUserRatingHTML(rating_type, elementID){
 }
 
 function viewUserFeedback(feedbackID) {
-	
-		
 		return dbLayer.feedback.findOne({
 						where: {id: feedbackID},
 						attributes : ['id','widget_id','screen_shot','createdAt'],
@@ -317,10 +321,14 @@ function viewUserFeedback(feedbackID) {
 						var errors = {};
 						return res.status(404).json(tools.errorResponseObj(errors,message,startDate,endDate,resource,req.url));
 					} 
-					var feedbackView = ""
+					var issueObj = {}
+					var slackObj = {}
+					slackObj.blocks = []
+					var issueBody = ""
+					var returnfeedbackView = ""
 						
 					var feedbacksObj = feedback.get();
-				
+					let widget_id = feedbacksObj.widget_id;
 					for(var j =0 ; j < feedbacksObj.feedback_answers.length;j++)
 					{
 						var answerObj = feedbacksObj.feedback_answers[j].get();
@@ -330,18 +338,38 @@ function viewUserFeedback(feedbackID) {
 						if(fieldName == "Rate Us") {
 							var optionID = parseInt(answerObj.widget_question.option_id)
 							ratingType = (await dbLayer.question_option.findOne({where: {id: optionID},attributes : ['value']})).value;	
-						}
+						}					
 					
 						var Options = {}
 						Options['type'] = fieldtype
 						Options['name'] = fieldName
 						Options['answer'] = answerObj.answer
 						Options['rating_type'] = ratingType
-						feedbackView += createHTMLViewElement(Options)
+						var htmlElement = createHTMLViewElement(Options)						
+						returnfeedbackView += htmlElement					
+						if(fieldName == "Name") {
+								issueObj.title = answerObj.answer + " submitted a feedback."; 
+								slackObj.text = answerObj.answer + " submitted a feedback."; 
+						} 
+						if(fieldName != "Rate Us") {
+							issueBody += htmlElement							
+							slackObj.blocks.push({"type": "section","fields": [{"type": "mrkdwn","text": "*"+fieldName+"*\n"+answerObj.answer}]}
+							)
 					}
-					feedbackView += "<img src='"+feedbacksObj.screen_shot+"' style='height: 200px' />"
 					
-					return feedbackView;
+					}
+					var ObjectSignedUrl = await objectStroage.getObjectSignedUrl(feedbacksObj.screen_shot);
+					returnfeedbackView += "<img src='"+ObjectSignedUrl+"' style='height: 200px;width: 100%;' />"
+					//feedbackView += "<img src='http://localhost:3000/assets/RE4wB5e.jpg' style='height: 200px' />"
+					//Create Issues
+					issueObj.body = issueBody + "<img src='"+ObjectSignedUrl+"' style='height: 200px;width: 100%;' />"
+					
+					slackObj.blocks.push({"type": "section","text": {"type": "mrkdwn","text": "Feed Back Image"},"accessory": {"type": "image",
+				"image_url": ObjectSignedUrl,"alt_text": "Feedback Image"}})
+					
+					await createIssuesOnConnection(widget_id, issueObj,slackObj)
+							
+					return returnfeedbackView;
 					
 					
 				})
@@ -403,57 +431,57 @@ function createRatingView(type, value) {
 	if(type === 'star') {
 			for(var i =1 ; i <= 5;i++) {
 				if(i <= value)
-					  ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/star--filled.svg' style='width:30px' />"
+					  ratingHTML  += "<img src='"+config.ratingImageUrl+"star--filled.svg' style='max-width:30px;width:30px' />"
 				else
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/star.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"star.svg' style='max-width:30px;width:30px' />"
 			}
 		}	
 		if(type === 'number') {
 			
 			switch(parseInt(value)) {
 				case 1:					
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--1.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--2.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--3.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--4.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--5.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--1.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--2.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--3.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--4.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--5.svg' style='width:30px' />"
 					 
 					break;
 				case 2:
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--1.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--2.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--3.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--4.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--5.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--1.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--2.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--3.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--4.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--5.svg' style='width:30px' />"
 					
 					break;	
 				case 3:
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--1.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--2.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--3.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--4.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--5.svg' style='width:30px' />"	
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--1.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--2.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--3.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--4.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--5.svg' style='width:30px' />"	
 					break;
 				case 4:
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--1.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--2.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--3.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--4.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--5.svg' style='width:30px' />"	
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--1.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--2.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--3.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--4.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--5.svg' style='width:30px' />"	
 					break;
 				case 5:
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--1.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--2.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--3.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--4.svg' style='width:30px' />"
-					ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--5.svg' style='width:30px' />"	
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--1.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--2.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--3.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--4.svg' style='width:30px' />"
+					ratingHTML  += "<img src='"+config.ratingImageUrl+"number--5.svg' style='width:30px' />"	
 					break;
 				 default:
-						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--1.svg' style='width:30px' />"
-						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--2.svg' style='width:30px' />"
-						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--3.svg' style='width:30px' />"
-						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--4.svg' style='width:30px' />"
-						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/number--small--5.svg' style='width:30px' />"
+						ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--1.svg' style='width:30px' />"
+						ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--2.svg' style='width:30px' />"
+						ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--3.svg' style='width:30px' />"
+						ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--4.svg' style='width:30px' />"
+						ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--5.svg' style='width:30px' />"
 				 break;	
 			}
 		}
@@ -462,27 +490,112 @@ function createRatingView(type, value) {
 				
 				switch(parseInt(value)) {
 					case 1:
-						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--dissatisfied--filled.svg' style='width:30px' />"
-						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--neutral.svg' style='width:30px' />"
-						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--satisfied.svg' style='width:30px' />"
+						ratingHTML  += "<img src='"+config.ratingImageUrl+"face--dissatisfied--filled.svg' style='width:30px' />"
+						ratingHTML  += "<img src='"+config.ratingImageUrl+"face--neutral.svg' style='width:30px' />"
+						ratingHTML  += "<img src='"+config.ratingImageUrl+"face--satisfied.svg' style='width:30px' />"
 						break;	
 					case 2:
-							ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--dissatisfied.svg' style='width:30px' />"
-						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--neutral.svg--filled' style='width:30px' />"
-						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--satisfied.svg' style='width:30px' />"
+							ratingHTML  += "<img src='"+config.ratingImageUrl+"face--dissatisfied.svg' style='width:30px' />"
+						ratingHTML  += "<img src='"+config.ratingImageUrl+"face--neutral.svg--filled' style='width:30px' />"
+						ratingHTML  += "<img src='"+config.ratingImageUrl+"face--satisfied.svg' style='width:30px' />"
 							break;
 					 case 3:
-							ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--dissatisfied--filled.svg' style='width:30px' />"
-						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--neutral.svg' style='width:30px' />"
-						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--satisfied.svg--filled' style='width:30px' />"
+							ratingHTML  += "<img src='"+config.ratingImageUrl+"face--dissatisfied--filled.svg' style='width:30px' />"
+						ratingHTML  += "<img src='"+config.ratingImageUrl+"face--neutral.svg' style='width:30px' />"
+						ratingHTML  += "<img src='"+config.ratingImageUrl+"face--satisfied.svg--filled' style='width:30px' />"
 							break;
 					 default:
-							ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--dissatisfied.svg' style='width:30px' />"
-						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--neutral.svg' style='width:30px' />"
-						ratingHTML  += "<img src='https://inapp-feedback.doctors-finder.com/assets/face--satisfied.svg' style='width:30px' />"
+							ratingHTML  += "<img src='"+config.ratingImageUrl+"face--dissatisfied.svg' style='width:30px' />"
+						ratingHTML  += "<img src='"+config.ratingImageUrl+"face--neutral.svg' style='width:30px' />"
+						ratingHTML  += "<img src='"+config.ratingImageUrl+"face--satisfied.svg' style='width:30px' />"
 						 break;
 				}						 
 			
 		}		
 		return ratingHTML;
+}
+
+function createIssuesOnConnection(widgetID, issueObj,slackObj) {
+	
+		var axios = require('axios');
+		/*
+			github_api_url : req.body.api_url,
+			github_response : req.body.api_response,
+			personal_access_token : req.body.pac,
+			repo_id : req.body.repo_id,
+			repo_name : req.body.repo_name,
+			repo_owner : req.body.repo_owner,
+			repo_url : req.body.repo_url,
+			is_github_connected : true
+			*/
+		//var widgetConnection = (await dbLayer.widget_connection.findOne({where: {widget_id: req.body.widget_id}}));	
+		
+		dbLayer.widget_connection.findOne({
+				where: {widget_id: widgetID}
+		})
+		.then( async function(widgetObj) {
+			
+			var connectioObj = widgetObj.get();
+			if(connectioObj.is_github_connected) {
+				
+				let gitHubURL = connectioObj.github_api_url+'/repos/'+connectioObj.repo_owner+'/'+connectioObj.repo_name+'/issues';				
+				const params = {
+							title: issueObj.title,
+							body: issueObj.body,
+				};	
+				var config = {
+							method: 'post',
+							url: gitHubURL,
+							headers: { 
+								'Authorization': 'Bearer '+connectioObj.personal_access_token,
+								'Content-Type': `application/vnd.github.baptiste-preview+json`
+							},
+							data:JSON.stringify(params)
+					};
+					await axios(config)
+						.then(function (result) {
+							console.log(result)
+							//return res.status(200).json(tools.successResponseObj(result.data.resources,startDate,endDate,resource,req.url));
+							
+					})
+					.catch(function (error) {
+						//return res.status(400).json(tools.errorResponseObj(error,error.message,startDate,endDate,resource,req.url));
+						console.log(error)
+				});
+			
+			}
+			
+			if(connectioObj.is_slack_connected) {
+				let webhook = connectioObj.webhook
+				//slackObj
+				
+				var config = {
+							method: 'post',
+							url: webhook,							
+							//data:JSON.stringify(slackObj)
+							data:slackObj
+					};
+					await axios(config)
+						.then(function (result) {
+							console.log(result)
+							//return res.status(200).json(tools.successResponseObj(result.data.resources,startDate,endDate,resource,req.url));
+							
+					})
+					.catch(function (error) {
+						//return res.status(400).json(tools.errorResponseObj(error,error.message,startDate,endDate,resource,req.url));
+						console.log(error)
+				});
+			}
+				
+				
+			
+		})
+		.catch((error) => {		  
+			return error;
+		});
+	
+	
+		return true;
+					
+	
 }

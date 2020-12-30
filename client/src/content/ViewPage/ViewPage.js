@@ -21,6 +21,7 @@ const ViewPage = () => {
 	const [isPrevButtonDisabled, setisPrevButtonDisabled] = useState(1);
 	
 	const getFeedbacks = () => {
+		
 		//this.setState({ isLoading: true });
 		const currentUrl = window.location.href;
 		var recordID = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
@@ -36,23 +37,41 @@ const ViewPage = () => {
 		
 		axios(config)
 		.then(result => {
+				var feedbackData = result.data.data;
 				setisLoading(1)
-				setrows(result.data.data)
-				if(rows.next){
+				setrows(feedbackData)
+				//console.log(feedbackData)
+				
+				if(feedbackData.next  > 0 ){
 					setisNextButtonDisabled(0)
+				} else {
+					setisNextButtonDisabled(1)
 				}
-				if(rows.prev){
+				
+				if(feedbackData.previous > 0 ){
 					setisPrevButtonDisabled(0)
+				} else {
+					setisPrevButtonDisabled(1)
 				}
+				//console.log(rows)
 		})
 		.catch((error) => {
-
 			setisLoading(1)
 			if(error.response.status === 401){
 				this.props.saveLogoutState({type: 'SIGN_OUT'})
 			}
 		});
 		
+	}
+	
+	const loadPage = (pageType, id) => {
+		setisLoading(0);
+		if(pageType === 'prev') {
+			history.push('/view/'+rows.previous)
+		}
+		if(pageType === 'next') {
+			history.push('/view/'+rows.next)
+		}
 	}
 	
 	if(isLoading === 0) {
@@ -126,14 +145,9 @@ const ViewPage = () => {
 							<Column sm={12} md={8} lg={8} >
 								<div style={{fontSize: "15px",float:"right"}}> 
 									
-									<Button kind="secondary" 
-										onClick={() => history.push('/view/'+rows.previous)}
-										disabled={isPrevButtonDisabled === 0  ? false :true}
-									>Previous</Button> 
-									<Button kind="secondary"
-										onClick={() => history.push('/view/'+rows.next)}
-										disabled={isNextButtonDisabled === 0  ? false :true} 
-									>Next</Button>
+									<Button kind='secondary' onClick={(event) => {loadPage('prev')}} disabled={isPrevButtonDisabled === 0  ? false :true} >Previous</Button>
+									<Button kind='secondary' onClick={(event) => {loadPage('next')}} disabled={isNextButtonDisabled === 0  ? false :true} >Next</Button>
+									
 								</div>
 								
 							</Column>

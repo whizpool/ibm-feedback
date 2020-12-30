@@ -1,23 +1,28 @@
 export const columns = [
   {
+    id:0,
     header: 'Widget Name',
     key: 'name',
   },
   {
-		header: 'Creator Name',
+    id:1,	
+    header: 'Creator Name',
     key: 'creater_name',
   },
   {
+    id:2,
     header: 'Date',
     key: 'createdAt',
   },
   
   {
-		header: 'Status',
+    id:3,
+    header: 'Status',
     key: 'status',
   },
   {
-		header: 'URL',
+    id:4,
+    header: 'URL',
     key: 'url',
   },
   

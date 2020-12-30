@@ -215,7 +215,7 @@ class FeedbackPage extends React.Component {
 			<ComposedModal size="sm" open={this.state.modalOpen} preventCloseOnClickOutside={true} >
 					
 					<ModalBody>
-						<p  style={{ fontSize: '2rem',marginTop: '2rem' }}>Are you sure you want to delete it.</p>
+						<p  style={{ fontSize: '2rem',marginTop: '2rem' }}>Are you sure you want to delete it?</p>
 					</ModalBody>
 					<ModalFooter>
 						<Button kind="secondary" onClick={(event) => {this.closeModal(event)}}>Cancel</Button>

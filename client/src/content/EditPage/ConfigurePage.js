@@ -48,6 +48,7 @@ class ConfigurePage extends React.Component {
 		  gitHubRepoName : "",
 		  repo_name : "",
 		  repo_ID : "",
+		  webhook : "",
 		};
 	}
 	

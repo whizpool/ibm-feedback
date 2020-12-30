@@ -61,10 +61,10 @@ button:hover { background-color: #f3830b; }
 }
 
 .feedback-box .content {
-  min-height: 94vh;
-	height: 100;
-	overflow: auto;
-	filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+  max-height: 100vh;
+  height: 100%;
+  overflow: auto;
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
   opacity: 0;
   background: white;
   border: 1px solid #ddd;
@@ -88,7 +88,6 @@ button:hover { background-color: #f3830b; }
 
 
 .feedback-box.show { pointer-events: auto; }
-.show2 { height:100%;overflow:auto; }
 
 .feedback-box.show .content {
   -moz-transform: rotateY(0deg);
@@ -96,6 +95,7 @@ button:hover { background-color: #f3830b; }
   transform: rotateY(0deg);
   filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);
   opacity: 1;
+  width: 400px;
 }
 
 
@@ -106,7 +106,7 @@ button:hover { background-color: #f3830b; }
   font-size: 18px;
   height: 55px;
   line-height: 55px;
-	padding-left:10px;
+  padding-left:10px;
   text-align: left;
   border-bottom: 1px solid #ddd;
 }
@@ -134,7 +134,7 @@ button:hover { background-color: #f3830b; }
   padding-right: 2px;
 }
 .start_rating label:before {
-  content: url(https://inapp-feedback.doctors-finder.com/assets/star.svg);
+  content: url(/assets/star.svg);
   font-size: 42px;
   color: #CCCCCC;
   line-height: 1;
@@ -145,7 +145,7 @@ button:hover { background-color: #f3830b; }
 .start_rating input:checked ~ label:before, 
 .start_rating:not(:checked) > label:hover:before, 
 .start_rating:not(:checked) > label:hover ~ label:before {
- content: url(https://inapp-feedback.doctors-finder.com/assets/star--filled.svg);
+ content: url(/assets/star--filled.svg);
  
 }
 
@@ -163,31 +163,31 @@ button:hover { background-color: #f3830b; }
   padding-right: 2px;
 }
 .number_rating .number_1_rating_label:before {
-  content: url(number--small--1.svg);
+  content: url(/assets/number--small--1.svg);
   font-size: 42px;
   color: #CCCCCC;
   line-height: 1;
 }
 .number_rating .number_2_rating_label:before {
-  content: url(number--small--2.svg);
+  content: url(/assets/number--small--2.svg);
   font-size: 42px;
   color: #CCCCCC;
   line-height: 1;
 }
 .number_rating .number_3_rating_label:before {
-  content: url(number--small--3.svg);
+  content: url(/assets/number--small--3.svg);
   font-size: 42px;
   color: #CCCCCC;
   line-height: 1;
 }
 .number_rating .number_4_rating_label:before {
-  content: url(number--small--4.svg);
+  content: url(/assets/number--small--4.svg);
   font-size: 42px;
   color: #CCCCCC;
   line-height: 1;
 }
 .number_rating .number_5_rating_label:before {
-  content: url(number--small--5.svg);
+  content: url(/assets/number--small--5.svg);
   font-size: 42px;
   color: #CCCCCC;
   line-height: 1;
@@ -198,31 +198,31 @@ button:hover { background-color: #f3830b; }
 .number_rating input:checked ~ .number_1_rating_label:before, 
 .number_rating:not(:checked) > .number_1_rating_label:hover:before, 
 .number_rating:not(:checked) > .number_1_rating_label:hover ~ .number_1_rating_label:before {
- content: url(number--1.svg);
+ content: url(/assets/number--1.svg);
 }
 
 
 .number_rating input:checked ~ .number_2_rating_label:before, 
 .number_rating:not(:checked) > .number_2_rating_label:hover:before, 
 .number_rating:not(:checked) > .number_2_rating_label:hover ~ .number_2_rating_label:before {
- content: url(number--2.svg);
+ content: url(/assets/number--2.svg);
 }
 
 .number_rating input:checked ~ .number_3_rating_label:before, 
 .number_rating:not(:checked) > .number_3_rating_label:hover:before, 
 .number_rating:not(:checked) > .number_3_rating_label:hover ~ .number_3_rating_label:before {
- content: url(number--3.svg);
+ content: url(/assets/number--3.svg);
 }
 
 .number_rating input:checked ~ .number_4_rating_label:before, 
 .number_rating:not(:checked) > .number_4_rating_label:hover:before, 
 .number_rating:not(:checked) > .number_4_rating_label:hover ~ .number_4_rating_label:before {
- content: url(number--4.svg);
+ content: url(/assets/number--4.svg);
 }
 .number_rating input:checked ~ .number_5_rating_label:before, 
 .number_rating:not(:checked) > .number_5_rating_label:hover:before, 
 .number_rating:not(:checked) > .number_5_rating_label:hover ~ .number_5_rating_label:before {
- content: url(number--5.svg);
+ content: url(/assets/number--5.svg);
 }
 
 
@@ -240,19 +240,19 @@ button:hover { background-color: #f3830b; }
   padding-right: 2px;
 }
 .smiley_rating .smiley_1_rating_label:before {
-  content: url(face--dissatisfied.svg);
+  content: url(/assets/face--dissatisfied.svg);
   font-size: 42px;
   color: #CCCCCC;
   line-height: 1;
 }
 .smiley_rating .smiley_2_rating_label:before {
-  content: url(face--neutral.svg);
+  content: url(/assets/face--neutral.svg);
   font-size: 42px;
   color: #CCCCCC;
   line-height: 1;
 }
 .smiley_rating .smiley_3_rating_label:before {
-  content: url(face--satisfied.svg);
+  content: url(/assets/face--satisfied.svg);
   font-size: 42px;
   color: #CCCCCC;
   line-height: 1;
@@ -264,19 +264,19 @@ button:hover { background-color: #f3830b; }
 .smiley_rating input:checked ~ .smiley_1_rating_label:before, 
 .smiley_rating:not(:checked) > .smiley_1_rating_label:hover:before, 
 .smiley_rating:not(:checked) > .smiley_1_rating_label:hover ~ .smiley_1_rating_label:before {
- content: url(face--dissatisfied--filled.svg);
+ content: url(/assets/face--dissatisfied--filled.svg);
 }
 
 
 .smiley_rating input:checked ~ .smiley_2_rating_label:before, 
 .smiley_rating:not(:checked) > .smiley_2_rating_label:hover:before, 
 .smiley_rating:not(:checked) > .smiley_2_rating_label:hover ~ .smiley_2_rating_label:before {
- content: url(face--neutral--filled.svg);
+ content: url(/assets/face--neutral--filled.svg);
 }
 
 .smiley_rating input:checked ~ .smiley_3_rating_label:before, 
 .smiley_rating:not(:checked) > .smiley_3_rating_label:hover:before, 
 .smiley_rating:not(:checked) > .smiley_3_rating_label:hover ~ .smiley_3_rating_label:before {
- content: url(face--satisfied--filled.svg);
+ content: url(/assets/face--satisfied--filled.svg);
 }
 

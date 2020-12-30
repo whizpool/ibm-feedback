@@ -308,7 +308,7 @@ exports.inviteUsers = [
 							//accessGroups: ['AccessGroupId-PublicAccess']
 						};
 									
-						console.log(JSON.stringify(params))
+						//console.log(JSON.stringify(params))
 						var config = {
 							method: 'post',
 							url: 'https://user-management.cloud.ibm.com/v2/accounts/'+req.body.accountid+'/users',

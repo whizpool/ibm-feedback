@@ -355,6 +355,7 @@ class WidgetTable extends PureComponent {
 						success: false,
 						description: "Submitted" 
 				});
+			this.getWidgetsQuestion()
 		})
 		.catch((error) => {
 

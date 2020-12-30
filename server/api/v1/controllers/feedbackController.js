@@ -28,7 +28,7 @@ const jwt = require('jsonwebtoken');
 
 const { body, validationResult } = require('express-validator');
 const { sanitizeBody } = require('express-validator');
-
+var objectStroage = require('../../../modules/object_stroage');
 
 /**
    * @function fetchFeedbacks
@@ -197,6 +197,7 @@ exports.viewFeedback =function(req, res , next) {
 								],
 							},
 						],
+						order: [['id', 'DESC']],
 				})
 				.then( async function(feedback) {
 					if (!feedback) {
@@ -209,6 +210,9 @@ exports.viewFeedback =function(req, res , next) {
 					var feedbacksObj = feedback.get();
 					//feedbacksObj.id = feedbacksObj.id.toString()
 					feedbacksObj.widget_id = feedbacksObj.widget_id.toString()
+					var ObjectSignedUrl = await objectStroage.getObjectSignedUrl(feedbacksObj.screen_shot);
+					feedbacksObj.screen_shot = ObjectSignedUrl
+					
 					feedbacksObj.name = feedbacksObj.widget.name
 					feedbacksObj.url = feedbacksObj.widget.url
 					feedbacksObj.date = tools.convertMillisecondsTodateFormat(feedbacksObj.createdAt);
@@ -224,11 +228,11 @@ exports.viewFeedback =function(req, res , next) {
 					}
 					feedbacksObj.next = 0
 					feedbacksObj.previous = 0
-					var previousItem = await dbLayer.feedback.findOne({where: {id:{[Op.lt]: feedbackID}},attributes : ['id']})
+					var previousItem = await dbLayer.feedback.findOne({where: {id:{[Op.lt]: feedbackID}},attributes : ['id'],order: [['id', 'DESC']]})
 					if(previousItem)
 						feedbacksObj.previous = previousItem.id
 						
-					var NextItem = await dbLayer.feedback.findOne({where: {id:{[Op.gt]: feedbackID}},attributes : ['id']})
+					var NextItem = await dbLayer.feedback.findOne({where: {id:{[Op.gt]: feedbackID}},attributes : ['id'],order: [['id', 'DESC']]})
 					if(NextItem)
 						feedbacksObj.next = NextItem.id
 
@@ -282,7 +286,7 @@ exports.deletefeedback = [
 				id: feedbackID,
 			 }
 			}).then(async () => {
-				await dbLayer.feedback.destroy({where: {feedback_id: feedbackID}});
+				await dbLayer.feedback_answer.destroy({where: {feedback_id: feedbackID}});
 				return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));
 				
 			})

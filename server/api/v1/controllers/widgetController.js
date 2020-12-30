@@ -142,7 +142,9 @@ exports.getWidget = [
 							include: [ 
 										{
 											model:dbLayer.widget_connection,
-											attributes : ['is_github_connected','repo_id','repo_name','repo_owner','is_slack_connected','webhook','channel_name'],
+											where: {widget_id:widgetID},				
+											//attributes : ['is_github_connected','repo_id','repo_name','repo_owner','is_slack_connected','webhook','channel_name'],
+											required:false
 										}
 								],
 							order: [['id', 'ASC']],
@@ -153,7 +155,6 @@ exports.getWidget = [
 							return res.status(200).json(tools.successResponseObj([],startDate,endDate,resource,req.url));				
 						}  
 						var widgetData = widget.get();
-							
 						widgetData.name = widgetData.name;
 						widgetData.url = widgetData.url;
 						widgetData.status = widgetData.status;
@@ -166,12 +167,15 @@ exports.getWidget = [
 						widgetData.webhook  = false
 							
 						if(widgetData.widget_connections.length >  0) {
-							widgetData.is_github_connected  = widgetData.widget_connections.is_github_connected 
-							widgetData.repo_id  = widgetData.widget_connections.repo_id 
-							widgetData.repo_name  = widgetData.widget_connections.repo_name 
-							widgetData.repo_owner  = widgetData.widget_connections.repo_owner 
-							widgetData.channelName  = widgetData.widget_connections.channel_name 
-							widgetData.webhook  = widgetData.widget_connections.webhook 
+							var connectionWidget = widgetData.widget_connections[0];
+							//console.log(connectionWidget)
+							widgetData.is_github_connected  = connectionWidget.is_github_connected 
+							widgetData.is_slack_connected  = connectionWidget.is_slack_connected 
+							widgetData.repo_id  = connectionWidget.repo_id 
+							widgetData.repo_name  = connectionWidget.repo_name 
+							widgetData.repo_owner  = connectionWidget.repo_owner 
+							widgetData.channelName  = connectionWidget.channel_name 
+							widgetData.webhook  = connectionWidget.webhook 
 						}
 						delete widgetData.widget_connections
 						return res.status(200).json(tools.successResponseObj(widgetData,startDate,endDate,resource,req.url));
@@ -599,6 +603,8 @@ exports.UpdateWidgetQuestions = [
 		}
 			try {
 					var dataRow = JSON.parse(req.body.rows);
+					
+					console.log(dataRow[0].widget_question_id)
 					//If first rows Does not contains widget_question_id or its values 0 than it mean we need to create the question otherwise we have to update it.
 					if(dataRow[0].widget_question_id > 0 ){						
 						//update Function
@@ -608,7 +614,7 @@ exports.UpdateWidgetQuestions = [
 							
 							var dataObj = dataRow[i];
 			
-							await dbLayer.widget_question.findOne({ id:dataObj.widget_question_id })
+							await dbLayer.widget_question.findOne({ id:dataObj.widget_question_id,widget_id:req.body.id })
 								.then(async function(obj) {
 										// update
 										if(obj) {
@@ -617,8 +623,8 @@ exports.UpdateWidgetQuestions = [
 												widgetQuestionData.question_id = dataObj.question_id
 												widgetQuestionData.order = i+1
 												widgetQuestionData.display_text = dataObj.display_text
-												widgetQuestionData.is_required = dataObj.is_required
-												widgetQuestionData.is_active = dataObj.is_active
+												widgetQuestionData.is_required = (dataObj.is_required) ? true : false
+												widgetQuestionData.is_active = (dataObj.is_active) ? true : false
 												widgetQuestionData.limit = dataObj.limit
 												widgetQuestionData.option_id = dataObj.option_id
 												//console.log(widgetQuestionData)
@@ -640,8 +646,8 @@ exports.UpdateWidgetQuestions = [
 								widgetQuestionData.question_id = dataObj.question_id
 								widgetQuestionData.order = i+1
 								widgetQuestionData.display_text = dataObj.display_text
-								widgetQuestionData.is_required = dataObj.is_required
-								widgetQuestionData.is_active = dataObj.is_active
+								widgetQuestionData.is_required = (dataObj.is_required) ? true : false
+								widgetQuestionData.is_active = (dataObj.is_active) ? true : false
 								widgetQuestionData.limit = dataObj.limit
 								widgetQuestionData.option_id = dataObj.option_id
 								dataInsertObj.push(widgetQuestionData)
