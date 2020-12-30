@@ -33,7 +33,7 @@ const SnippetPage = ({recordID,widgetURL}) => {
 var codeSnippet = `<link rel="stylesheet" href="	https://unpkg.com/carbon-components/css/carbon-components.min.css" >
 <script src="https://unpkg.com/carbon-components/scripts/carbon-components.min.js"></script>
 <link rel="stylesheet" href="${BaseURL}/style.css">
-<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script type="text/javascript" src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>  
 <button  id='feedback' class='bx--btn bx--btn--primary'  type='submit'>Feedback</button> 
 <div class='feedback-box'>
