@@ -17,12 +17,13 @@ const Authorize = require("../../../modules/Authorize");
 router.get("/",Authorize.verifyToken,feedbackController.fetchFeedbacks);
 router.get("/:id",Authorize.verifyToken,feedbackController.viewFeedback);
 router.delete("/:id",Authorize.verifyToken,feedbackController.deletefeedback);
+router.post("/delete_feedbacks",Authorize.verifyToken,feedbackController.deleteAllFeedBacks);
 
 //userfeedbackController
-
 var userfeedbackController = require('../controllers/userfeedbackController');
 router.post("/savefeedback",userfeedbackController.saveUserFeedbackData);
 router.post("/getmywidget",userfeedbackController.fetchUserFeedbackWidget);
+
 
 module.exports = router;
  

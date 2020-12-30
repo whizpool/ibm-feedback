@@ -53,12 +53,14 @@ class AdminPage extends React.Component {
 			deleteModalOpen: false,
 		  isLoading: false,
 		  isSubmitting: false,
+		  deleteAllModalOpen: false,
 		  description: "Submititting",
-			deleteRowIndex : 0,
+		  deleteRowIndex : 0,
 		  ariaLive: false,
 		  modalOpen: false,
 		  headers: columns,
 		  rows: [],
+		  selectedWidgetRows: [],
 		  page: 1,
 		  totalItems: 0,
 		  pageSize: 5,
@@ -157,6 +159,7 @@ class AdminPage extends React.Component {
 		event.preventDefault();
 		this.setState({ 
 			deleteModalOpen: false,
+			deleteAllModalOpen: false,
 			modalOpen: false ,
 			isSubmitting: false, 
 			success: false, 
@@ -168,6 +171,49 @@ class AdminPage extends React.Component {
 		});
 	};
 	
+	
+	deleteAllRecords = (event) =>{
+		
+		let gridData = this.state.rows;
+		var deleteRowIDs = []
+		var widgetRows = this.state.selectedWidgetRows	
+		widgetRows.map((row) => {		
+			deleteRowIDs.push(gridData.find(obj => obj.id === row.id).iam_id)
+		})
+		this.setState({ 
+				isSubmitting: true,
+				ariaLive: "Off",
+				description: "Submitting" 
+		});	
+		
+		var config = {
+				method: 'post',
+				url:process.env.REACT_APP_API_ENDPOINT+`users/delete_users`,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+				data:{deleteRowIDs}
+		};
+		
+		axios(config)
+		.then( () => {
+					this.setState({ 
+						isSubmitting: false,
+						ariaLive: "Off",
+						description: "Submitting",
+						deleteAllModalOpen: false,
+						rows: []
+					});	
+					this.getUsers();
+		})
+		.catch((error) => {
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+		});
+	
+		
+	}
 	/******************** API CALL ******************************/
   getUsers = () => {
 		this.setState({ isLoading: true });
@@ -362,7 +408,7 @@ class AdminPage extends React.Component {
 					</ModalFooter>
 				</ComposedModal>
 				
-				<ComposedModal size="sm" open={this.state.deleteModalOpen} preventCloseOnClickOutside={true} >
+				<ComposedModal size="sm" onClose={this.closeModal} open={this.state.deleteModalOpen} preventCloseOnClickOutside={true} >
 					
 					<ModalBody>
 						<p  style={{ fontSize: '2rem',marginTop: '2rem' }}>Are you sure you want to delete it.</p>
@@ -382,6 +428,26 @@ class AdminPage extends React.Component {
 					</ModalFooter>
 				</ComposedModal>
 		
+				<ComposedModal size="sm" onClose={this.closeModal} open={this.state.deleteAllModalOpen} preventCloseOnClickOutside={true} >
+					
+					<ModalBody>
+						<p  style={{ fontSize: '2rem',marginTop: '2rem' }}>Are you sure you want to delete all these?</p>
+					</ModalBody>
+					<ModalFooter>
+						<Button kind="secondary" onClick={(event) => {this.closeModal(event)}}>Cancel</Button>
+						{this.state.isSubmitting || this.state.success ? (
+							<InlineLoading
+								style={{ marginLeft: '1rem' }}
+								description={this.state.description}
+								status={this.state.success ? 'finished' : 'active'}
+								aria-live={this.state.ariaLive}
+							/>
+						) : (
+							<Button kind='danger' onClick={(event) => {this.deleteAllRecords(event)}}>Delete</Button>
+						)}
+					</ModalFooter>
+				</ComposedModal>
+				
 		 
 		 	{
 				this.state.isLoading ?
@@ -409,6 +475,7 @@ class AdminPage extends React.Component {
           getTableContainerProps,
           getTableProps,
           getToolbarProps,
+          selectedRows,
           expandRow
         }) => (
 					<TableContainer title="Manage Admins" {...getTableContainerProps()} >
@@ -439,7 +506,7 @@ class AdminPage extends React.Component {
 								<TableBatchAction
 									tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
 									renderIcon={Delete}
-									onClick={() => console.log('clicked')}
+									onClick={() => {this.setState({ selectedWidgetRows: selectedRows,deleteAllModalOpen: true  });}}
 									>
 									Delete
 								</TableBatchAction>

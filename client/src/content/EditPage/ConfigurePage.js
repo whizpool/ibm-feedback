@@ -191,6 +191,7 @@ class ConfigurePage extends React.Component {
 				widgetUpdateData.is_github_connected = true
 				widgetUpdateData.repo_id = this.state.gitHubRepoID
 				widgetUpdateData.repo_name = RepoName
+				widgetUpdateData.repo_owner = OwnerName
 				this.props.updateWidgetData(widgetUpdateData)
 		})
 		.catch((error) => {

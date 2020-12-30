@@ -38,17 +38,18 @@ class WidgetPage extends React.Component {
 	constructor(props) {
 		super(props);	
 		this.state = {
-			errorMessage:false,
+		  errorMessage:false,
 		  widgetModalOpen: false,
+		  deleteAllModalOpen: false,
 		  deleteModalOpen: false,
 		  isLoading: false,
 		  isSubmitting: false,
 		  description: "Submititting",
-			deleteRowIndex : 0,
+		  deleteRowIndex : 0,
 		  ariaLive: false,
 		  success : false,
-			updateRowStatus: false,
-			selectedWidgetRows: [],
+		  updateRowStatus: false,
+		  selectedWidgetRows: [],
 		  headers: columns,
 		  rows: [],
 		  currentPage: 1,
@@ -163,7 +164,7 @@ class WidgetPage extends React.Component {
 		});
 	};	
 	
-	deleteAllRecords = (rows) =>{
+	deleteAllRecords = (event) =>{
 		
 		var deleteRowIDs = []
 		var widgetRows = this.state.selectedWidgetRows	
@@ -461,7 +462,7 @@ class WidgetPage extends React.Component {
 					</ModalFooter>
 				</ComposedModal>	
 
-				<ComposedModal size="sm" open={this.state.deleteModalOpen} preventCloseOnClickOutside={true} >
+				<ComposedModal size="sm" onClose={this.closeModal} open={this.state.deleteModalOpen} preventCloseOnClickOutside={true} >
 					
 					<ModalBody>
 						<p  style={{ fontSize: '2rem',marginTop: '2rem' }}>Are you sure you want to delete it?</p>
@@ -481,7 +482,7 @@ class WidgetPage extends React.Component {
 					</ModalFooter>
 				</ComposedModal>
 				
-				<ComposedModal size="sm" open={this.state.deleteAllModalOpen} preventCloseOnClickOutside={true} >
+				<ComposedModal size="sm" onClose={this.closeModal} open={this.state.deleteAllModalOpen} preventCloseOnClickOutside={true} >
 					
 					<ModalBody>
 						<p  style={{ fontSize: '2rem',marginTop: '2rem' }}>Are you sure you want to delete all these?</p>
@@ -560,7 +561,6 @@ class WidgetPage extends React.Component {
 										tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
 										renderIcon={Delete}
 										onClick={() => {this.setState({ selectedWidgetRows: selectedRows,deleteAllModalOpen: true  });}}
-										
 										>
 										Delete
 									</TableBatchAction>

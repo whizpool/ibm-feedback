@@ -18,6 +18,7 @@ router.post("/login",userController.UserVerifyFromIBM);
 router.post("/", Authorize.verifyToken,userController.fetchUsers);
 router.post("/invite",Authorize.verifyToken,userController.inviteUsers);
 router.delete("/:id",Authorize.verifyToken,userController.deleteUser);
+router.post("/delete_users",Authorize.verifyToken,userController.deleteAllUsers);
 
 module.exports = router;
  

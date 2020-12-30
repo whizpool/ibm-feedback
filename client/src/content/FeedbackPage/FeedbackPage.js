@@ -1,9 +1,10 @@
 import React from 'react';
 import { connect} from 'react-redux'
 
-import { DataTable, TableContainer, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,TableToolbar,TableBatchActions,TableBatchAction,TableToolbarContent,TableSelectAll,TableSelectRow,Breadcrumb, BreadcrumbItem,MultiSelect,OverflowMenu,OverflowMenuItem,Pagination,TableToolbarMenu,TableToolbarAction,DataTableSkeleton,ComposedModal,ModalBody,ModalFooter,InlineLoading,Button} from 'carbon-components-react';
+import { DataTable, TableContainer, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,TableToolbar,TableBatchActions,TableBatchAction,TableToolbarContent,TableSelectAll,TableSelectRow,Breadcrumb, BreadcrumbItem,MultiSelect,OverflowMenu,OverflowMenuItem,Pagination,DataTableSkeleton,ComposedModal,ModalBody,ModalFooter,InlineLoading,Button} from 'carbon-components-react';
 
-import { TrashCan32 as Delete,SettingsAdjust32 as Filter } from '@carbon/icons-react';
+//import { TrashCan32 as Delete,SettingsAdjust32 as Filter } from '@carbon/icons-react';
+import { TrashCan32 as Delete } from '@carbon/icons-react';
 
 import axios from "axios";
 
@@ -37,15 +38,17 @@ class FeedbackPage extends React.Component {
 	constructor(props) {
 		super(props);	
 		this.state = {
-			isLoading: false,
+		  isLoading: false,
 		  modalOpen: false,
-			deleteRowIndex : 0,
+		  deleteAllModalOpen: false,
+		  deleteRowIndex : 0,
 		  isSubmitting: false,
 		  description: "Submititting",
-			 ariaLive: false,
+		  ariaLive: false,
 		  success : false,
 		  headers: columns,
 		  rows: [],
+		  selectedWidgetRows: [],
 		  page: 1,
 		  pageSize: 5,
 		  dataToSave: {},
@@ -108,6 +111,48 @@ class FeedbackPage extends React.Component {
 			};
 		});
   };  
+	
+	deleteAllRecords = (event) =>{
+		
+		var deleteRowIDs = []
+		var widgetRows = this.state.selectedWidgetRows	
+		widgetRows.map((row) => (
+			deleteRowIDs.push(row.id)
+		))
+		this.setState({ 
+				isSubmitting: true,
+				ariaLive: "Off",
+				description: "Submitting" 
+		});	
+		
+		var config = {
+				method: 'post',
+				url:process.env.REACT_APP_API_ENDPOINT+`feedbacks/delete_feedbacks`,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+				data:{id:JSON.stringify(deleteRowIDs)}
+		};
+		
+		axios(config)
+		.then( () => {
+					this.setState({ 
+						isSubmitting: false,
+						ariaLive: "Off",
+						description: "Submitting",
+						deleteAllModalOpen: false,
+						rows: []
+					});	
+					this.getFeedbacks();
+		})
+		.catch((error) => {
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+		});
+		
+	}
+	
   /******************** API CALL ******************************/
   getFeedbacks = () => {
 		this.setState({ isLoading: true });
@@ -211,7 +256,7 @@ class FeedbackPage extends React.Component {
 			</Breadcrumb>
 			<br/>
 			
-			<ComposedModal size="sm" open={this.state.modalOpen} preventCloseOnClickOutside={true} >
+			<ComposedModal size="sm" onClose={this.closeModal} open={this.state.modalOpen} preventCloseOnClickOutside={true} >
 					
 					<ModalBody>
 						<p  style={{ fontSize: '2rem',marginTop: '2rem' }}>Are you sure you want to delete it?</p>
@@ -230,6 +275,27 @@ class FeedbackPage extends React.Component {
 						)}
 					</ModalFooter>
 				</ComposedModal>
+				
+				<ComposedModal size="sm" onClose={this.closeModal} open={this.state.deleteAllModalOpen} preventCloseOnClickOutside={true} >
+					
+					<ModalBody>
+						<p  style={{ fontSize: '2rem',marginTop: '2rem' }}>Are you sure you want to delete all these?</p>
+					</ModalBody>
+					<ModalFooter>
+						<Button kind="secondary" onClick={(event) => {this.closeModal(event)}}>Cancel</Button>
+						{this.state.isSubmitting || this.state.success ? (
+							<InlineLoading
+								style={{ marginLeft: '1rem' }}
+								description={this.state.description}
+								status={this.state.success ? 'finished' : 'active'}
+								aria-live={this.state.ariaLive}
+							/>
+						) : (
+							<Button kind='danger' onClick={(event) => {this.deleteAllRecords(event)}}>Delete</Button>
+						)}
+					</ModalFooter>
+				</ComposedModal>
+				
 				
 		{
 				this.state.isLoading ?
@@ -256,23 +322,14 @@ class FeedbackPage extends React.Component {
           getRowProps,
           getTableContainerProps,
           getTableProps,
+          selectedRows,
           getToolbarProps,
           expandRow
         }) => (
 					<TableContainer title="Submitted Feedbacks" {...getTableContainerProps()} >
 						<TableToolbar aria-label="data table toolbar">
 							<TableToolbarContent>
-								 <TableToolbarMenu renderIcon={Filter} >
-										<TableToolbarAction  onClick={() => alert('Alert 1')}>
-												Action 1
-											</TableToolbarAction>
-											<TableToolbarAction onClick={() => alert('Alert 2')}>
-												Action 2
-											</TableToolbarAction>
-											<TableToolbarAction onClick={() => alert('Alert 3')}>
-												Action 3
-										</TableToolbarAction> 
-								</TableToolbarMenu>
+								
 								<div style={{ width: 200 }}>
 									<MultiSelect
 										onChange={(e)=>this.handleOnHeaderChange(e)}  
@@ -289,7 +346,7 @@ class FeedbackPage extends React.Component {
 								<TableBatchAction
 									tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
 									renderIcon={Delete}
-									onClick={() => console.log('clicked')}
+									onClick={() => {this.setState({ selectedWidgetRows: selectedRows,deleteAllModalOpen: true  });}}
 									>
 									Delete
 								</TableBatchAction>

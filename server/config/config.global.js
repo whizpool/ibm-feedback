@@ -4,8 +4,8 @@ config.env = 'undefined';
 config.hostname = 'undefined.example.com';
 config.sessionSecret = 'YmWPMisg3o3WiSkLShrnxZfImSUq4VCJ';
 config.debug = true;
-config.ratingImageUrl = 'https://inapp-feedback.doctors-finder.com/assets/';
-config.apipath = 'api/v1/';
+config.ratingImageUrl = 'https://feedback.whizpool.com/assets/';
+config.apihost = 'https://feedback.whizpool.com/api/v1/';
 
 config.IBMCONFIG = {
   useHmac: true,

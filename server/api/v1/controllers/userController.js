@@ -469,3 +469,67 @@ exports.deleteUser = [
 	}
 
 ];
+
+
+
+
+/**
+   * @function deleteAllUsers
+   * @param {Object} req request object
+   * @param {Object} res response object
+   * @returns {Object} response object
+   * @description gets all available results
+*/
+exports.deleteAllUsers = [
+
+		body('id').isLength({ min: 1 }).trim().withMessage('ID must be specified.'),
+   
+    // Sanitize fields.
+    sanitizeBody('id').escape(),
+
+	 // Process request after validation and sanitization.
+    async (req, res, next) => {
+		
+			//var startDate = tools.convertMillisecondsToStringDate(req.session.startDate);		
+			//var endDate = tools.convertMillisecondsToStringDate(req.session.lastRequestDate);
+			var startDate = req.session.startDate;
+			var endDate = req.session.lastRequestDate;
+			var resource = "user";
+			const IAMID = req.params.id;
+			// Extract the validation errors from a request.
+			//const errors = validationResult(req);
+			//Here we also need to delete the feedback and relevant items	
+			
+			var userList= []
+			if (typeof req.body.deleteRowIDs  !== 'undefined' && req.body.deleteRowIDs  !== null){
+				
+				userList = req.body.deleteRowIDs;
+			}
+			
+			
+			for(var i =0 ; i < userList.length;i++)
+			{
+			//Using Curl Call with access token
+				var config = {
+					method: 'delete',
+					url: 'https://user-management.cloud.ibm.com/v2/accounts/'+req.body.accountid+'/users/'+userList[i],
+					headers: { 
+						'Authorization': 'Bearer '+req.body.access_token
+					}
+				};
+				await axios(config)
+						.then(function (response) {
+							//return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));
+							
+					})
+					.catch(function (error) {
+							//var message = 'Authentication failed';
+							//return res.status(400).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+					});
+					
+			}		
+			
+			return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));
+	}
+
+];
