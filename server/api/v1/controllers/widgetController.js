@@ -845,7 +845,7 @@ exports.SaveGitHubConnection = [
 									var message = "Error creating widget";
 									return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
 								}
-						}  
+						}  else {
 						//update the connection data.
 						gitHubData.update({
 							github_api_url : req.body.api_url,
@@ -858,6 +858,7 @@ exports.SaveGitHubConnection = [
 							is_github_connected : true
 						});								
 						return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));					
+						}							
 					})
 					.catch((error) => {		  
 						// catch error if the operation wasn't successful

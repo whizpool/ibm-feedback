@@ -534,7 +534,7 @@ class AdminPage extends React.Component {
 									))}
 									<TableCell >
 										<OverflowMenu light flipped>
-										 <OverflowMenuItem itemText="Edit Admin" onClick={() => this.props.history.push('/edit/'+row.id)}  hasDivider />
+										
 										 <OverflowMenuItem itemText="Delete" 
 										 onClick={(event) => {
 												this.setState({ deleteModalOpen: true,deleteRowIndex:rowIndex })	
