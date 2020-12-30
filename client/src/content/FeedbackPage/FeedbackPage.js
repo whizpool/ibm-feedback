@@ -193,7 +193,6 @@ class FeedbackPage extends React.Component {
 	};
 	
   render() {	
-		var dataRowIndex =0;  
 		var startItem = (this.state.page - 1) * this.state.pageSize;
 		var endItem = startItem + this.state.pageSize;
 		var displayedRows = this.state.rows.slice(startItem, endItem);
@@ -309,11 +308,12 @@ class FeedbackPage extends React.Component {
 								</TableRow>
 							</TableHead>
 							<TableBody>
-								{rows.map((row,rowIndex) => (
-								<TableRow {...getRowProps({ row })}>
+								{rows.map((row,rowIndex) => {
+								 let dataRowIndex = this.state.pageSize * (this.state.page-1)+ rowIndex
+								return <TableRow {...getRowProps({ row })}>
 									<TableSelectRow {...getSelectionProps({ row })} />
 									{row.cells.map((cell) => {
-										dataRowIndex = this.state.pageSize * (this.state.page-1)+ rowIndex
+										
 										if(cell.info.header === 'rating') {
 											return <TableCell key={cell.id}>{this.viewRating(dataRowIndex)}</TableCell> 
 										}
@@ -330,7 +330,7 @@ class FeedbackPage extends React.Component {
 										</OverflowMenu>
 									</TableCell>
 								</TableRow>
-								))}
+								})}
 							</TableBody>
 						</Table>
 						<Pagination

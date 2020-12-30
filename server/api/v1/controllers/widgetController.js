@@ -95,7 +95,6 @@ exports.fetchWidgets = [
 	}
 ];
 
-
 /**
    * @function getWidget
    * @param {Object} req request object
@@ -198,7 +197,6 @@ exports.getWidget = [
 	}
 ];
 
-
 /**
    * @function createWidgets
    * @param {Object} req request object
@@ -259,7 +257,6 @@ exports.createWidgets = [
 			}
     }
 ];
-
 
 /**
    * @function updateWidget
@@ -339,7 +336,6 @@ exports.updateWidget = [
 			}
     }
 ];
-
 
 /**
    * @function updateWidgetsStatus
@@ -423,7 +419,6 @@ exports.updateWidgetsStatus = [
     }
 ];
 
-
 /**
    * @function deleteWidget
    * @param {Object} req request object
@@ -450,11 +445,30 @@ exports.deleteWidget = [
 			// Extract the validation errors from a request.
 			//const errors = validationResult(req);
 			//Here we also need to delete the feedback and relevant items		
-			dbLayer.widget.destroy({
-				where: {
-				id: widgetID,
+			//Find All feedback for aginst the widget and delete all widet and feedbacks
+			
+			dbLayer.feedback.findAll({
+				where: {widget_id: widgetID},
+				 attributes : ['id']
+			 }).then( async (feedbacks) => {
+				
+					var feedbackIDs_list = []
+					for(var i =0 ; i < feedbacks.length;i++)
+					{
+						feedbackIDs_list.push(feedbacks[i].id)
+					}
+					if(feedbackIDs_list.length > 0 ){
+						//Delete all feedback for this widget					
+						await dbLayer.feedback_answer.destroy({where: {feedback_id:  {[Op.in]:feedbackIDs_list}}});
+						await dbLayer.feedback.destroy({where: {id:  {[Op.in]:feedbackIDs_list}}});
 			 }
-			}).then(() => {
+					
+					//Delete widget_questions & widget_connections 
+					await dbLayer.widget_question.destroy({where: {widget_id:  widgetID}});
+					await dbLayer.widget_connection.destroy({where: {widget_id:  widgetID}});
+					
+					//Now delete the main widet and return status 
+					await dbLayer.widget.destroy({where: {id:  widgetID}});					
 				
 				return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));
 				
@@ -467,7 +481,6 @@ exports.deleteWidget = [
 	}
 
 ];
-
 
 /**
    * @function getWidgetQuestions
@@ -571,7 +584,6 @@ exports.getWidgetQuestions = [
 		}
 		
 ];
-
 
 /**
    * @function UpdateWidgetQuestions
@@ -947,4 +959,85 @@ exports.SaveSlackConnection = [
 			}
 		}
 		
+];
+
+
+/**
+   * @function UpdateMessagesStatus
+   * @param {Object} req request object
+   * @param {Object} res response object
+   * @returns {Object} response object
+   * @description gets all available results
+*/
+exports.DeleteWidgets = [
+
+	 //body('message').isLength({ min: 1 }).trim().withMessage('Status must be specified.'),
+   
+    // Sanitize fields.
+    //sanitizeBody('module').escape(),
+	
+	 // Process request after validation and sanitization.
+    (req, res, next) => {
+		
+		//var startDate = tools.convertMillisecondsToStringDate(req.session.startDate);		
+		//var endDate = tools.convertMillisecondsToStringDate(req.session.lastRequestDate);
+		var startDate = req.session.startDate;
+		var endDate = req.session.lastRequestDate;
+		var resource = "chat";
+		
+		 // Extract the validation errors from a request.
+        const errors = validationResult(req);
+		const userData = req.body.userData;		
+		//const messageID = req.params.id;
+		
+		if (!errors.isEmpty()) {
+				// There are errors. Render form again with sanitized values/errors messages.
+				var message = 'Validation error from form inputs';
+				var error = errors.array();
+				return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));           
+		}		
+		else {		
+			var widget_id_list= [];
+			if (typeof req.body.id  !== 'undefined' && req.body.id  !== null){
+				if(tools.IsValidJSONString(req.body.id ) == true) {
+					widget_id_list = JSON.parse(req.body.id )
+				}
+			}
+			dbLayer.feedback.findAll({
+				where: {widget_id: {[Op.in]:widget_id_list}},
+				 attributes : ['id']
+			 }).then( async (feedbacks) => {
+				
+					var feedbackIDs_list = []
+					for(var i =0 ; i < feedbacks.length;i++)
+					{
+						feedbackIDs_list.push(feedbacks[i].id)
+					}
+					
+					if(feedbackIDs_list.length > 0 ){
+						//Delete all feedback for this widget					
+						await dbLayer.feedback_answer.destroy({where: {feedback_id:  {[Op.in]:feedbackIDs_list}}});
+						await dbLayer.feedback.destroy({where: {id:  {[Op.in]:feedbackIDs_list}}});
+					}
+					
+					//Delete widget_questions & widget_connections 
+					await dbLayer.widget_question.destroy({where: {widget_id:  {[Op.in]:widget_id_list}}});
+					await dbLayer.widget_connection.destroy({where: {widget_id:  {[Op.in]:widget_id_list}}});
+					
+					//Now delete All the widges 
+					await dbLayer.widget.destroy({where: {id:  {[Op.in]:widget_id_list}}});					
+					
+					return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));
+				
+			})
+			.catch((error) => {		  
+				var message =  'Widget record failed';
+				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				
+			});
+			
+	
+		}
+
+	}
 ];

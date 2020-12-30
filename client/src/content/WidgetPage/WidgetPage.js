@@ -48,6 +48,7 @@ class WidgetPage extends React.Component {
 		  ariaLive: false,
 		  success : false,
 			updateRowStatus: false,
+			selectedWidgetRows: [],
 		  headers: columns,
 		  rows: [],
 		  currentPage: 1,
@@ -103,6 +104,7 @@ class WidgetPage extends React.Component {
 		event.preventDefault();
 		this.setState({ 
 			widgetModalOpen: false ,
+			deleteAllModalOpen: false ,
 			isSubmitting: false, 
 			success: false, 
 			deleteModalOpen: false,
@@ -111,6 +113,7 @@ class WidgetPage extends React.Component {
 			description: "Submitting",
 			widgetName: "",
 			widgetURL: "",
+			selectedWidgetRows: [],
 		});
 	};
 	
@@ -159,6 +162,47 @@ class WidgetPage extends React.Component {
 			};
 		});
 	};	
+	
+	deleteAllRecords = (rows) =>{
+		
+		var deleteRowIDs = []
+		var widgetRows = this.state.selectedWidgetRows	
+		widgetRows.map((row) => (
+			deleteRowIDs.push(row.id)
+		))
+		this.setState({ 
+				isSubmitting: true,
+				ariaLive: "Off",
+				description: "Submitting" 
+		});	
+		
+		var config = {
+				method: 'post',
+				url:process.env.REACT_APP_API_ENDPOINT+`widgets/deleta_widgets`,
+				headers: { 
+					'Authorization': 'Bearer '+this.props.access_token
+				},
+				data:{id:JSON.stringify(deleteRowIDs)}
+		};
+		
+		axios(config)
+		.then( () => {
+					this.setState({ 
+						isSubmitting: false,
+						ariaLive: "Off",
+						description: "Submitting",
+						deleteAllModalOpen: false,
+						rows: []
+					});	
+					this.getWidgets();
+		})
+		.catch((error) => {
+			if(error.response.status === 401){
+				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+		});
+		
+	}
 	/******************** API CALL ***************/
 	deleteWidgets = (rowID,rowIndex) => {
 		this.setState({ 
@@ -262,7 +306,7 @@ class WidgetPage extends React.Component {
 		.then(response => {
 				this.setState({
 				rows: response.data.data,
-				isLoading: false,
+				isLoading: false,				
 			});
 		})
 		.catch((error) => {
@@ -343,7 +387,7 @@ class WidgetPage extends React.Component {
 	}
  
 	render() {	  
-		var dataRowIndex =0;
+		
 		var startItem = (this.state.page - 1) * this.state.pageSize;
 		var endItem = startItem + this.state.pageSize;
 		var displayedRows = this.state.rows.slice(startItem, endItem);
@@ -437,6 +481,27 @@ class WidgetPage extends React.Component {
 					</ModalFooter>
 				</ComposedModal>
 				
+				<ComposedModal size="sm" open={this.state.deleteAllModalOpen} preventCloseOnClickOutside={true} >
+					
+					<ModalBody>
+						<p  style={{ fontSize: '2rem',marginTop: '2rem' }}>Are you sure you want to delete all these?</p>
+					</ModalBody>
+					<ModalFooter>
+						<Button kind="secondary" onClick={(event) => {this.closeModal(event)}}>Cancel</Button>
+						{this.state.isSubmitting || this.state.success ? (
+							<InlineLoading
+								style={{ marginLeft: '1rem' }}
+								description={this.state.description}
+								status={this.state.success ? 'finished' : 'active'}
+								aria-live={this.state.ariaLive}
+							/>
+						) : (
+							<Button kind='danger' onClick={(event) => {this.deleteAllRecords(event)}}>Delete</Button>
+						)}
+					</ModalFooter>
+				</ComposedModal>
+				
+				
 			{
 				this.state.isLoading ?
 						<DataTableSkeleton
@@ -462,6 +527,7 @@ class WidgetPage extends React.Component {
 					getRowProps,
 					getTableContainerProps,
 					getTableProps,
+					selectedRows,
 					getToolbarProps,
 					expandRow
 					}) => (
@@ -493,7 +559,8 @@ class WidgetPage extends React.Component {
 									<TableBatchAction
 										tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
 										renderIcon={Delete}
-										onClick={() => console.log('clicked')}
+										onClick={() => {this.setState({ selectedWidgetRows: selectedRows,deleteAllModalOpen: true  });}}
+										
 										>
 										Delete
 									</TableBatchAction>
@@ -512,11 +579,12 @@ class WidgetPage extends React.Component {
 									</TableRow>
 								</TableHead>
 								<TableBody>
-									{rows.map((row,rowIndex) => (
-									<TableRow {...getRowProps({ row })}>
+									{rows.map((row,rowIndex) => {									
+									let dataRowIndex = this.state.pageSize * (this.state.page-1)+ rowIndex
+									return <TableRow {...getRowProps({ row })}>
 										<TableSelectRow {...getSelectionProps({ row })} />
 										{row.cells.map((cell) => {
-											dataRowIndex = this.state.pageSize * (this.state.page-1)+ rowIndex
+											
 											if(cell.info.header === 'status') {
 												return <TableCell key={cell.id}>{this.ToggleSwitch(dataRowIndex)}</TableCell> 
 											}
@@ -526,14 +594,16 @@ class WidgetPage extends React.Component {
 											<OverflowMenu light flipped>
 											<OverflowMenuItem itemText="Edit Widget" onClick={() => this.props.history.push('/edit/'+row.id+'/tab-manage')}  hasDivider />
 											<OverflowMenuItem itemText="Configure Widget"  onClick={() => this.props.history.push('/edit/'+row.id+'/tab-configure')} hasDivider />
-											<OverflowMenuItem itemText="Delete" 
+											<OverflowMenuItem itemText="Delete"
 											onClick={(event) => {
-												this.setState({ deleteModalOpen: true,deleteRowIndex:dataRowIndex })	
+												this.setState({ deleteRowIndex:dataRowIndex,deleteModalOpen: true })	
 												}} hasDivider isDelete />
 											</OverflowMenu>
 										</TableCell>
 									</TableRow>
-									))}
+									}
+									
+									)}
 								</TableBody>
 							</Table>
 							<Pagination

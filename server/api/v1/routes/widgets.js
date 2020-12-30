@@ -26,6 +26,7 @@ router.post("/update_question",Authorize.verifyToken,widgetController.UpdateWidg
 router.post("/github/:id",Authorize.verifyToken,widgetController.SaveGitHubConnection);
 router.post("/unlink_connection/:id",Authorize.verifyToken,widgetController.unlinkConnection);
 router.post("/slack/:id",Authorize.verifyToken,widgetController.SaveSlackConnection);
+router.post("/deleta_widgets",Authorize.verifyToken,widgetController.DeleteWidgets);
 
 module.exports = router;
  
