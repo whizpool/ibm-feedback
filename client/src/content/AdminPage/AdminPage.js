@@ -302,7 +302,7 @@ class AdminPage extends React.Component {
 			</Breadcrumb>
 			<br/>
 			
-			<ComposedModal size="sm" open={this.state.modalOpen} preventCloseOnClickOutside={true} >
+			<ComposedModal size="sm" onClose={this.closeModal} open={this.state.modalOpen} preventCloseOnClickOutside={true} >
 					<ModalHeader>
 						<h4>Invite Admin</h4>
 					</ModalHeader>

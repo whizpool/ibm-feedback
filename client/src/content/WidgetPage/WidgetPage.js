@@ -362,7 +362,7 @@ class WidgetPage extends React.Component {
 				</Breadcrumb>
 				<br/>
 				
-				<ComposedModal size="sm" open={this.state.widgetModalOpen} preventCloseOnClickOutside={true} >
+				<ComposedModal size="sm"  onClose={this.closeModal} open={this.state.widgetModalOpen} preventCloseOnClickOutside={true} >
 					<ModalHeader>
 						<h4>Create Widget</h4>
 					</ModalHeader>
