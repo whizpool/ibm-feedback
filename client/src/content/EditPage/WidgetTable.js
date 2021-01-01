@@ -28,6 +28,7 @@ import { DragVertical16 as DragVertical, Help16 as Help, Subtract24 as Subtract
 import axios from "axios";
 
 import { columns } from "./TableHeader";
+let checkFlag = true;
 
 const closest = function(el, selector, rootNode) {
   rootNode = rootNode || document.body;
@@ -92,6 +93,8 @@ class WidgetTable extends PureComponent {
 		  ariaLive: false,
 		  success : false,
 			isLoading: false,
+			RatingValue: "",
+			
     };
     this.columns = columns;
   }
@@ -196,11 +199,24 @@ class WidgetTable extends PureComponent {
 	}
 
 	UpdateWidgetRowsValue = (e,rowIndex,header, checkBox=false) => {
+		var fieldName = e.target.name;
 		var elementValue = "";
 		if(checkBox){
 			elementValue = e.currentTarget.checked;
 		} else {
 			elementValue =  e.target.value;
+		}
+		
+		if(fieldName === "RatingValue")	{
+				if (!elementValue) {
+					this.setState({ [fieldName]: elementValue, [fieldName + "Invalid"]: true });
+				} else {
+					this.setState({
+						[fieldName]: elementValue,
+						[fieldName + "Invalid"]: false
+					});
+				}
+		
 		}
 		let gridData = this.state.rows;
 		if(header === "display_text"){
@@ -266,11 +282,14 @@ class WidgetTable extends PureComponent {
 									/>
 							)
 					}					
-					ratingHTML.push( <div key={cellID} ><Select
+					ratingHTML.push( <div key={cellID} >
+						<Select
 							onChange={(e)=>this.UpdateWidgetRowsValue(e, currentRowIndex,header)}
 							defaultValue={(row.option_id) ? row.option_id : "placeholder-item"}
 							id="widget-rating"
-							name="widgetrating"
+							name="RatingValue"
+							invalid={this.state.RatingValueInvalid}
+							invalidText="Please select rating"
 							labelText=""
 						>
 						<SelectItem
@@ -296,16 +315,25 @@ class WidgetTable extends PureComponent {
 		return ratingHTML
 	}
 	
-	
+	checkForm = () => {
+		checkFlag = true;		
+		if (!this.state.RatingValue) {
+			this.setState({ RatingValueInvalid: true });
+			checkFlag = false;
+		}
+		return checkFlag;
+  };
 	
 	saveWidget = event => {
 		event.preventDefault();
+		if (this.checkForm()) {
 			this.setState({ 
 					isSubmitting: true,
 					ariaLive: "Off",
 					description: "Submitting" 
 			});			
 			this.createWidgetsQuestion()
+		}
 	};
 	/******************** API CALL ***************/
 	getWidgetsQuestion = () => {
@@ -322,8 +350,10 @@ class WidgetTable extends PureComponent {
 		};
 		axios(config)
 		.then(result => {
+				var response = result.data.data;
 				this.setState({
-					rows: result.data.data,
+					rows: response.question,
+					RatingValue: response.ratingvalue,
 					isLoading: false,
 				});
 		})
@@ -408,7 +438,7 @@ class WidgetTable extends PureComponent {
             </TableHead>
             <TableBody>
 								{rows.map((row,rowIndex) => (
-									<TableRow key={rowIndex} >
+									<TableRow key={rowIndex} className="widgetsRow">
 										<TableCell key={rowIndex++}>
 												<span>
 														{(this.state.dragIndex >= 0 &&

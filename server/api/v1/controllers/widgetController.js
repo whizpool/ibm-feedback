@@ -151,7 +151,7 @@ exports.getWidget = [
 					})
 					.then(async function(widget) {
 						if (!widget) {				
-							return res.status(200).json(tools.successResponseObj([],startDate,endDate,resource,req.url));				
+							return res.status(404).json(tools.successResponseObj([],startDate,endDate,resource,req.url));				
 						}  
 						var widgetData = widget.get();
 						widgetData.name = widgetData.name;
@@ -529,6 +529,7 @@ exports.getWidgetQuestions = [
 							return res.status(200).json(tools.successResponseObj([],startDate,endDate,resource,req.url));				
 						}  
 						var questionsList = []						
+						var	ratingValue = 0					
 						for(var i =0 ; i < questions.length;i++)
 						{
 							var questionObj = questions[i].get();
@@ -559,13 +560,17 @@ exports.getWidgetQuestions = [
 								questionObj.is_required = widgetQuestions.is_required
 								questionObj.is_active = widgetQuestions.is_active
 								questionObj.limit = widgetQuestions.limit
-								questionObj.option_id = (widgetQuestions.option_id) ? widgetQuestions.option_id.toString() : "0"							
+								ratingValue = (widgetQuestions.option_id) ? widgetQuestions.option_id.toString() : "0"							
+								questionObj.option_id = ratingValue							
 							}
 							delete  questionObj.widget_questions;
 							questionsList.push(questionObj);
 							
 						} 
-						return res.status(200).json(tools.successResponseObj(questionsList,startDate,endDate,resource,req.url));
+						var response = {};
+						response.question = questionsList;
+						response.ratingvalue = ratingValue;
+						return res.status(200).json(tools.successResponseObj(response,startDate,endDate,resource,req.url));
 						
 						
 					})

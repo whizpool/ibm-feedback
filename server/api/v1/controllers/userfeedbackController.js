@@ -64,33 +64,53 @@ exports.fetchUserFeedbackWidget = [
 		}
 		else {
 			try {				 
-				 
+					/*	
 					dbLayer.widget_question.findAll({
 							where: {widget_id:req.body.id},
 							attributes : ['id','widget_id','question_id','order','display_text','is_required','is_active','limit','option_id'],			
 							include: [ 
 													{
 														model:dbLayer.question,
-														attributes : ['type'],			
-														where:{}
-												}
+														attributes : ['type','name',],			
+												},
 									],
 												
 							order: [['order', 'ASC']],
+					})*/
+					dbLayer.widget.findOne({
+							where: {id:req.body.id,url:req.body.url,status:true},
+							include: [ 
+									{
+										model:dbLayer.widget_question,
+										attributes : ['id','widget_id','question_id','order','display_text','is_required','is_active','limit','option_id'],	
+										include: [ 
+													{
+														model:dbLayer.question,
+														attributes : ['type','name',],			
+												},
+										],	
+									}
+							],
+							order: [[dbLayer.widget_question,'order', 'ASC']],
 					})
-					
-					.then(async function(questions) {
-						if (!questions) {				
+					.then(async function(widgetData) {
+						if (!widgetData) {				
 							return res.status(200).json(tools.successResponseObj([],startDate,endDate,resource,req.url));				
 						}  
+						var widgetObj = widgetData.get();
+						var widget_questions  = widgetObj.widget_questions;
+						
 						var feedbackWidget = ""
-						for(var i =0 ; i < questions.length;i++)
+						for(var i =0 ; i < widget_questions.length;i++)
 						{
 							
-							var questionObj = questions[i].get();
+							var questionObj = widget_questions[i].get();
 							questionObj.rating_type = ""
+							if(questionObj.display_text == ""){
+								questionObj.display_text = questionObj.question.name
+							}
 							if(questionObj.option_id) {
-								questionObj.rating_type = (await dbLayer.question_option.findOne({where: {id: questionObj.option_id},attributes : ['value']})).value;	
+								questionObj.rating_type = (await dbLayer.question_option.findOne({where: {id: questionObj.option_id,question_id:questionObj.question_id},attributes : ['value']})).value;	
 							}
 							if(questionObj.is_active){
 								var questionHTML = createHTMLElement(questionObj)
@@ -211,17 +231,24 @@ function createHTMLElement(Options) {
 	
 	var htmlElementStr  = "";
 	
-	var elementLabel = Options['display_text'];
-	var elementPlaceHolder = Options['display_text'];
+	var elementLabel = Options.display_text;
+	var elementPlaceHolder = Options.display_text;
 	
-	var elementID = "elementid_"+Options['id'];
-
+	var elementID = "elementid_"+Options.id;
+	var name = Options.question.name;
+	//var email = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
+	var addPattern = ""
+	var type = "text"
+	if(name === "Email Address") {
+		type = "email"
+		addPattern ="[a-zA-Z0-9.!#$%&amp;’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+"
+	}
 	switch( Options['question']['type']) {
 		case "singleline":
 				htmlElementStr = '<div class="bx--form-item bx--text-input-wrapper"> '+
 													'<label for="text-input-3" class="bx--label">'+elementLabel+'</label>'+
 													'<div class="bx--text-input__field-wrapper">'+
-													'<input id="'+elementID+'" name="'+elementID+'" type="text" class="bx--text-input" placeholder="'+elementPlaceHolder+'" '+ (Options['is_required'] ? "required" : "")+ '>'+
+													'<input id="'+elementID+'" '+( addPattern ? 'pattern ="'+addPattern+'"'  : '' )+' name="'+elementID+'" type="'+type+'" class="bx--text-input" placeholder="'+elementPlaceHolder+'" '+ (Options.is_required ? "required" : "")+' >'+
 													'</div></div>';
 				break;								
 		case "multiline":
@@ -232,14 +259,14 @@ function createHTMLElement(Options) {
 					htmlElementStr = '<div class="bx--form-item">'+
 														'<label for="text-area-4" class="bx--label">'+elementLabel+'</label>'+														
 														'<div class="bx--text-area__wrapper">'+
-															'<textarea id="'+elementID+'"  name="'+elementID+'" class="bx--text-area bx--text-area--invalid bx--text-area--v2" maxlength="'+Options['limit']+'" rows="4" cols="50" placeholder="'+elementLabel+'"></textarea>'+
+															'<textarea id="'+elementID+'"  name="'+elementID+'" '+ (Options.is_required ? "required" : "")+'  class="bx--text-area bx--text-area--invalid bx--text-area--v2" maxlength="'+Options.limit+'" rows="4" cols="50" placeholder="'+elementLabel+'"></textarea>'+
 														'</div> </div>'
 
 				break;
 		case "select":
 					var htmlRatingStr = "";
-					if(Options['question'] && Options['option_id'] > 0 ){
-						htmlRatingStr = createUserRatingHTML(Options['rating_type'],elementID);
+					if(Options.question && Options.option_id > 0 ){
+						htmlRatingStr = createUserRatingHTML(Options.rating_type,elementID);
 					}
 					htmlElementStr = '<div class="bx--form-item">'+
 													'<label for="text-area-4" class="bx--label">'+elementLabel+'</label>'+														
@@ -262,27 +289,27 @@ function createUserRatingHTML(rating_type, elementID){
 	
 	switch(rating_type){
 		case 'star':
-			htmlRatingStr = '<div class="start_rating">'+
+			htmlRatingStr = '<div id="ratting-div" class="start_rating">'+
 												'<input type="radio" id="star5" name="'+elementID+'"  value="5" /><label for="star5"></label>'+
 												'<input type="radio" id="star4" name="'+elementID+'"  value="4" /><label for="star4"></label>'+
-												'<input type="radio" id="star3" name="'+elementID+'"  value="3" /><label for="star3"></label>'+
+												'<input type="radio" id="star3" checked name="'+elementID+'"  value="3" /><label for="star3"></label>'+
 												'<input type="radio" id="star2" name="'+elementID+'"  value="2" /><label for="star2"></label>'+
 												'<input type="radio" id="star1" name="'+elementID+'"  value="1" /><label for="star1"></label>'+
 										'</div>';
 				break;	
-		case 'smiley':
-			htmlRatingStr = '<div class="number_rating">'+
+		case 'number':
+			htmlRatingStr = '<div id="ratting-div" class="number_rating">'+
 														'<input type="radio" id="number5" class="number5" name="'+elementID+'" value="5" /><label class=" number_5_rating_label " for="number5"></label>'+
 														'<input type="radio" id="number4" class="number4" name="'+elementID+'" value="4" /><label class="number_4_rating_label " for="number4"></label>'+
-														'<input type="radio" id="number3" class="number3" name="'+elementID+'"  value="3" /><label class="number_3_rating_label " for="number3"></label>'+
+														'<input type="radio" id="number3" checked class="number3" name="'+elementID+'"  value="3" /><label class="number_3_rating_label " for="number3"></label>'+
 														'<input type="radio" id="number2" class="number2" name="'+elementID+'"  value="2" /><label class="number_2_rating_label " for="number2"></label>'+
 														'<input type="radio" id="number1" class="number1" name="'+elementID+'" value="1" /><label class="number_1_rating_label " for="number1"></label>'+
 											'</div>';
 				break;	
-		case 'number':
-				htmlRatingStr = '<div class="smiley_rating">'+
+		case 'smiley':
+				htmlRatingStr = '<div id="ratting-div" class="smiley_rating">'+
 												'<input type="radio" id="satisfied" class="satisfied" name="'+elementID+'"  value="3" /><label class="smiley_3_rating_label " for="satisfied"></label>'+
-												'<input type="radio" id="neutral" class="neutral" name="'+elementID+'"  value="2" /><label class="smiley_2_rating_label " for="neutral"></label>'+
+												'<input type="radio" id="neutral" checked class="neutral" name="'+elementID+'"  value="2" /><label class="smiley_2_rating_label " for="neutral"></label>'+
 												'<input type="radio" id="dissatisfied" class="dissatisfied" name="'+elementID+'" value="1" /><label class="smiley_1_rating_label " for="dissatisfied"></label>'+
 										'</div>';
 				break;	
@@ -387,7 +414,6 @@ function createHTMLViewElement(Options) {
 	
 	var elementLabel = Options['name'];
 	var elementValue = Options['answer'];
-	console.log(Options['type'])
 	switch( Options['type']) {
 		case "singleline":
 		case "multiline":

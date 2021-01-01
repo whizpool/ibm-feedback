@@ -198,6 +198,12 @@ class WidgetPage extends React.Component {
 					this.getWidgets();
 		})
 		.catch((error) => {
+			
+			this.setState({ 
+					isSubmitting: false,
+					deleteAllModalOpen: false,
+					success: false,
+			});			
 			if(error.response.status === 401){
 				this.props.saveLogoutState({type: 'SIGN_OUT'})
 			}
@@ -245,8 +251,18 @@ class WidgetPage extends React.Component {
 				}
 		})
 		.catch((error) => {
+			
+			this.setState({ 
+					isSubmitting: false,
+					deleteModalOpen: false,
+					success: false,
+			});
+			
 			if(error.response.status === 401){
 				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+			else {
+				
 			}
 		});
 		

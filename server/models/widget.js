@@ -11,6 +11,7 @@ module.exports = (sequelize, Sequelize) => {
      */
     static associate(models) {
       // define association here
+			Widget.hasMany(models.widget_question, { foreignKey: 'widget_id' ,tragetKey:"id"});
 			Widget.hasMany(models.widget_connection, { foreignKey: 'widget_id' ,tragetKey:"id"});
     }
   };

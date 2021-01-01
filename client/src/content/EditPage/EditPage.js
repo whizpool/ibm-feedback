@@ -2,7 +2,7 @@ import React from 'react'
 import { connect} from 'react-redux';
 
 import { Breadcrumb, BreadcrumbItem,InlineLoading} from 'carbon-components-react';
-import {  Grid, Row, Column,Toggle,ContentSwitcher,Switch,TextInput } from 'carbon-components-react';
+import {  Grid, Row, Column,Toggle,ContentSwitcher,Switch,TextInput,ToastNotification } from 'carbon-components-react';
 
 
 import WidgetTable from "./WidgetTable";
@@ -53,6 +53,7 @@ class EditPage extends React.Component {
 		  ariaLive: false,
 		  success : false,
 			isLoading: true,
+			widgetNotFound: false,
 			widgetData: "",
 			isWidgetNameLoading: false,
 			isWidgetURLLoading: false,
@@ -234,8 +235,7 @@ class EditPage extends React.Component {
 	}
 	
 	getWidgets = () => {
-		//this.setState({ isLoading: true });
-		
+		//this.setState({ isLoading: true });		
 		var config = {
 				method: 'get',
 				url:process.env.REACT_APP_API_ENDPOINT+`widgets/`+this.state.recordID,
@@ -258,10 +258,14 @@ class EditPage extends React.Component {
 
 			this.setState({
 				error,
-				isLoading: false
+				isLoading: false,
+				widgetNotFound: true
 			});
 			if(error.response.status === 401){
 				this.props.saveLogoutState({type: 'SIGN_OUT'})
+			}
+			if(error.response.status === 404){
+				//Do anything
 			}
 		});
 		
@@ -278,6 +282,20 @@ class EditPage extends React.Component {
 						<BreadcrumbItem href="#"  isCurrentPage >Edit Widgets</BreadcrumbItem>
 					</Breadcrumb>
 					<br/>
+					{
+						this.state.widgetNotFound
+					?
+					<ToastNotification
+							kind="error"
+							title=""
+							subtitle="No Widget found"
+							caption=""
+							style={{
+								minWidth: "100%",
+							}}
+					/>
+				
+					:
 					<Grid style={{padding: "0" }}>
 						<Row>
 							<Column sm={12} md={6} lg={9}>
@@ -411,6 +429,7 @@ class EditPage extends React.Component {
 							</Column>
 						</Row>						
 					</Grid>
+				}
 			</section>;
 	}
 }

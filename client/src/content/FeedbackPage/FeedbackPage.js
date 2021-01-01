@@ -149,6 +149,11 @@ class FeedbackPage extends React.Component {
 			if(error.response.status === 401){
 				this.props.saveLogoutState({type: 'SIGN_OUT'})
 			}
+			this.setState({ 
+					isSubmitting: false,
+					deleteAllModalOpen: false,
+					success: false,
+			});	
 		});
 		
 	}
@@ -228,11 +233,16 @@ class FeedbackPage extends React.Component {
 		.catch((error) => {
 			this.setState({
 				error,
-				isLoading: false
+					isLoading: false,
+					isSubmitting: false,
+					success: false,
+					modalOpen:false
 			});
 			if(error.response.status === 401){
 				this.props.saveLogoutState({type: 'SIGN_OUT'})
 			}
+				
+				
 		});
 		
 	};

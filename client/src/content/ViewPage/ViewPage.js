@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import  Rating  from "../../components/Rating/Rating";
 import { Breadcrumb, BreadcrumbItem} from 'carbon-components-react';
-import {  Grid, Row, Column,Button,Loading } from 'carbon-components-react';
+import {  Grid, Row, Column,Button,Loading,ToastNotification } from 'carbon-components-react';
 import { useSelector} from 'react-redux'
 import axios from "axios";
 
@@ -19,6 +19,7 @@ const ViewPage = () => {
 	const [isLoading, setisLoading] = useState(0);
 	const [isNextButtonDisabled, setisNextButtonDisabled] = useState(1);
 	const [isPrevButtonDisabled, setisPrevButtonDisabled] = useState(1);
+	const [widgetNotFound, setwidgetNotFound] = useState(0);
 	
 	const getFeedbacks = () => {
 		
@@ -60,6 +61,11 @@ const ViewPage = () => {
 			if(error.response.status === 401){
 				this.props.saveLogoutState({type: 'SIGN_OUT'})
 			}
+			console.log(error.response.status)
+			if(error.response.status === 404){
+				setwidgetNotFound(1)
+				//Do anything
+			}
 		});
 		
 	}
@@ -91,6 +97,17 @@ const ViewPage = () => {
 						 <Loading description="Active loading indicator" withOverlay={false}/>
 					:	
 			
+							(widgetNotFound=== 1) ? 
+								<ToastNotification
+										kind="error"
+										title=""
+										subtitle="No Feedback found"
+										caption=""
+										style={{
+											minWidth: "100%",
+										}}
+								/>
+						:
 					<Grid style={{padding: "0" }}>
 						<Row>
 							<Column sm={12} md={4} lg={4}>
@@ -154,6 +171,7 @@ const ViewPage = () => {
 						</Row>
 						
 					</Grid>
+						
 				}
 			</section>
 ;
