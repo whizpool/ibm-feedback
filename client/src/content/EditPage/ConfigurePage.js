@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect} from 'react-redux'
 
-import {Grid, Row, Column,Button ,ComposedModal,ModalHeader,ModalBody,ModalFooter,InlineLoading,TextInput,Form,Select,SelectItem} from 'carbon-components-react';
+import {Grid, Row, Column,Button ,ComposedModal,ModalHeader,ModalBody,ModalFooter,InlineLoading,TextInput,Form,Select,SelectItem,InlineNotification} from 'carbon-components-react';
 import {LogoGithub32 as GitHub, LogoSlack32 as Slack, CheckmarkFilled24 as Verified} from '@carbon/icons-react';
 
 import axios from "axios";
@@ -44,6 +44,7 @@ class ConfigurePage extends React.Component {
 			deleteRowIndex : 0,
 		  ariaLive: false,
 		  success : false,
+			successMessage : "",
 		  RepoListItem : "",
 		  gitHubRepoName : "",
 		  repo_name : "",
@@ -181,11 +182,6 @@ class ConfigurePage extends React.Component {
 		};
 		axios(config)
 		.then(response => {
-			this.setState({ 
-						isSubmitting: false,
-						success: true,
-						description: "Submitted" 
-				});
 				
 				var widgetUpdateData = this.props.widgetData;
 				widgetUpdateData.is_github_connected = true
@@ -193,6 +189,16 @@ class ConfigurePage extends React.Component {
 				widgetUpdateData.repo_name = RepoName
 				widgetUpdateData.repo_owner = OwnerName
 				this.props.updateWidgetData(widgetUpdateData)
+				this.setState({ 
+						isSubmitting: false,
+						gitHubModalOpen: false,
+						success: true,
+						description: "Submitted" ,						
+						successMessage: "You have successfully connected github.",
+				});
+				setTimeout(() => {
+						this.setState({ success: false })
+					}, 3000)
 		})
 		.catch((error) => {
 
@@ -221,17 +227,23 @@ class ConfigurePage extends React.Component {
 		};
 		axios(config)
 		.then(response => {
-			this.setState({ 
-						isSubmitting: false,
-						success: true,
-						description: "Submitted" 
-				});
 				
 				var widgetUpdateData = this.props.widgetData;
 				widgetUpdateData.is_slack_connected = true
 				widgetUpdateData.webhook = this.state.webhook
 				widgetUpdateData.channelName = this.state.channelName
 				this.props.updateWidgetData(widgetUpdateData)
+				
+				this.setState({ 
+						isSubmitting: false,
+						slackModalOpen: false,
+						success: true,
+						description: "Submitted",
+						successMessage: "You have successfully connected slack",
+				});
+				setTimeout(() => {
+						this.setState({ success: false })
+					}, 3000)
 		})
 		.catch((error) => {
 
@@ -272,9 +284,16 @@ class ConfigurePage extends React.Component {
 					widgetUpdateData.channelName = ""	
 				}
 				this.props.updateWidgetData(widgetUpdateData)
+				var success_message = ""
+				if(connection_type.toLowerCase() === "github") {
+					success_message = "You have successfully unlink github."
+				}
+				if(connection_type.toLowerCase() === "slack") {
+					success_message = "You have successfully unlink slack."
+				}
 				this.setState({ 
 						isSubmitting: false,
-						success: false,
+						success: true,
 						description: "Submitted", 
 						gitHubRepoID: "" ,
 						gitHubPAC: "" ,
@@ -282,7 +301,14 @@ class ConfigurePage extends React.Component {
 						api_response: [],
 						webhook: "" ,
 						channelName: "" ,
+						successMessage: success_message,
 				});
+				
+				setTimeout(() => {
+						this.setState({ success: false })
+					}, 3000)
+					
+					
 		})
 		.catch((error) => {
 
@@ -301,6 +327,18 @@ class ConfigurePage extends React.Component {
 		
   return (
 		<>
+		
+			{ this.state.success  ? 
+							<InlineNotification
+										kind="success"
+										title="Success"
+										subtitle={this.state.successMessage}
+										caption=""
+										style={{
+											minWidth: "100%",
+										}}
+								/> : ""
+			}	
 			<ComposedModal size="sm" open={this.state.gitHubModalOpen} preventCloseOnClickOutside={true} >
 					<ModalHeader>
 						<h4>Connect GitHub</h4>
@@ -359,7 +397,7 @@ class ConfigurePage extends React.Component {
 							{
 								this.state.scan ? (	
 									
-										this.state.isSubmitting || this.state.success ? (
+										this.state.isSubmitting ? (
 											<InlineLoading
 												style={{ marginLeft: '1rem' }}
 												description={this.state.description}
@@ -374,7 +412,7 @@ class ConfigurePage extends React.Component {
 								):
 								(
 									
-										this.state.isSubmitting || this.state.success ? (
+										this.state.isSubmitting ? (
 											<InlineLoading
 												style={{ marginLeft: '1rem' }}
 												description={this.state.description}
@@ -426,7 +464,7 @@ class ConfigurePage extends React.Component {
 					</ModalBody>
 					<ModalFooter>
 						<Button kind="secondary" onClick={(event) => {this.closeModal(event)}}>Cancel</Button>
-						{this.state.isSubmitting || this.state.success ? (
+						{this.state.isSubmitting ? (
 							<InlineLoading
 								style={{ marginLeft: '1rem' }}
 								description={this.state.description}

@@ -15,7 +15,8 @@ import {
 	Tooltip,
 	TextInput,
 	Select,
-	SelectItem
+	SelectItem,
+	InlineNotification
 	
 } from 'carbon-components-react';
 
@@ -92,6 +93,7 @@ class WidgetTable extends PureComponent {
 		  description: "Submititting",
 		  ariaLive: false,
 		  success : false,
+			successMessage : "",
 			isLoading: false,
 			RatingValue: "",
 			
@@ -382,10 +384,14 @@ class WidgetTable extends PureComponent {
 		.then(result => {
 			this.setState({ 
 						isSubmitting: false,
-						success: false,
-						description: "Submitted" 
+						success: true,
+						description: "Submitted" ,
+						successMessage: "Your data has been saved successfully.",
 				});
 			this.getWidgetsQuestion()
+			setTimeout(() => {
+				this.setState({ success: false })
+			}, 3000)
 		})
 		.catch((error) => {
 
@@ -403,6 +409,17 @@ class WidgetTable extends PureComponent {
     return (
 		
 		<>
+			{ this.state.success  ? 
+							<InlineNotification
+										kind="success"
+										title="Success"
+										subtitle={this.state.successMessage}
+										caption=""
+										style={{
+											minWidth: "100%",
+										}}
+								/> : ""
+				}	
 			{
 					this.state.isLoading ?
 						<DataTableSkeleton
@@ -474,7 +491,7 @@ class WidgetTable extends PureComponent {
 					<Column sm={12} md={12} lg={12} style={{ textAlign:"right",paddingTop:'1rem'}}>
 						<div>
 						{
-							this.state.isSubmitting || this.state.success ? 
+							this.state.isSubmitting  ? 
 							<InlineLoading
 								style={{ marginLeft: '1rem' }}
 								description={this.state.description}
