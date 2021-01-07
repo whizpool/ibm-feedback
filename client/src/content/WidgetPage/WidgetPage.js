@@ -10,7 +10,6 @@ import axios from "axios";
 import { columns } from "./TableHeader";
 
 
-var validUrl = require('valid-url');
 let checkFlag = true;
 
 const mapStateToProps = (state) => {
@@ -48,6 +47,7 @@ class WidgetPage extends React.Component {
 		  deleteRowIndex : 0,
 		  ariaLive: false,
 		  success : false,
+		  successMessage : "",
 		  updateRowStatus: false,
 		  selectedWidgetRows: [],
 		  headers: columns,
@@ -56,7 +56,6 @@ class WidgetPage extends React.Component {
 		  page: 1,
 		  pageSize: 5,
 		  rowStatusID: [],
-		 
 		};
 	}
 	
@@ -79,10 +78,17 @@ class WidgetPage extends React.Component {
 			this.setState({ widgetURLInvalid: true });
 			checkFlag = false;
 		} else {
-			if (!validUrl.isUri(this.state.widgetURL)){
+			var widgetURL = this.state.widgetURL;
+			if (widgetURL.indexOf("http://") !== 0 && widgetURL.indexOf("https://") !== 0) {
+				widgetURL = "https://"+this.state.widgetURL
+			}			
+			var regexp = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+			if (!regexp.test(widgetURL))
+			{
 				this.setState({ widgetURLInvalid: true });
 				checkFlag = false;
 			}
+		
 		}
 		return checkFlag;
 	};
@@ -189,13 +195,33 @@ class WidgetPage extends React.Component {
 		axios(config)
 		.then( () => {
 					this.setState({ 
+						success: true,
 						isSubmitting: false,
 						ariaLive: "Off",
 						description: "Submitting",
 						deleteAllModalOpen: false,
-						rows: []
+						rows: [],
+						successMessage: "You have successfully deleted the widgets.",
 					});	
+					setTimeout(() => {
+						this.setState({ success: false })
+					}, 3000)
+					
+					//verify last index of the page.		
+					var startItem = (this.state.page - 1) * this.state.pageSize;
+					var endItem = startItem + this.state.pageSize;
+
+					var displayedRows = this.state.rows.slice(startItem, endItem);
+					if(displayedRows.length === 0 ){
+						this.setState({
+								page: (this.state.page-1),
+								pageSize: this.state.pageSize
+					});	
+					}
+			
 					this.getWidgets();
+					
+					
 		})
 		.catch((error) => {
 			
@@ -231,7 +257,10 @@ class WidgetPage extends React.Component {
 			this.setState({ 
 					isSubmitting: false,
 					success: true,
-					description: "Deleted" 
+					description: "Deleted" ,
+					successMessage: "You have successfully deleted the widget.",
+					deleteModalOpen: false,
+					deleteRowIndex:0,
 			});
 			let rows = this.state.rows
 			if (rows.length > 0) {
@@ -249,6 +278,9 @@ class WidgetPage extends React.Component {
 							pageSize: this.state.pageSize
 						});
 				}
+				setTimeout(() => {
+					this.setState({ success: false })
+				}, 3000)
 		})
 		.catch((error) => {
 			
@@ -286,12 +318,22 @@ class WidgetPage extends React.Component {
 				gridData.unshift(response.data.data)
 				this.setState({ 
 						isSubmitting: false,
+						widgetModalOpen: false,
 						success: true,
-						description: "Submitted" 
+						successMessage: "You have successfully created the widget.",
+						description: "Submitted",
+						widgetName: "",
+						widgetURL: "",
 				});
+				setTimeout(() => {
+					this.setState({ success: false })
+				}, 3000)
+
+
 				this.setState((state) => {
 					return gridData
 				 });
+				
 				
 		})
 		.catch((error) => {
@@ -422,7 +464,7 @@ class WidgetPage extends React.Component {
 					<BreadcrumbItem href="/"  >Widgets</BreadcrumbItem>
 				</Breadcrumb>
 				<br/>
-				
+				{/*Create Widget model*/}
 				<ComposedModal size="sm"  onClose={this.closeModal} open={this.state.widgetModalOpen} preventCloseOnClickOutside={true} >
 					<ModalHeader>
 						<h4>Create Widget</h4>
@@ -465,7 +507,7 @@ class WidgetPage extends React.Component {
 					</ModalBody>
 					<ModalFooter>
 						<Button kind="secondary" onClick={(event) => {this.closeModal(event)}}>Cancel</Button>
-						{this.state.isSubmitting || this.state.success ? (
+						{this.state.isSubmitting ? (
 							<InlineLoading
 								style={{ marginLeft: '1rem' }}
 								description={this.state.description}
@@ -478,6 +520,7 @@ class WidgetPage extends React.Component {
 					</ModalFooter>
 				</ComposedModal>	
 
+				{/*Single Delete confirmation model*/}
 				<ComposedModal size="sm" onClose={this.closeModal} open={this.state.deleteModalOpen} preventCloseOnClickOutside={true} >
 					
 					<ModalBody>
@@ -485,7 +528,7 @@ class WidgetPage extends React.Component {
 					</ModalBody>
 					<ModalFooter>
 						<Button kind="secondary" onClick={(event) => {this.closeModal(event)}}>Cancel</Button>
-						{this.state.isSubmitting || this.state.success ? (
+						{this.state.isSubmitting ? (
 							<InlineLoading
 								style={{ marginLeft: '1rem' }}
 								description={this.state.description}
@@ -498,6 +541,7 @@ class WidgetPage extends React.Component {
 					</ModalFooter>
 				</ComposedModal>
 				
+				{/*Delete All confirmation model*/}
 				<ComposedModal size="sm" onClose={this.closeModal} open={this.state.deleteAllModalOpen} preventCloseOnClickOutside={true} >
 					
 					<ModalBody>
@@ -505,7 +549,7 @@ class WidgetPage extends React.Component {
 					</ModalBody>
 					<ModalFooter>
 						<Button kind="secondary" onClick={(event) => {this.closeModal(event)}}>Cancel</Button>
-						{this.state.isSubmitting || this.state.success ? (
+						{this.state.isSubmitting  ? (
 							<InlineLoading
 								style={{ marginLeft: '1rem' }}
 								description={this.state.description}
@@ -517,8 +561,18 @@ class WidgetPage extends React.Component {
 						)}
 					</ModalFooter>
 				</ComposedModal>
-				
-				
+				{/*success Notification message*/}
+				{ this.state.success  ? 
+							<InlineNotification
+										kind="success"
+										title="Success"
+										subtitle={this.state.successMessage}
+										caption=""
+										style={{
+											minWidth: "100%",
+										}}
+								/> : ""
+				}	
 			{
 				this.state.isLoading ?
 						<DataTableSkeleton

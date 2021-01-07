@@ -21,8 +21,8 @@ router.post("/delete_feedbacks",Authorize.verifyToken,feedbackController.deleteA
 
 //userfeedbackController
 var userfeedbackController = require('../controllers/userfeedbackController');
-router.post("/savefeedback",userfeedbackController.saveUserFeedbackData);
-router.post("/getmywidget",userfeedbackController.fetchUserFeedbackWidget);
+router.post("/savefeedback/:id",userfeedbackController.saveUserFeedbackData);
+router.post("/getmywidget/:id",userfeedbackController.fetchUserFeedbackWidget);
 
 
 module.exports = router;

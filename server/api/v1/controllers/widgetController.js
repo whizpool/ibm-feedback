@@ -211,8 +211,6 @@ exports.createWidgets = [
     body('url').isLength({ min: 1 }).trim().withMessage('Widget URL must be specified.'),
     //body('creater_name').isLength({ min: 1 }).trim().withMessage('Creater Name must be specified.'),
    
-    // Sanitize fields.
-    sanitizeBody('name').escape(),
    
     // Process request after validation and sanitization.
     (req, res, next) => {
@@ -271,8 +269,6 @@ exports.updateWidget = [
     body('name').isLength({ min: 1 }).trim().withMessage('Widget name must be specified.'),
     body('url').isLength({ min: 1 }).trim().withMessage('Widget URL must be specified.'),
    
-    // Sanitize fields.
-    sanitizeBody('name').escape(),
    
     // Process request after validation and sanitization.
     (req, res, next) => {

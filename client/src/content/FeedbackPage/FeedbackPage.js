@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect} from 'react-redux'
 
-import { DataTable, TableContainer, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,TableToolbar,TableBatchActions,TableBatchAction,TableToolbarContent,TableSelectAll,TableSelectRow,Breadcrumb, BreadcrumbItem,MultiSelect,OverflowMenu,OverflowMenuItem,Pagination,DataTableSkeleton,ComposedModal,ModalBody,ModalFooter,InlineLoading,Button} from 'carbon-components-react';
+import { DataTable, TableContainer, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,TableToolbar,TableBatchActions,TableBatchAction,TableToolbarContent,TableSelectAll,TableSelectRow,Breadcrumb, BreadcrumbItem,MultiSelect,OverflowMenu,OverflowMenuItem,Pagination,DataTableSkeleton,ComposedModal,ModalBody,ModalFooter,InlineLoading,Button,TableToolbarSearch,InlineNotification} from 'carbon-components-react';
+import ReadMoreReact from 'read-more-react';
 
 //import { TrashCan32 as Delete,SettingsAdjust32 as Filter } from '@carbon/icons-react';
 import { TrashCan32 as Delete } from '@carbon/icons-react';
@@ -46,6 +47,7 @@ class FeedbackPage extends React.Component {
 		  description: "Submititting",
 		  ariaLive: false,
 		  success : false,
+			successMessage:"",
 		  headers: columns,
 		  rows: [],
 		  selectedWidgetRows: [],
@@ -137,12 +139,29 @@ class FeedbackPage extends React.Component {
 		axios(config)
 		.then( () => {
 					this.setState({ 
+						success: true,
 						isSubmitting: false,
 						ariaLive: "Off",
 						description: "Submitting",
 						deleteAllModalOpen: false,
-						rows: []
+						rows: [],
+						successMessage: "You have successfully deleted the feedbacks.",
 					});	
+					//verify last index.		
+					var startItem = (this.state.page - 1) * this.state.pageSize;
+					var endItem = startItem + this.state.pageSize;
+
+					var displayedRows = this.state.rows.slice(startItem, endItem);
+					if(displayedRows.length === 0 ){
+						this.setState({
+								page: (this.state.page-1),
+								pageSize: this.state.pageSize
+					});	
+					}
+						setTimeout(() => {
+							this.setState({ success: false })
+						}, 3000)
+				
 					this.getFeedbacks();
 		})
 		.catch((error) => {
@@ -210,7 +229,10 @@ class FeedbackPage extends React.Component {
 					this.setState({ 
 						isSubmitting: false,
 						success: true,
-						description: "Deleted" 
+						description: "Deleted" ,
+						successMessage: "You have successfully deleted the feedback.",
+						modalOpen: false,
+						deleteRowIndex:0,
 				});
 				
 				let rows = this.state.rows
@@ -229,6 +251,9 @@ class FeedbackPage extends React.Component {
 								pageSize: this.state.pageSize
 							});
 					}
+				setTimeout(() => {
+					this.setState({ success: false })
+				}, 3000)
 					})
 		.catch((error) => {
 			this.setState({
@@ -273,7 +298,7 @@ class FeedbackPage extends React.Component {
 					</ModalBody>
 					<ModalFooter>
 						<Button kind="secondary" onClick={(event) => {this.closeModal(event)}}>Cancel</Button>
-						{this.state.isSubmitting || this.state.success ? (
+						{this.state.isSubmitting ? (
 							<InlineLoading
 								style={{ marginLeft: '1rem' }}
 								description={this.state.description}
@@ -293,7 +318,7 @@ class FeedbackPage extends React.Component {
 					</ModalBody>
 					<ModalFooter>
 						<Button kind="secondary" onClick={(event) => {this.closeModal(event)}}>Cancel</Button>
-						{this.state.isSubmitting || this.state.success ? (
+						{this.state.isSubmitting ? (
 							<InlineLoading
 								style={{ marginLeft: '1rem' }}
 								description={this.state.description}
@@ -305,7 +330,17 @@ class FeedbackPage extends React.Component {
 						)}
 					</ModalFooter>
 				</ComposedModal>
-				
+				{ this.state.success  ? 
+							<InlineNotification
+										kind="success"
+										title="Success"
+										subtitle={this.state.successMessage}
+										caption=""
+										style={{
+											minWidth: "100%",
+										}}
+								/> : ""
+				}	
 				
 		{
 				this.state.isLoading ?
@@ -339,7 +374,7 @@ class FeedbackPage extends React.Component {
 					<TableContainer title="Submitted Feedbacks" {...getTableContainerProps()} >
 						<TableToolbar aria-label="data table toolbar">
 							<TableToolbarContent>
-								
+								 <TableToolbarSearch onChange={onInputChange} />
 								<div style={{ width: 200 }}>
 									<MultiSelect
 										onChange={(e)=>this.handleOnHeaderChange(e)}  
@@ -384,7 +419,9 @@ class FeedbackPage extends React.Component {
 										if(cell.info.header === 'rating') {
 											return <TableCell key={cell.id}>{this.viewRating(dataRowIndex)}</TableCell> 
 										}
-											
+										if(cell.info.header === 'ProvideFeedback') {
+										return <ReadMoreReact ideal={50} min={50} text={cell.value} readMoreText='  Read more' />
+										}											
 										return <TableCell key={cell.id}>{cell.value}</TableCell>
 									})}
 									<TableCell >

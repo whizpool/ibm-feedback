@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import  Rating  from "../../components/Rating/Rating";
 import { Breadcrumb, BreadcrumbItem} from 'carbon-components-react';
 import {  Grid, Row, Column,Button,Loading,ToastNotification } from 'carbon-components-react';
-import { useSelector} from 'react-redux'
+import { useSelector, useDispatch} from 'react-redux'
 import axios from "axios";
 
 
@@ -12,6 +12,7 @@ import axios from "axios";
 const ViewPage = () => {
 	
 	const history = useHistory()
+	const dispatch = useDispatch()
 	
 	const accessToken = useSelector(state => state.auth.access_token)
 	
@@ -59,7 +60,7 @@ const ViewPage = () => {
 		.catch((error) => {
 			setisLoading(1)
 			if(error.response.status === 401){
-				this.props.saveLogoutState({type: 'SIGN_OUT'})
+				dispatch({type: 'SIGN_OUT'})
 			}
 			console.log(error.response.status)
 			if(error.response.status === 404){
@@ -133,7 +134,8 @@ const ViewPage = () => {
 										style={{ width: "200px"}}
 										src={rows.screen_shot}
 										alt="Screenshot"
-									/>
+									/><br/>
+									 <a href={rows.screen_shot}  rel="noopener noreferrer" target="_blank">View Image</a>
 								</div>
 							</Column>
 						</Row>

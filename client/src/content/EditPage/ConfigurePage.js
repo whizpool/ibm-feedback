@@ -317,23 +317,23 @@ class ConfigurePage extends React.Component {
 								value={this.state.githuburl || ""}
 								onChange={this.saveData}
 								labelText="URL"
+								helperText="e.g https://api.github.com"
 								placeholder="Enter GitHub URL"
-								style={{ marginBottom: '1rem' }}
 								invalid={this.state.githuburlInvalid}
-								invalidText="Please enter a widget name.."
-										
+								invalidText="Please enter git api url.."										
 								/>
+								<br/>
 								<TextInput
 									id="gitHubPAC"
 									name="gitHubPAC"
 									value={this.state.gitHubPAC || ""}
 									onChange={this.saveData}
-									style={{ marginBottom: '1rem' }}
 									labelText="Personal Access Token"
 									placeholder="e9:f3:29:3f:6r:6g:8l:p8:o9:y3:t9"
 									invalid={this.state.gitHubPACInvalid}
 									invalidText="Please enter personal access token.."
 								/>	
+								<br/>
 								<Select
 											//onChange={(e)=>this.UpdateWidgetRowsValue(e, currentRowIndex,header)}
 											defaultValue={(this.state.gitHubRepoID) ? this.state.gitHubRepoID : "placeholder-item"}
@@ -408,10 +408,9 @@ class ConfigurePage extends React.Component {
 											value={this.state.webhook || ""}
 											onChange={this.saveData}
 											labelText="WebHook"
-											placeholder="Enter Slack WebHook "
-											style={{ marginBottom: '1rem' }}
+											placeholder="Enter slack webHook "
 											invalid={this.state.webhookInvalid}
-											invalidText="Please enter a widget name.."
+											invalidText="Please enter slack webHook.."
 									/>
 									<TextInput
 										id="channelName"

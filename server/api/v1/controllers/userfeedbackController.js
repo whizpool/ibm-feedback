@@ -40,11 +40,11 @@ const { sanitizeBody } = require('express-validator');
 */
 exports.fetchUserFeedbackWidget = [
  
-		body('id').isLength({ min: 1 }).trim().withMessage('ID must be specified.'),
-		body('url').isLength({ min: 1 }).trim().withMessage('URL must be specified.'),
+		//body('id').isLength({ min: 1 }).trim().withMessage('ID must be specified.'),
+		//body('url').isLength({ min: 1 }).trim().withMessage('URL must be specified.'),
    
     // Sanitize fields.
-    sanitizeBody('id').escape(),
+    //sanitizeBody('id').escape(),
 		
     // Process request after validation and sanitization.
     (req, res, next) => {
@@ -64,6 +64,8 @@ exports.fetchUserFeedbackWidget = [
 		}
 		else {
 			try {				 
+
+					let requestParam = JSON.parse(Buffer.from(req.params.id, 'base64').toString())
 					/*	
 					dbLayer.widget_question.findAll({
 							where: {widget_id:req.body.id},
@@ -78,7 +80,7 @@ exports.fetchUserFeedbackWidget = [
 							order: [['order', 'ASC']],
 					})*/
 					dbLayer.widget.findOne({
-							where: {id:req.body.id,url:req.body.url,status:true},
+							where: {id:requestParam.id,url:requestParam.url,status:true},
 							include: [ 
 									{
 										model:dbLayer.widget_question,
@@ -118,7 +120,7 @@ exports.fetchUserFeedbackWidget = [
 							}
 						} 
 					
-						var feedbackWidgetHTMLStr = '<header>Please fill out the following fields</header><section><form role="form" method="post" id="feedback_form"><input type="hidden" id="widget_id" name="widget_id" /><input type="hidden" name="image" id="image" value="" />'+feedbackWidget+'<div style="width:100%"><div role="alert" kind="error" class="bx--inline-notification bx--inline-notification--error" style="max-width: inherit;width: inherit;"><div class="bx--inline-notification__text-wrapper"><div class="bx--inline-notification__subtitle"><span>&nbsp;&nbsp;&nbsp;A screenshot will be sent with your feedback</span></div></div></div></div><div style="width:100%"><button id="submitForm" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Submit Feedback</button></div></form></section><script>html2canvas(document.body).then(function(e){document.getElementById("image").value=e.toDataURL("image/jpeg",.9),$("#feedback_form").submit(function(e){e.preventDefault();var a=$(this);return $.ajax({type:"POST",url:"'+config.apihost+'feedbacks/savefeedback",data:a.serialize(),beforeSend:function(){$("#widgetHTML").html("<div style=\'display: flex;justify-content: center;align-items: center;overflow: hidden\'><div data-loading class=\'bx--loading\'><svg class=\'bx--loading__svg\' viewBox=\'-75 -75 150 150\'><title>Loading</title><circle class=\'bx--loading__stroke\' cx=\'0\' cy=\'0\' r=\'37.5\' /></svg></div></div>")},success:function(e){$("#widgetHTML").html(e.data)}}),!1})});</script>';
+						var feedbackWidgetHTMLStr = '<header>Please fill out the following fields</header><section><form role="form" method="post" id="feedback_form"><input type="hidden" id="widget_id" name="widget_id" /><input type="hidden" name="image" id="image" value="" />'+feedbackWidget+'<div style="width:100%"><div role="alert" kind="error" class="bx--inline-notification bx--inline-notification--error" style="max-width: inherit;width: inherit;"><div class="bx--inline-notification__text-wrapper"><div class="bx--inline-notification__subtitle"><span>&nbsp;&nbsp;&nbsp;A screenshot will be sent with your feedback</span></div></div></div></div><div style="width:100%"><button id="submitForm" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Submit Feedback</button></div></form></section><script>html2canvas(document.body).then(function(e){document.getElementById("image").value=e.toDataURL("image/jpeg",.9),$("#feedback_form").submit(function(e){e.preventDefault();var a=$(this);return $.ajax({type:"POST",url:"'+config.apihost+'feedbacks/savefeedback/'+req.params.id+'",data:a.serialize(),beforeSend:function(){$("#widgetHTML").html("<div style=\'display: flex;justify-content: center;align-items: center;overflow: hidden\'><div data-loading class=\'bx--loading\'><svg class=\'bx--loading__svg\' viewBox=\'-75 -75 150 150\'><title>Loading</title><circle class=\'bx--loading__stroke\' cx=\'0\' cy=\'0\' r=\'37.5\' /></svg></div></div>")},success:function(e){$("#widgetHTML").html(e.data)}}),!1})});</script>';
 				
 						return res.status(200).json(tools.successResponseObj(feedbackWidgetHTMLStr,startDate,endDate,resource,req.url));
 						
@@ -168,13 +170,16 @@ exports.saveUserFeedbackData = [
 		}
 		else {
 			try {				 
+			
+					let requestParam = JSON.parse(Buffer.from(req.params.id, 'base64').toString())
+					
 					let ImageData= req.body.image;
 					let imageType= "image/jpeg"
 					let ImageName = Date.now().toString();
 					var objectStroageData = await objectStroage.UploadObject(ImageData,imageType,ImageName);					
 								
 					var feedbackPostData = {
-						widget_id: req.body.widget_id,
+						widget_id: requestParam.id,
 						screen_shot: ImageName,
 					}
 					

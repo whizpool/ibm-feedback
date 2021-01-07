@@ -81,7 +81,7 @@ exports.fetchFeedbacks = [
 														//attributes : ['id'],
 														where:{
 															name: {
-																		[Op.or]: [{ [Op.iLike]: '%rate%'}, { [Op.iLike]: '%email%'}]
+																		[Op.or]: [{ [Op.iLike]: '%rate%'}, { [Op.iLike]: '%email%'}, { [Op.iLike]: '%Provide Feedback%'}]
 															}
 													}
 												}
@@ -111,6 +111,9 @@ exports.fetchFeedbacks = [
 							{
 								var answerObj = feedbacksObj.feedback_answers[j].get();
 								var fieldName = answerObj.widget_question.question.name;
+								if(fieldName == "Provide Feedback") {
+									fieldName = 'ProvideFeedback'
+								}
 								if(fieldName == "Rate Us") {
 									fieldName = 'rating'
 									var optionID = answerObj.widget_question.option_id
