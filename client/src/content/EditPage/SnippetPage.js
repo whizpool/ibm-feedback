@@ -32,7 +32,7 @@ const SnippetPage = ({recordID,widgetURL}) => {
 var encodedString = btoa(JSON.stringify({id:recordID,url:widgetURL}));
 //let string = Buffer.from(b64Encodedstring, 'base64').toString()
 	
-var codeSnippet = `<link rel="stylesheet" href="	https://unpkg.com/carbon-components/css/carbon-components.min.css" >
+var codeSnippet = `<link rel="stylesheet" href="https://unpkg.com/carbon-components/css/carbon-components.min.css" >
 <script src="https://unpkg.com/carbon-components/scripts/carbon-components.min.js"></script>
 <script type="text/javascript" src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <link rel="stylesheet" href="${BaseURL}/inapp.css">
