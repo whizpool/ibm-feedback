@@ -45,6 +45,7 @@ class WidgetPage extends React.Component {
 		  isSubmitting: false,
 		  description: "Submititting",
 		  deleteRowIndex : 0,
+			deleteRowID : 0,
 		  ariaLive: false,
 		  success : false,
 		  successMessage : "",
@@ -116,6 +117,7 @@ class WidgetPage extends React.Component {
 			success: false, 
 			deleteModalOpen: false,
 			deleteRowIndex:0,
+			deleteRowID:0,
 			ariaLive: "Off", 
 			description: "Submitting",
 			widgetName: "",
@@ -139,11 +141,12 @@ class WidgetPage extends React.Component {
 
 	deleteRow = (event) => {
 		event.preventDefault();
-		let gridData = this.state.rows;
+		//let gridData = this.state.rows;
 		let rowIndex = this.state.deleteRowIndex
-		let rowID = gridData[rowIndex].id;
+		let rowID = this.state.deleteRowID
+		//let rowID = gridData[rowIndex].id;
 		this.deleteWidgets(rowID,rowIndex)
-		
+		//console.log(rowIndex)
 	};
 	
 	handleOnHeaderChange  = (e) => {	
@@ -274,7 +277,9 @@ class WidgetPage extends React.Component {
 					successMessage: "You have successfully deleted the widget.",
 					deleteModalOpen: false,
 					deleteRowIndex:0,
+					deleteRowID:0,
 			});
+			/*
 			let rows = this.state.rows
 			if (rows.length > 0) {
 				rows.splice(rowIndex, 1);
@@ -290,7 +295,8 @@ class WidgetPage extends React.Component {
 							page: (this.state.page-1),
 							pageSize: this.state.pageSize
 						});
-				}
+			}*/
+			this.getWidgets();
 				setTimeout(() => {
 					this.setState({ success: false })
 				}, 3000)
@@ -679,7 +685,7 @@ class WidgetPage extends React.Component {
 											<OverflowMenuItem itemText="Configure Widget"  onClick={() => this.props.history.push('/edit/'+row.id+'/tab-configure')} hasDivider />
 											<OverflowMenuItem itemText="Delete"
 											onClick={(event) => {
-												this.setState({ deleteRowIndex:dataRowIndex,deleteModalOpen: true })	
+												this.setState({ deleteRowIndex:dataRowIndex,deleteRowID:row.id,deleteModalOpen: true })	
 												}} hasDivider isDelete />
 											</OverflowMenu>
 										</TableCell>

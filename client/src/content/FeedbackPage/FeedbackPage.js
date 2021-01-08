@@ -43,6 +43,7 @@ class FeedbackPage extends React.Component {
 		  modalOpen: false,
 		  deleteAllModalOpen: false,
 		  deleteRowIndex : 0,
+			deleteRowID : 0,
 		  isSubmitting: false,
 		  description: "Submititting",
 		  ariaLive: false,
@@ -67,6 +68,7 @@ class FeedbackPage extends React.Component {
 			isSubmitting: false, 
 			success: false, 
 			deleteRowIndex:0,
+			deleteRowID:0,
 			ariaLive: "Off", 
 			description: "Submitting",
 		});
@@ -74,9 +76,10 @@ class FeedbackPage extends React.Component {
 	
   deleteRow = (event) => {
 		event.preventDefault();
-		let gridData = this.state.rows;
+		//let gridData = this.state.rows;
 		let rowIndex = this.state.deleteRowIndex
-		let rowID = gridData[rowIndex].id;
+		let rowID = this.state.deleteRowID
+		//let rowID = gridData[rowIndex].id;
 		this.deleteFeedback(rowID,rowIndex)
 		
 	};
@@ -234,7 +237,7 @@ class FeedbackPage extends React.Component {
 						modalOpen: false,
 						deleteRowIndex:0,
 				});
-				
+				/*
 				let rows = this.state.rows
 				if (rows.length > 0) {
 					rows.splice(rowIndex, 1);
@@ -250,9 +253,8 @@ class FeedbackPage extends React.Component {
 								page: (this.state.page-1),
 								pageSize: this.state.pageSize
 							});
+				}*/
 					this.getFeedbacks();
-					}
-				
 				setTimeout(() => {
 					this.setState({ success: false })
 				}, 3000)
@@ -432,7 +434,7 @@ class FeedbackPage extends React.Component {
 										 <OverflowMenuItem itemText="View Feedback" onClick={() => this.props.history.push('/view/'+row.id)}  hasDivider />
 										 <OverflowMenuItem itemText="Delete"
 										 onClick={(event) => {
-												this.setState({ modalOpen: true,deleteRowIndex:dataRowIndex })	
+												this.setState({ modalOpen: true,deleteRowIndex:dataRowIndex,deleteRowID:row.id, })	
 												}} hasDivider isDelete />
 										</OverflowMenu>
 									</TableCell>

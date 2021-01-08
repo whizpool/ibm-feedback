@@ -56,6 +56,7 @@ class AdminPage extends React.Component {
 		  deleteAllModalOpen: false,
 		  description: "Submititting",
 		  deleteRowIndex : 0,
+		  deleteRowID : "",
 		  ariaLive: false,
 		  modalOpen: false,
 		  headers: columns,
@@ -297,7 +298,9 @@ class AdminPage extends React.Component {
 	
 	deleteUser = (rowIndex) => {
 		let gridData = this.state.rows;
-		let currentRowID = gridData[rowIndex].iam_id;
+		let userRow = gridData.find(obj=>obj.id===this.state.deleteRowID)
+		let currentRowID = userRow.iam_id;
+		
 	
 		this.setState({ 
 				isSubmitting: true,
@@ -315,18 +318,16 @@ class AdminPage extends React.Component {
 		
 		axios(config)
 		.then(response => {
-				let rows = this.state.rows.slice();
-				if (rows.length > 0) {
-					rows.splice(rowIndex, 1);
-					this.setState({ rows});
-				}	
 				this.setState({ 
 						isSubmitting: false,
 						success: true,
 						deleteModalOpen:false,
+						deleteRowID:"",
+						deleteRowIndex:0,
 						description: "Deleted" ,
 						successMessage: "You have successfully deleted the user.",
 				});
+				this.getUsers();
 				setTimeout(() => {
 					this.setState({ success: false })
 				}, 3000)
@@ -549,8 +550,8 @@ class AdminPage extends React.Component {
 								</TableRow>
 							</TableHead>
 							<TableBody>
-								{rows.map((row,rowIndex) => (
-								<TableRow {...getRowProps({ row })}>
+								{rows.map((row,rowIndex) => {
+								return <TableRow {...getRowProps({ row })}>
 									<TableSelectRow {...getSelectionProps({ row })} />
 									{row.cells.map((cell) => (
 									<TableCell key={cell.id}>{cell.value}</TableCell>
@@ -560,12 +561,12 @@ class AdminPage extends React.Component {
 										
 										 <OverflowMenuItem itemText="Delete" 
 										 onClick={(event) => {
-												this.setState({ deleteModalOpen: true,deleteRowIndex:rowIndex })	
+												this.setState({deleteModalOpen: true,deleteRowIndex:rowIndex,deleteRowID:row.id })	
 												}} hasDivider isDelete />
 										</OverflowMenu>
 									</TableCell>
 								</TableRow>
-								))}
+								})}
 							</TableBody>
 						</Table>
 						<Pagination
