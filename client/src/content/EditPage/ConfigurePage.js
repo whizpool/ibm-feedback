@@ -461,6 +461,7 @@ class ConfigurePage extends React.Component {
 											invalid={this.state.webhookInvalid}
 											invalidText="Please enter slack webHook.."
 									/>
+									<br/>
 									<TextInput
 										id="channelName"
 										name="channelName"
