@@ -172,6 +172,19 @@ class WidgetPage extends React.Component {
 	
 	deleteAllRecords = (event) =>{
 		
+		this.setState({ 
+						success: true,
+						isSubmitting: false,
+						ariaLive: "Off",
+						description: "Submitting",
+						deleteAllModalOpen: false,
+						rows: [],
+						successMessage: "You have successfully deleted the widgets.",
+					});	
+					setTimeout(() => {
+						this.setState({ success: false })
+					}, 3000)
+
 		var deleteRowIDs = []
 		var widgetRows = this.state.selectedWidgetRows	
 		widgetRows.map((row) => (

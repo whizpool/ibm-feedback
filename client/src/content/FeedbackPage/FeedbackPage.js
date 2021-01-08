@@ -250,10 +250,13 @@ class FeedbackPage extends React.Component {
 								page: (this.state.page-1),
 								pageSize: this.state.pageSize
 							});
+					this.getFeedbacks();
 					}
+				
 				setTimeout(() => {
 					this.setState({ success: false })
 				}, 3000)
+				
 					})
 		.catch((error) => {
 			this.setState({
@@ -420,7 +423,7 @@ class FeedbackPage extends React.Component {
 											return <TableCell key={cell.id}>{this.viewRating(dataRowIndex)}</TableCell> 
 										}
 										if(cell.info.header === 'ProvideFeedback') {
-										return <ReadMoreReact ideal={50} min={50} text={cell.value} readMoreText='  Read more' />
+										return <TableCell key={cell.id}><ReadMoreReact  ideal={50} min={50} text={cell.value} readMoreText='  Read more' /></TableCell> 
 										}											
 										return <TableCell key={cell.id}>{cell.value}</TableCell>
 									})}

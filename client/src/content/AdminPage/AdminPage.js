@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect} from 'react-redux'
 
-import { DataTable, TableContainer, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,TableToolbar,TableBatchActions,TableBatchAction,TableToolbarContent,Button,TableSelectAll,TableSelectRow,Breadcrumb, BreadcrumbItem,MultiSelect,OverflowMenu,OverflowMenuItem,Pagination,TextInput,Form,Dropdown,ComposedModal,ModalHeader,ModalBody,ModalFooter,InlineLoading,DataTableSkeleton} from 'carbon-components-react';
+import { DataTable, TableContainer, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,TableToolbar,TableBatchActions,TableBatchAction,TableToolbarContent,Button,TableSelectAll,TableSelectRow,Breadcrumb, BreadcrumbItem,MultiSelect,OverflowMenu,OverflowMenuItem,Pagination,TextInput,Form,Dropdown,ComposedModal,ModalHeader,ModalBody,ModalFooter,InlineLoading,DataTableSkeleton,InlineNotification} from 'carbon-components-react';
 
 import { TrashCan32 as Delete, Add16 as Add } from '@carbon/icons-react';
 
@@ -163,6 +163,7 @@ class AdminPage extends React.Component {
 			modalOpen: false ,
 			isSubmitting: false, 
 			success: false, 
+			successMessage : "",
 			ariaLive: "Off", 
 			description: "Submitting",
 			name: "",
@@ -179,7 +180,6 @@ class AdminPage extends React.Component {
 		var widgetRows = this.state.selectedWidgetRows	
 		widgetRows.map((row) => {		
 			return deleteRowIDs.push(gridData.find(obj => obj.id === row.id).iam_id)
-			
 		})		
 		this.setState({ 
 				isSubmitting: true,
@@ -198,13 +198,20 @@ class AdminPage extends React.Component {
 		
 		axios(config)
 		.then( () => {
+					
 					this.setState({ 
+						success: true,
 						isSubmitting: false,
 						ariaLive: "Off",
 						description: "Submitting",
 						deleteAllModalOpen: false,
-						rows: []
+						rows: [],
+						successMessage: "You have successfully deleted the users.",
 					});	
+					
+					setTimeout(() => {
+						this.setState({ success: false })
+					}, 3000);
 					this.getUsers();
 		})
 		.catch((error) => {
@@ -308,21 +315,26 @@ class AdminPage extends React.Component {
 		
 		axios(config)
 		.then(response => {
-					this.setState({ 
-						isSubmitting: false,
-						success: true,
-						description: "Deleted" 
-				});
-				
 				let rows = this.state.rows.slice();
 				if (rows.length > 0) {
 					rows.splice(rowIndex, 1);
 					this.setState({ rows});
 				}	
+				this.setState({ 
+						isSubmitting: false,
+						success: true,
+						deleteModalOpen:false,
+						description: "Deleted" ,
+						successMessage: "You have successfully deleted the user.",
+				});
+				setTimeout(() => {
+					this.setState({ success: false })
+				}, 3000)
 		})
 		.catch((error) => {
 			this.setState({
 				error,
+				deleteModalOpen:false,
 				isLoading: false
 			});
 			if( error.response.status === 401){
@@ -348,7 +360,18 @@ class AdminPage extends React.Component {
 			  <BreadcrumbItem href="admins"  >Manage Admins</BreadcrumbItem>
 			</Breadcrumb>
 			<br/>
-			
+			{/*success Notification message*/}
+			{ this.state.success  ? 
+						<InlineNotification
+									kind="success"
+									title="Success"
+									subtitle={this.state.successMessage}
+									caption=""
+									style={{
+										minWidth: "100%",
+									}}
+							/> : ""
+			}	
 			<ComposedModal size="sm" onClose={this.closeModal} open={this.state.modalOpen} preventCloseOnClickOutside={true} >
 					<ModalHeader>
 						<h4>Invite Admin</h4>
@@ -396,7 +419,7 @@ class AdminPage extends React.Component {
 					</ModalBody>
 					<ModalFooter>
 						<Button kind="secondary" onClick={(event) => {this.closeModal(event)}}>Cancel</Button>
-						{this.state.isSubmitting || this.state.success ? (
+						{this.state.isSubmitting  ? (
 							<InlineLoading
 								style={{ marginLeft: '1rem' }}
 								description={this.state.description}
@@ -416,7 +439,7 @@ class AdminPage extends React.Component {
 					</ModalBody>
 					<ModalFooter>
 						<Button kind="secondary" onClick={(event) => {this.closeModal(event)}}>Cancel</Button>
-						{this.state.isSubmitting || this.state.success ? (
+						{this.state.isSubmitting ? (
 							<InlineLoading
 								style={{ marginLeft: '1rem' }}
 								description={this.state.description}
@@ -436,7 +459,7 @@ class AdminPage extends React.Component {
 					</ModalBody>
 					<ModalFooter>
 						<Button kind="secondary" onClick={(event) => {this.closeModal(event)}}>Cancel</Button>
-						{this.state.isSubmitting || this.state.success ? (
+						{this.state.isSubmitting ? (
 							<InlineLoading
 								style={{ marginLeft: '1rem' }}
 								description={this.state.description}
