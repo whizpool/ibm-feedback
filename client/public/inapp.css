@@ -62,9 +62,9 @@ button:hover { background-color: #f3830b; }
 
 .feedback-box .content {
   max-height: 100vh;
-  height: 100%;
-  overflow: auto;
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+	height: 100%;
+	overflow: auto;
+	filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
   opacity: 0;
   background: white;
   border: 1px solid #ddd;
@@ -95,7 +95,7 @@ button:hover { background-color: #f3830b; }
   transform: rotateY(0deg);
   filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);
   opacity: 1;
-  width: 400px;
+	width: 400px;
 }
 
 
@@ -106,7 +106,7 @@ button:hover { background-color: #f3830b; }
   font-size: 18px;
   height: 55px;
   line-height: 55px;
-  padding-left:10px;
+	padding-left:10px;
   text-align: left;
   border-bottom: 1px solid #ddd;
 }

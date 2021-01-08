@@ -39,12 +39,14 @@ class ConfigurePage extends React.Component {
 		  gitHubRepodisabled: true,
 		  scan: true,
 		  api_response: [],
-			isSubmitting: false,
+		  isSubmitting: false,
 		  description: "Submititting",
-			deleteRowIndex : 0,
+		  deleteRowIndex : 0,
 		  ariaLive: false,
 		  success : false,
-			successMessage : "",
+		  slackUnlink: false, 
+		  githubUnlink: false, 
+		  successMessage : "",
 		  RepoListItem : "",
 		  gitHubRepoName : "",
 		  repo_name : "",
@@ -260,7 +262,14 @@ class ConfigurePage extends React.Component {
 	};	
 	
 	unlinkConnection = (connection_type) => {
-		this.setState({ isSubmitting:true });
+ 
+		if(connection_type.toLowerCase() === "slack") {
+			this.setState({ isSubmitting:true,githubUnlink:true });	
+		}
+		if(connection_type.toLowerCase() === "slack") {
+			this.setState({ isSubmitting:true,slackUnlink:true });
+		}
+		
 		
 		var config = {
 				method: 'post',
@@ -294,6 +303,8 @@ class ConfigurePage extends React.Component {
 				this.setState({ 
 						isSubmitting: false,
 						success: true,
+						githubUnlink:false,
+						slackUnlink:false,
 						description: "Submitted", 
 						gitHubRepoID: "" ,
 						gitHubPAC: "" ,
@@ -516,7 +527,17 @@ class ConfigurePage extends React.Component {
 													<p>WebHook : <strong>{this.props.widgetData.webhook}</strong></p> 
 													<p style={{ marginTop: ".5rem"}}>Channel Name : <strong>{this.props.widgetData.channelName}</strong></p>
 													<p style={{ margin: "10px 0",fontSize: "15px"}}>
+													{
+															this.state.githubUnlink? 
+														<InlineLoading
+															style={{ marginLeft: '1rem' }}
+															className="statusInputSubmit"
+														/>
+												 : 
+													<>
 														<Button kind="secondary" onClick={() => {this.unlinkConnection('slack');}}>Unlink</Button>
+													 </>
+													}														
 													</p>
 												</div>
 										
@@ -525,7 +546,19 @@ class ConfigurePage extends React.Component {
 												<p>But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will
 												</p>
 												<p style={{ margin: "10px 0",fontSize: "15px"}}>
+													{
+															this.state.slackUnlink? 
+														<InlineLoading
+															style={{ marginLeft: '1rem' }}
+															className="statusInputSubmit"
+														/>
+												 : 
+													<>
 													<Button kind="secondary" onClick={() => {this.setState({ slackModalOpen: true });}}>Connect Slack</Button>
+													 </>
+													}
+													
+													
 												</p>
 										</div>	
 									}

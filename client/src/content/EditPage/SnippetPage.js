@@ -34,16 +34,17 @@ var encodedString = btoa(JSON.stringify({id:recordID,url:widgetURL}));
 	
 var codeSnippet = `<link rel="stylesheet" href="	https://unpkg.com/carbon-components/css/carbon-components.min.css" >
 <script src="https://unpkg.com/carbon-components/scripts/carbon-components.min.js"></script>
-<link rel="stylesheet" href="${BaseURL}/style.css">
+<script type="text/javascript" src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<link rel="stylesheet" href="${BaseURL}/inapp.css">
 <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-<script type="text/javascript" src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>  
-<button  id='feedback' class='bx--btn bx--btn--primary'  type='submit'>Feedback</button> 
-<div class='feedback-box'>
+<script src="${BaseURL}/inapp.js"></script>  
+<button  id='feedback'  class='bx--btn bx--btn--primary inappfeedback' data-html2canvas-ignore type='submit'>Feedback</button> 
+<div class='feedback-box' id='feedback-box' data-html2canvas-ignore>
  <div class="content"><a class='close' href="#">x</a>
 	<div id='widgetHTML'></div>
  </div>
 </div>
-<script>(function($) {	var feedback=$(".feedback-box");$("#feedback").on("click",function(){feedback.addClass("show")}),$(".close").on("click",function(){feedback.removeClass("show")});
+<script>(function($) {
 $.post('${process.env.REACT_APP_API_ENDPOINT}feedbacks/getmywidget/${encodedString}').done(function(e){$("#widgetHTML").html(e.data)});})(jQuery);</script>`
 
   return (
