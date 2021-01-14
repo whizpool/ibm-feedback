@@ -107,6 +107,10 @@ exports.fetchFeedbacks = [
 							feedbacksObj.name = feedbacksObj.widget.name
 							feedbacksObj.url = feedbacksObj.widget.url
 							feedbacksObj.date = tools.convertMillisecondsTodateFormat(feedbacksObj.createdAt);		 
+							feedbacksObj.rating = 0;		 
+							feedbacksObj.rating_type = "";		 
+							feedbacksObj.ProvideFeedback = "";		 
+							feedbacksObj.email = "";		 
 							for(var j =0 ; j < feedbacksObj.feedback_answers.length;j++)
 							{
 								var answerObj = feedbacksObj.feedback_answers[j].get();
