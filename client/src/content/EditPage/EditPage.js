@@ -31,7 +31,6 @@ const mapDispatchToProps = (dispatch) => {
     }
 }	
 
-var validUrl = require('valid-url');
 let checkFlag = true;
 class EditPage extends React.Component {
 
@@ -90,10 +89,17 @@ class EditPage extends React.Component {
 			this.setState({ widgetURLInvalid: true });
 			checkFlag = false;
 		} else {
-			if (!validUrl.isUri(this.state.widgetURL)){
+			var widgetURL = this.state.widgetURL;
+			if (widgetURL.indexOf("http://") !== 0 && widgetURL.indexOf("https://") !== 0) {
+				widgetURL = "https://"+this.state.widgetURL
+			}			
+			var regexp = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+			if (!regexp.test(widgetURL))
+			{
 				this.setState({ widgetURLInvalid: true });
 				checkFlag = false;
 			}
+		
 		}
 		return checkFlag;
   };
@@ -345,7 +351,6 @@ class EditPage extends React.Component {
 												onChange={this.saveData}
 												labelText=""
 												placeholder="Enter widget url"
-												style={{ marginBottom: '1rem' }}
 												invalid={this.state.widgetURLInvalid}
 												invalidText="Please enter a widget url.."
 												/>

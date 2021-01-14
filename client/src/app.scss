@@ -1,15 +1,20 @@
 @import '@carbon/themes/scss/themes';
 // Use the gray 10 theme
-@include carbon--theme($carbon--theme--g10);
+$carbon--theme: $carbon--theme--g10;
+
+@include carbon--theme();
 
 .bx--data-table-header{
 	padding-left:0;
 }
 .bx--content {
-	background: #f3f3f3;
+	background: #dcdcdc;
+}
+.bx--data-table-header {
+	background: #dcdcdc;
 }
 body {
-  background-color: $ui-02;
+  background-color: $ui-03;
 }
 @import './components/AppHeader/app-header.scss';
 @import './content/WidgetPage/widget-page.scss';

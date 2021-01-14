@@ -261,22 +261,15 @@ button:hover { background-color: #f3830b; }
 .smiley_rating input {
   display: none;
 }
-.smiley_rating input:checked ~ .smiley_1_rating_label:before, 
-.smiley_rating:not(:checked) > .smiley_1_rating_label:hover:before, 
-.smiley_rating:not(:checked) > .smiley_1_rating_label:hover ~ .smiley_1_rating_label:before {
+.smiley_rating input:checked + .smiley_1_rating_label:before{
  content: url(/assets/face--dissatisfied--filled.svg);
 }
 
-
-.smiley_rating input:checked ~ .smiley_2_rating_label:before, 
-.smiley_rating:not(:checked) > .smiley_2_rating_label:hover:before, 
-.smiley_rating:not(:checked) > .smiley_2_rating_label:hover ~ .smiley_2_rating_label:before {
+.smiley_rating input:checked + .smiley_2_rating_label:before {
  content: url(/assets/face--neutral--filled.svg);
 }
 
-.smiley_rating input:checked ~ .smiley_3_rating_label:before, 
-.smiley_rating:not(:checked) > .smiley_3_rating_label:hover:before, 
-.smiley_rating:not(:checked) > .smiley_3_rating_label:hover ~ .smiley_3_rating_label:before {
+.smiley_rating input:checked + .smiley_3_rating_label:before {
  content: url(/assets/face--satisfied--filled.svg);
 }
 

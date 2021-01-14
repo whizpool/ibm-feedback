@@ -3,28 +3,7 @@ import { CodeSnippet  } from 'carbon-components-react';
 import copy from 'copy-to-clipboard';
 
 
-//var recordID = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
 		
-	/*	
-const codeSnippet = `@mixin grid-container {
-  width: 100%;
-  padding-right: padding(mobile);
-  padding-left: padding(mobile);
-  @include breakpoint(bp--xs--major) {
-    padding-right: padding(xs);
-    padding-left: padding(xs);
-  }
-}
-$z-indexes: (
-  modal : 9000,
-  overlay : 8000,
-  dropdown : 7000,
-  header : 6000,
-  footer : 5000,
-  hidden : - 1,
-  overflowHidden: - 1,
-  floating: 10000
-);`; */
 
 const SnippetPage = ({recordID,widgetURL}) => {
 	var BaseURL = window.location.protocol+'//'+window.location.hostname+(window.location.port ? ':'+window.location.port : '');
@@ -44,8 +23,9 @@ var codeSnippet = `<link rel="stylesheet" href="https://unpkg.com/carbon-compone
 	<div id='widgetHTML'></div>
  </div>
 </div>
-<script>(function($) {
-$.post('${process.env.REACT_APP_API_ENDPOINT}feedbacks/getmywidget/${encodedString}').done(function(e){$("#widgetHTML").html(e.data)});})(jQuery);</script>`
+<script>function loadFeedback() {
+$.post('${process.env.REACT_APP_API_ENDPOINT}feedbacks/getmywidget/${encodedString}').done(function(e){$("#widgetHTML").html(e.data)});}
+(function($) {loadFeedback();})(jQuery);</script>`
 
   return (
 					<>

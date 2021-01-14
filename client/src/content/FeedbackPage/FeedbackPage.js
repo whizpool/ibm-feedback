@@ -84,12 +84,13 @@ class FeedbackPage extends React.Component {
 		
 	};
   
-	viewRating = (rowIndex) => {
+	viewRating = (rowIndex, recordID) => {
 		var type = ""
 		var rating = 0
-		if(this.state.rows[rowIndex]) {
-		type = this.state.rows[rowIndex].rating_type
-			 rating = this.state.rows[rowIndex].rating
+		var row = (this.state.rows).find(obj => obj.id === recordID)
+		if(row) {
+			type = row.rating_type
+			 rating = row.rating
 		}
 		return <Rating key={rowIndex} type={type} rating={rating} />
 	}
@@ -422,12 +423,16 @@ class FeedbackPage extends React.Component {
 									{row.cells.map((cell) => {
 										
 										if(cell.info.header === 'rating') {
-											return <TableCell key={cell.id}>{this.viewRating(dataRowIndex)}</TableCell> 
+											return <TableCell key={cell.id} style={{ width: '180px' }}>{this.viewRating(dataRowIndex,row.id)}</TableCell> 
 										}
 										if(cell.info.header === 'ProvideFeedback') {
-										return <TableCell key={cell.id}><ReadMoreReact  ideal={50} min={50} text={cell.value} readMoreText='  Read more' /></TableCell> 
+											return <TableCell key={cell.id}>
+												{
+													(cell.value) ? <ReadMoreReact  ideal={25} min={25} text={cell.value} readMoreText='  Read more' /> : cell.value
+												}
+											</TableCell> 
 										}											
-										return <TableCell key={cell.id}>{cell.value}</TableCell>
+										return <TableCell key={cell.id} style={{ width: '180px' }}>{cell.value}</TableCell>
 									})}
 									<TableCell >
 										<OverflowMenu light flipped>

@@ -526,13 +526,13 @@ function createRatingView(type, value) {
 						break;	
 					case 2:
 							ratingHTML  += "<img src='"+config.ratingImageUrl+"face--dissatisfied.svg' style='width:30px' />"
-						ratingHTML  += "<img src='"+config.ratingImageUrl+"face--neutral.svg--filled' style='width:30px' />"
+							ratingHTML  += "<img src='"+config.ratingImageUrl+"face--neutral--filled.svg' style='width:30px' />"
 						ratingHTML  += "<img src='"+config.ratingImageUrl+"face--satisfied.svg' style='width:30px' />"
 							break;
 					 case 3:
-							ratingHTML  += "<img src='"+config.ratingImageUrl+"face--dissatisfied--filled.svg' style='width:30px' />"
+							ratingHTML  += "<img src='"+config.ratingImageUrl+"face--dissatisfied.svg' style='width:30px' />"
 						ratingHTML  += "<img src='"+config.ratingImageUrl+"face--neutral.svg' style='width:30px' />"
-						ratingHTML  += "<img src='"+config.ratingImageUrl+"face--satisfied.svg--filled' style='width:30px' />"
+							ratingHTML  += "<img src='"+config.ratingImageUrl+"face--satisfied--filled.svg' style='width:30px' />"
 							break;
 					 default:
 							ratingHTML  += "<img src='"+config.ratingImageUrl+"face--dissatisfied.svg' style='width:30px' />"
