@@ -90,14 +90,13 @@ exports.fetchFeedbacks = [
                     dbLayer.sequelize.where(dbLayer.sequelize.fn('date', dbLayer.sequelize.col('feedback.createdAt')), '<=', toDate),
 							]}
 						}
-						if (typeof filters.start_date  !== 'undefined' && filters.start_date  !== null && filters.start_date  !== "" ){
+						else if (typeof filters.start_date  !== 'undefined' && filters.start_date  !== null && filters.start_date  !== "" ){
 							fromDate = filters.start_date;
 							queryParams = {[Op.and]: [
                     dbLayer.sequelize.where(dbLayer.sequelize.fn('date', dbLayer.sequelize.col('feedback.createdAt')), '>=', fromDate)                    
 							]}
 						}
-						
-						if (typeof filters.end_date  !== 'undefined' && filters.end_date  !== null && filters.end_date  !== "" ){
+						else if (typeof filters.end_date  !== 'undefined' && filters.end_date  !== null && filters.end_date  !== "" ){
 							toDate = filters.end_date;
 							queryParams = {[Op.and]: [
             
