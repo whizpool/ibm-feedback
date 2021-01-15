@@ -1,11 +1,14 @@
 import React from 'react';
 import { connect} from 'react-redux'
 
-import { DataTable, TableContainer, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,TableToolbar,TableBatchActions,TableBatchAction,TableToolbarContent,TableSelectAll,TableSelectRow,Breadcrumb, BreadcrumbItem,MultiSelect,OverflowMenu,OverflowMenuItem,Pagination,DataTableSkeleton,ComposedModal,ModalBody,ModalFooter,InlineLoading,Button,TableToolbarSearch,InlineNotification} from 'carbon-components-react';
+import { DataTable, TableContainer, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,TableToolbar,TableBatchActions,TableBatchAction,TableToolbarContent,TableSelectAll,TableSelectRow,Breadcrumb, BreadcrumbItem,MultiSelect,OverflowMenu,OverflowMenuItem,Pagination,DataTableSkeleton,ComposedModal,ModalBody,ModalFooter,InlineLoading,Button,InlineNotification,
+	Form,
+	TextInput,
+	DatePicker,
+	DatePickerInput} from 'carbon-components-react';
 import ReadMoreReact from 'read-more-react';
 
-//import { TrashCan32 as Delete,SettingsAdjust32 as Filter } from '@carbon/icons-react';
-import { TrashCan32 as Delete } from '@carbon/icons-react';
+import { TrashCan32 as Delete,SettingsAdjust32 as Filter, Close32 as Close } from '@carbon/icons-react';
 
 import axios from "axios";
 
@@ -55,6 +58,7 @@ class FeedbackPage extends React.Component {
 		  page: 1,
 		  pageSize: 5,
 		  dataToSave: {},
+		  filterModalOpen: false,			
 		};
 	}
  
@@ -83,6 +87,39 @@ class FeedbackPage extends React.Component {
 		this.deleteFeedback(rowID,rowIndex)
 		
 	};
+  
+	saveData = event => {
+		const target = event.target;
+		let fieldName = target.name;
+		let fieldValue = target.value;
+		this.setState({
+			[fieldName]: fieldValue,
+		});
+		
+	};
+	
+	saveDate = (value,name) => {
+		var d = new Date(value);		
+		var date_value =  d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" +
+				("0" + d.getDate()).slice(-2) + " " + ("0" + d.getHours()).slice(-2) + ":" +
+				("0" + d.getMinutes()).slice(-2) + ":" + ("0" + d.getSeconds()).slice(-2);
+			this.setState({
+				[name]: date_value,
+				start_dateInvalid: false,
+			});
+	};
+	
+	resetfilters = event => {
+		this.setState({
+			widget_name: "",
+			widget_url: "",
+			start_date: "",
+			end_date: "",
+		});
+		
+	};
+	
+	
   
 	viewRating = (rowIndex, recordID) => {
 		var type = ""
@@ -185,26 +222,47 @@ class FeedbackPage extends React.Component {
   getFeedbacks = () => {
 		this.setState({ isLoading: true });
 		
+		this.setState({ isLoading: true });
+		
+		let filterData = {}
+		if(this.state.widget_name !== ""){
+			filterData.name = this.state.widget_name;
+		}
+		if(this.state.widget_url !== ""){
+			filterData.url = this.state.widget_url;
+		}		
+		if(this.state.start_date !== ""){
+			filterData.start_date = this.state.start_date;
+		}
+		if(this.state.end_date !== ""){
+			filterData.end_date = this.state.end_date;
+		}
+		
 		var config = {
-				method: 'get',
+				method: 'post',
 				url:process.env.REACT_APP_API_ENDPOINT+`feedbacks/`,
 				headers: { 
 					'Authorization': 'Bearer '+this.props.access_token
 				},
+				data:{filters:filterData}
 		};
 		
 		axios(config)
 		.then(response => {
+			response = response.data.data;
+			
 				this.setState({
-				rows: response.data.data,
+				rows: response.list,
 				isLoading: false,
+				filterModalOpen: false,
 			});
 		})
 		.catch((error) => {
 
 			this.setState({
 				error,
-				isLoading: false
+				isLoading: false,
+				filterModalOpen: false,
 			});
 			if(error.response.status === 401){
 				this.props.saveLogoutState({type: 'SIGN_OUT'})
@@ -238,23 +296,6 @@ class FeedbackPage extends React.Component {
 						modalOpen: false,
 						deleteRowIndex:0,
 				});
-				/*
-				let rows = this.state.rows
-				if (rows.length > 0) {
-					rows.splice(rowIndex, 1);
-					this.setState({ rows});
-				}
-				//verify last index.		
-				var startItem = (this.state.page - 1) * this.state.pageSize;
-				var endItem = startItem + this.state.pageSize;
-					
-					var displayedRows = this.state.rows.slice(startItem, endItem);
-					if(displayedRows.length === 0 ){
-						this.setState({
-								page: (this.state.page-1),
-								pageSize: this.state.pageSize
-							});
-				}*/
 					this.getFeedbacks();
 				setTimeout(() => {
 					this.setState({ success: false })
@@ -380,7 +421,70 @@ class FeedbackPage extends React.Component {
 					<TableContainer title="Submitted Feedbacks" {...getTableContainerProps()} >
 						<TableToolbar aria-label="data table toolbar">
 							<TableToolbarContent>
-								 <TableToolbarSearch onChange={onInputChange} />
+								<div className={`filter-popup ${this.state.filterModalOpen ? 'bg-white' : 'bg-none'}`}>
+									{!this.state.filterModalOpen ?
+										<Filter onClick={() => this.setState({ filterModalOpen: true })} />
+										:
+										<Close onClick={() => this.setState({ filterModalOpen: false })} />}
+									<div
+										className={`filter-popup-content ${this.state.filterModalOpen ? 'd-block' : 'd-none'}`}>
+										<Form className="form" autoComplete="off">
+											<div className="flexBox">
+												<DatePicker dateFormat="m/d/Y" datePickerType="single" 
+												onChange={(event) => {this.saveDate(event,"start_date")	}}
+												onClick={(event) => {this.saveDate(event,"start_date")	}}
+												>
+													<DatePickerInput
+														id="start_date"
+														name="start_date"
+														placeholder="mm/dd/yyyy"
+														labelText="From"
+														type="text"
+														invalid={this.state.start_dateInvalid || false }
+														invalidText="Please select a valid From date"
+												/>
+												</DatePicker>
+												<DatePicker dateFormat="m/d/Y" datePickerType="single" 
+												onChange={(event) => {this.saveDate(event,"end_date")	}}
+												onClick={(event) => {this.saveDate(event,"end_date")	}}
+												>
+													<DatePickerInput
+														id="end_date"
+														name="end_date"
+														placeholder="mm/dd/yyyy"
+														onChange={this.saveData}
+														labelText="To"
+														type="text"
+														invalid={this.state.end_dateInvalid || false }
+														invalidText="Please select a To From date"
+													/>
+												</DatePicker>
+											</div>
+											<div className="flexBox">
+												<TextInput
+													id="widget_url"
+													name="widget_url"
+													labelText="URL"
+													value={this.state.widget_url || ""}
+													onChange={this.saveData}
+													placeholder="Enter url"
+												/>
+												<TextInput
+													id="widget_name"
+													name="widget_name"
+													value={this.state.widget_name || ""}
+													labelText="Widget name"
+													onChange={this.saveData}
+													placeholder="Enter widget name"
+												/>
+											
+											</div>
+											<Button kind="secondary" onClick={this.resetfilters} >Reset filters</Button>
+											<Button kind="primary" onClick={this.getFeedbacks}>	Apply filters</Button>
+										</Form>
+									</div>
+								</div>
+											
 								<div style={{ width: 200 }}>
 									<MultiSelect
 										onChange={(e)=>this.handleOnHeaderChange(e)}  

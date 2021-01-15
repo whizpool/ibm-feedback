@@ -23,3 +23,44 @@ color: #0f62fe;
 margin-top:2px;
 cursor:pointer;
 }
+
+.filter-popup{
+  padding: 10px;
+	cursor:pointer;
+}
+
+.filter-popup-content {
+  position: absolute;
+  top: 47px;
+  right: 201px;
+  background-color: #ffffff;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+.d-none{
+  display: none;
+}
+.d-block{
+  display: block;
+}
+.bg-white{
+  background-color: #fff;
+}
+.bg-none{
+  background-color: transparent;
+}
+.form button{
+  width: 50%;
+  }
+.form .flexBox{
+  display: flex;
+  margin: 20px;
+  justify-content: space-between;
+}
+.form .flexBox div{
+  min-width: 200px;
+}
+.form .flexBox div+div{
+  margin-left: 20px;
+}

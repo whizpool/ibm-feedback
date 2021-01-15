@@ -58,13 +58,65 @@ exports.fetchFeedbacks = [
 		else {
 			try {
 				 
+	/*console.log(req.body.filters)
+					
+					{
+  name: 'sdfasdfas',
+  url: 'ibm.com',
+  rating: '2',
+  rating_type: '3',
+  start_date: '2021-01-15 00:00:00',
+  end_date: '2021-01-15 00:00:00'
+}	
+*/
+					var queryParams = {};	
+					var widgetQueryParams = {};	
+					var widgetQuestionQueryParams = {};	
+					if (typeof req.body.filters  !== 'undefined' && req.body.filters  !== null && req.body.filters  !== "" ){
+					var filters = req.body.filters;
+					
+					if (typeof filters.name  !== 'undefined' && filters.name  !== null && filters.name  !== "" ){							
+							widgetQueryParams.name = { [Op.iLike]: '%'+filters.name+'%' }					
+						}
+						if (typeof filters.url  !== 'undefined' && filters.url  !== null && filters.url  !== "" ){							
+							widgetQueryParams.url = { [Op.iLike]: '%'+filters.url+'%' }					
+						}
+						if (typeof filters.start_date  !== 'undefined' && filters.start_date  !== null && filters.start_date  !== "" && typeof filters.end_date  !== 'undefined' && filters.end_date  !== null && filters.end_date  !== "" ){
+							
+							fromDate = filters.start_date;
+							toDate = filters.end_date;
+							queryParams = {[Op.and]: [
+                    dbLayer.sequelize.where(dbLayer.sequelize.fn('date', dbLayer.sequelize.col('feedback.createdAt')), '>=', fromDate),
+                    dbLayer.sequelize.where(dbLayer.sequelize.fn('date', dbLayer.sequelize.col('feedback.createdAt')), '<=', toDate),
+							]}
+						}
+						if (typeof filters.start_date  !== 'undefined' && filters.start_date  !== null && filters.start_date  !== "" ){
+							fromDate = filters.start_date;
+							queryParams = {[Op.and]: [
+                    dbLayer.sequelize.where(dbLayer.sequelize.fn('date', dbLayer.sequelize.col('feedback.createdAt')), '>=', fromDate)                    
+							]}
+						}
+						
+						if (typeof filters.end_date  !== 'undefined' && filters.end_date  !== null && filters.end_date  !== "" ){
+							toDate = filters.end_date;
+							queryParams = {[Op.and]: [
+            
+                    dbLayer.sequelize.where(dbLayer.sequelize.fn('date', dbLayer.sequelize.col('feedback.createdAt')), '<=', toDate),
+							]}
+						}
+						if (typeof filters.rating_type  !== 'undefined' && filters.rating_type  !== null && filters.rating_type  !== "" ){							
+							//widgetQuestionQueryParams.option_id = +filters.url				
+						}
+					}					
+			
 					dbLayer.feedback.findAll({
-							where: {},
+							where: queryParams,
 							attributes : ['id','widget_id','screen_shot','createdAt'],
 							include: [ 
 								{
 									model: dbLayer.widget,
-									attributes : ['name','url']
+									attributes : ['name','url'],
+									where:widgetQueryParams
 								},	
 								{
 									model: dbLayer.feedback_answer,
@@ -98,6 +150,7 @@ exports.fetchFeedbacks = [
 						if (!feedbacks) {				
 							return res.status(200).json(tools.successResponseObj([],startDate,endDate,resource,req.url));				
 						}  
+						var RatingQuestionID = 0;
 						var feedbacksList = []						
 						for(var i =0 ; i < feedbacks.length;i++)
 						{
@@ -119,6 +172,7 @@ exports.fetchFeedbacks = [
 									fieldName = 'ProvideFeedback'
 								}
 								if(fieldName == "Rate Us") {
+									RatingQuestionID = answerObj.widget_question.question_id
 									fieldName = 'rating'
 									var optionID = answerObj.widget_question.option_id
 									feedbacksObj.rating_type = (await dbLayer.question_option.findOne({where: {id: optionID},attributes : ['value']})).value;	
@@ -132,7 +186,10 @@ exports.fetchFeedbacks = [
 							delete feedbacksObj.feedback_answers 
 							feedbacksList.push(feedbacksObj);
 						}
-						return res.status(200).json(tools.successResponseObj(feedbacksList,startDate,endDate,resource,req.url));
+						var userfeedbacks = {}
+						userfeedbacks.list = feedbacksList;
+						userfeedbacks.options = await dbLayer.question_option.findAll({where: {question_id: RatingQuestionID},attributes : ['id','label','value',]});	;
+						return res.status(200).json(tools.successResponseObj(userfeedbacks,startDate,endDate,resource,req.url));
 						
 						
 					})
