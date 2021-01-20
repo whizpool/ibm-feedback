@@ -8,10 +8,13 @@ $carbon--theme: $carbon--theme--g10;
 	padding-left:0;
 }
 .bx--content {
-	background: #dcdcdc;
+	background: #e0e0e0;
 }
 .bx--data-table-header {
-	background: #dcdcdc;
+	background: #e0e0e0;
+}
+.bx--table-sort:hover{
+	background: #e0e0e0;
 }
 body {
   background-color: $ui-03;
