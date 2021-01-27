@@ -5,10 +5,6 @@
 
 * [Getting Started](#getting-started)
 * [Configuration Settings](#configuration-settings)
-* [OAuthContext](#oauthcontext)
-* [OAuth API Samples](#oauth-samples)
-* [AuthenticatorContext](#authenticatorcontext)
-* [AuthenticatorContext API Samples](#authenticatorcontext-api-aamples)
 * [License](#license)
 
 Feedback widgets provide a place for customers to attach screenshots and more information, making it more likely that your agents can give customers a quality answer on their first response. You're helping your customers frame their questions in a helpful manner.
@@ -16,9 +12,9 @@ Feedback widgets provide a place for customers to attach screenshots and more in
 
 IBM Feedback currently supports the following types of ratings:
  - **Star**
-    - 1 to 5 start rating.
+    - 1 to 5 stars rating.
  - **Smily**
-	- 3 type of smilies rating.
+	- 3 types of smilies rating.
  - **Number**
 	-	1 to 5 Number rating
 
@@ -34,7 +30,6 @@ IBM Feedback currently supports the following types of ratings:
 After configuring your IBM Identity Access you can clone and install the IBM Feedback:
 
 ## Running Locally
-
 Make sure you have [Node.js](http://nodejs.org/) installed.
 
 ```sh
@@ -55,14 +50,9 @@ npm start
 ```
 
 ## Configuration Settings
-Please review the .
-
-Examples on how to configure your oidc applicaiton can be found on the IBM Security Identity and Access: Developer Portal site. [Configuring your application](http://developer.ice.ibmcloud.com/verify/javascript/ibm-verify-sdk-object-model/config).
-
-## OAuthContext
-The OAuthContext object represents the interactions between the relying party and the IBM Security Verify authorization server to acquire access tokens which enable the application access to protected resources.
-[Additional information about OAuthContext](https://pages.github.ibm.com/ibm-security/iam-docs/verify/javascript/ibm-verify-sdk-object-model/oauthcontext)
-
+For the backend api please review the config/config.global.js 
+For the frontend please review the .env
+Update the required parameters accrodingly.
 
 
 # License
