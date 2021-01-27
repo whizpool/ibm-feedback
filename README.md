@@ -1,4 +1,5 @@
 # IBM Feedback
+Integrated with the IBM Cloud
 ![Type](https://img.shields.io/badge/Type-JavaScript-blue.svg)
 ![npm](https://img.shields.io/npm/v/ibm-verify-sdk.svg?style=plastic)
 ![NPM](https://img.shields.io/npm/l/ibm-verify-sdk.svg?colorB=blue&style=plastic)
