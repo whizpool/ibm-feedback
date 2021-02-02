@@ -9,30 +9,30 @@ Integrated with the IBM Cloud
 * [Configuration Settings](#configuration-settings)
 * [License](#license)
 
-Feedback widgets provide a place for customers to attach screenshots and more information, making it more likely that your agents can give customers a quality answer on their first response. You're helping your customers frame their questions in a helpful manner.
+Feedback widgets provide a place for customers to attach screenshots and more information, making it more likely that your agents can give customers a quality answer on their first response. You are helping your customers frame their questions in a helpful manner.
 
 
 IBM Feedback currently supports the following types of ratings:
  - **Star**
     - 1 to 5 stars rating.
  - **Smily**
-	- 3 types of smilies rating.
+	- 3 point smiley rating.
  - **Number**
-	-	1 to 5 Number rating
+	-	1 to 5 Number rating.
 
 
 ## Prerequisites
-**Important following items are required to login in the  IBM Feedback.**
+**Important following items are required to login in the IBM Feedback.**
  - Configuring your [IBM API keys](https://cloud.ibm.com/docs/account?topic=account-userapikey)
  - Create & Configure Cloud Storage [IBM Cloud Storage](https://cloud.ibm.com/docs/cloud-object-storage).
  - Create & Configure the Slack [Webhooks] (https://api.slack.com/messaging/webhooks) *Optional*
  - Create & Configure the GitHub [Personal Access Token] (https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) *Optional*
 
 # Getting Started
-After configuring your IBM Identity Access you can clone and install the IBM Feedback:
+After configuring your “IBM Identity Access”, you can clone and install the IBM Feedback:
 
 ## Running Locally
-Make sure you have [Node.js](http://nodejs.org/) installed.
+Please make sure you have [Node.js](http://nodejs.org/) installed.
 
 ```sh
 git clone git@github.com:heroku/node-js-sample.git # or clone your own fork
