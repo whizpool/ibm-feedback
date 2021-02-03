@@ -37,9 +37,7 @@ IBM Feedback currently supports the following types of ratings:
 We have used the following IBM cloud services in this projects
 
 - [IBM Cloud Storage](https://cloud.ibm.com/docs/cloud-object-storage)
-IBM Cloud Object Storage is an application-data archive and backup platform that offers persistent cloud storage and data encryption by default. Made for electronic records retention, it helps with regulatory compliance.
-
-In this project we have used the Cloud Storage for storing the image / screenshots.
+IBM Cloud Object Storage is an application-data archive and backup platform that offers persistent cloud storage and data encryption by default. Made for electronic records retention, it helps with regulatory compliance.<br/>In this project we have used the Cloud Storage for storing the image / screenshots.
 
 - [IBM Cloud User Management & access managment] (https://cloud.ibm.com/apidocs/user-management)
 You can access and use IBM Cloud IAM through the Access (IAM) UI, CLI, or API. To access IBM Cloud IAM by using the console, go to Manage > Access (IAM). Go to Managing IAM access, API keys, service IDs, and access groups to review the available CLI commands.
