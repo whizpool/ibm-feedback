@@ -172,12 +172,9 @@ class WidgetPage extends React.Component {
 
 	deleteRow = (event) => {
 		event.preventDefault();
-		//let gridData = this.state.rows;
 		let rowIndex = this.state.deleteRowIndex
 		let rowID = this.state.deleteRowID
-		//let rowID = gridData[rowIndex].id;
 		this.deleteWidgets(rowID,rowIndex)
-		//console.log(rowIndex)
 	};
 	
 	handleOnHeaderChange  = (e) => {	

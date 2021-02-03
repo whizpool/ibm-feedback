@@ -131,7 +131,6 @@ exports.getWidget = [
 						
 					if(widgetData.widget_connections.length >  0) {
 						var connectionWidget = widgetData.widget_connections[0];
-						//console.log(connectionWidget)
 						widgetData.is_github_connected  = connectionWidget.is_github_connected 
 						widgetData.is_slack_connected  = connectionWidget.is_slack_connected 
 						widgetData.repo_id  = connectionWidget.repo_id 
@@ -545,7 +544,6 @@ exports.UpdateWidgetQuestions = [
 							widgetQuestionData.is_active = (dataObj.is_active) ? true : false
 							widgetQuestionData.limit = dataObj.limit
 							widgetQuestionData.option_id = dataObj.option_id
-							//console.log(widgetQuestionData)
 							await obj.update(widgetQuestionData);							
 						}
 								

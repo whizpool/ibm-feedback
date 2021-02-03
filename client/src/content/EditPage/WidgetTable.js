@@ -146,7 +146,6 @@ class WidgetTable extends PureComponent {
 	changeRowIndex() {
 		const result = {};
 		const currentState = this.state;
-		//console.log('currentState:', currentState);
 		result.dragIndex = result.draggedIndex = -1;
 		if (
 			currentState.dragIndex >= 0 &&
@@ -154,7 +153,6 @@ class WidgetTable extends PureComponent {
 		) {
 			const { dragIndex, draggedIndex, rows: oldData } = currentState;
 			const rows = [...oldData];
-			//       const data = oldData;
 			const item = rows.splice(dragIndex, 1)[0];
 			rows.splice(draggedIndex, 0, item);
 			result.rows = rows;
@@ -213,7 +211,6 @@ class WidgetTable extends PureComponent {
 			gridData[rowIndex]["display_text_value"] = elementValue
 		}
 		gridData[rowIndex][header] = elementValue
-		//console.log(gridData)
 		this.setState({
 			 rows:gridData
 		});

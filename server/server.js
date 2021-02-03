@@ -1,23 +1,20 @@
 /**
- * Construction App Server.
+ * IBM Feedback App Server.
  * Author: Whizpool.
  * Version: 1.0.0
  * Release Date: 08-Dec-2020
- * Last Updated: 09-Dec-2020
- */
+ * Last Updated: 25-Jan-2021
+*/
 
 /**
  * Module dependencies.
- */
- 
+*/ 
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
 //var passport = require('passport');
-
-
 var env = process.env.NODE_ENV || 'development',
     config = require('./config/config.' + env);
 
@@ -25,12 +22,10 @@ var env = process.env.NODE_ENV || 'development',
 var widgetsAPI = require('./api/v1/routes/widgets');
 var usersAPI = require('./api/v1/routes/users');
 var feedbacksAPI = require('./api/v1/routes/feedbacks');
-
 var tools = require('./modules/tools');
 var sessionManagement = require('./modules/sessionManagement');
 
 var app = express();
-
 
 //
 // App level variables initialization
@@ -38,34 +33,24 @@ var app = express();
 // value to play with on request start and end
 app.set('executionsThisTime', 0);
 app.set('config', config);
-
 var cors = require('cors');
 app.use(cors({origin: '*'}));
-
-
 
 // Add headers
 app.use(function (req, res, next) {
 
     // Website you wish to allow to connect
     res.setHeader('Access-Control-Allow-Origin', '*');
-
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-
     // Request headers you wish to allow
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
     res.setHeader('Access-Control-Allow-Credentials', true);
-
     // Pass to next layer of middleware
     next();
 });
-
-
-
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -90,8 +75,7 @@ app.use('/api/v1/widgets', widgetsAPI);
 app.use('/api/v1/users', usersAPI);
 app.use('/api/v1/feedbacks', feedbacksAPI);
 //For dev system
-app.listen(5000)
-
+//app.listen(3000)
 
 //
 // error handling
@@ -107,13 +91,11 @@ app.use(function(req, res, next) {
 app.use(function(err, req, res, next) {
 	
 	//var startDate = req.session.startDate;
-//	var endDate = req.session.lastRequestDate;
-	var resource = "main";
-	
+    //	var endDate = req.session.lastRequestDate;
+	var resource = "main";	
 	// set locals, only providing error in development
 	res.locals.message = err.message;
 	res.locals.error = req.app.get('env') === 'development' ? err : {};
-
 	var errorStatus = err.status || 500;
 	var catchResponse = {
 		success:  false,
@@ -123,8 +105,6 @@ app.use(function(err, req, res, next) {
 		//endDate:endDate,
 		url: req.url,
 	};
-	return res.status(errorStatus).json(catchResponse);
-		
+	return res.status(errorStatus).json(catchResponse);		
 });
-
 module.exports = app;

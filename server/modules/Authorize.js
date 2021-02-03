@@ -22,27 +22,7 @@ module.exports = {
 			var axios = require('axios');
 			var jwt_decode = require('jwt-decode');
 			const token = req.header('Authorization').replace('Bearer', '').trim();	
-			var decodedToken = jwt_decode(token);
-			/*
-			USING API CALL 
-			var config = {
-				method: 'get',
-				url: 'https://iam.cloud.ibm.com/v1/apikeys?account_id='+decodedToken.account.bss+'&iam_id='+decodedToken.iam_id,
-				headers: { 
-					'Authorization': 'Bearer '+token
-				}
-			};
-
-			axios(config)
-			.then(function (response) {
-				next()
-			})
-			.catch(function (error) {
-				//console.log(error);
-				var message = 'Authentication failed';
-			return res.status(401).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));	
-			});
-			*/
+			var decodedToken = jwt_decode(token);			
 			//Checking Expiry Time only
 			var current_time = Date.now() / 1000;
 			if ( decodedToken.exp < current_time) {

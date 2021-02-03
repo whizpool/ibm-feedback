@@ -74,11 +74,9 @@ class LoginPage extends React.Component {
 		.then((response) => {		
 			response = response.data.data	
 			var decodedToken = jwt_decode(response.access_token);
-			console.log(decodedToken)
 			this.props.saveLoginSateData({type: 'LOGIN_SUCCESS', isLogged:true,account_id: response.account_id, email: decodedToken.email, name: decodedToken.name, role: 'Administrator', refresh_token: response.refresh_token, access_token: response.access_token,iam_id:decodedToken.iam_id,api_key:this.state.apikey})
 			this.props.history.push("/")				
 		}).catch((error) => {
-			//console.log(error);
 			this.setState({ 
 				errorMessage: true,
 				isSubmitting: false,

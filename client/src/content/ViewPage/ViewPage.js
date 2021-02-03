@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import  Rating  from "../../components/Rating/Rating";
 import { Breadcrumb, BreadcrumbItem} from 'carbon-components-react';
 import {  Grid, Row, Column,Button,Loading,ToastNotification } from 'carbon-components-react';
-import { useSelector, useDispatch} from 'react-redux'
+import { useDispatch} from 'react-redux'
 import axios from "axios";
 const ViewPage = () => {
 	
@@ -13,7 +13,7 @@ const ViewPage = () => {
 	const accessToken = (state => state.auth.access_token)	
 	const [rows, setrows] = useState([]);
 	const [isLoading, setisLoading] = useState(0);
-	const [isNextButtonDiuseSelectorsabled, setisNextButtonDisabled] = useState(1);
+	const [isNextButtonDisabled, setisNextButtonDisabled] = useState(1);
 	const [isPrevButtonDisabled, setisPrevButtonDisabled] = useState(1);
 	const [widgetNotFound, setwidgetNotFound] = useState(0);
 	
@@ -33,7 +33,6 @@ const ViewPage = () => {
 			var feedbackData = result.data.data;
 			setisLoading(1)
 			setrows(feedbackData)
-			//console.log(feedbackData)			
 			if(feedbackData.next  > 0 ){
 				setisNextButtonDisabled(0)
 			} else {
@@ -44,14 +43,12 @@ const ViewPage = () => {
 			} else {
 				setisPrevButtonDisabled(1)
 			}
-			//console.log(rows)
 		})
 		.catch((error) => {
 			setisLoading(1)
 			if(error.response.status === 401){
 				dispatch({type: 'SIGN_OUT'})
 			}
-			console.log(error.response.status)
 			if(error.response.status === 404){
 				setwidgetNotFound(1)
 				//Do anything
