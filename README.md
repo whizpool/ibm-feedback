@@ -37,6 +37,11 @@ Please make sure you have [Node.js](http://nodejs.org/) installed.
 ```sh
 git clone git@github.com:heroku/node-js-sample.git # or clone your own fork
 ```
+## Default SQL
+Please insert the admin details in the user table. 
+Please import the default SQL in the db. 
+
+
 
 ## BackEnd
 ```sh
