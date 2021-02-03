@@ -5,12 +5,17 @@ Integrated with the IBM Cloud
 ![npm](https://img.shields.io/npm/v/ibm-verify-sdk.svg?style=plastic)
 ![NPM](https://img.shields.io/npm/l/ibm-verify-sdk.svg?colorB=blue&style=plastic)
 
-* [Getting Started](#getting-started)
+* [Installation](#getting-started)
 * [Configuration Settings](#configuration-settings)
 * [License](#license)
 
-Feedback widgets provide a place for customers to attach screenshots and more information, making it more likely that your agents can give customers a quality answer on their first response. You are helping your customers frame their questions in a helpful manner.
+Feedback widgets provide a place for customers to attach screenshots and more information, making it more likely that your agents can give customers a quality answer on their first response. You are helping your customers frame their questions in a helpful manner. 
 
+Feedback widget also connect with the github and slack, so whenever client submit feedback automatic issue created on conencted github and posted on connected slack channel. 
+
+Feedback Widget based on the IBM IAM, So you need to have IBM account and create the [IBM API keys](https://cloud.ibm.com/docs/account?topic=account-userapikey) This API key will be used to login in the system as super admin. 
+
+You have to add the [IBM API keys](https://cloud.ibm.com/docs/account?topic=account-userapikey) and IBM account details in the user table get access the IBM feedback widht admin panel. 
 
 IBM Feedback currently supports the following types of ratings:
  - **Star**
@@ -28,7 +33,7 @@ IBM Feedback currently supports the following types of ratings:
  - Create & Configure the Slack [Webhooks] (https://api.slack.com/messaging/webhooks) *Optional*
  - Create & Configure the GitHub [Personal Access Token] (https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) *Optional*
 
-# Getting Started
+# Installation
 After configuring your “IBM Identity Access”, you can clone and install the IBM Feedback:
 
 ## Running Locally
@@ -38,18 +43,16 @@ Please make sure you have [Node.js](http://nodejs.org/) installed.
 git clone git@github.com:whizpool/inappfeedback.git # or clone your own fork
 ```
 ## Default SQL
-Please insert the admin details in the user table. 
-Please import the default SQL in the db. 
+Import default database (default-sql) in your db.
 
 
-
-## BackEnd
+## Backend-api
 ```sh
 cd inappfeedback/server
 npm install
 npm run start-dev
 ```
-## FrontEnd
+## Frontend Admin Panel
 ```sh
 cd inappfeedback/client
 npm install
@@ -57,9 +60,7 @@ npm start
 ```
 
 ## Configuration Settings
-For the backend api please review the config/config.global.js 
-For the frontend please review the .env
-Update the required parameters accrodingly.
+For the backend API, please review the config/config.global.js and for the frontend, please review the .env and update the required parameters accordingly.
 
 
 # License
