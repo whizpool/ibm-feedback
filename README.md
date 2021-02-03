@@ -35,7 +35,7 @@ After configuring your “IBM Identity Access”, you can clone and install the 
 Please make sure you have [Node.js](http://nodejs.org/) installed.
 
 ```sh
-git clone git@github.com:heroku/node-js-sample.git # or clone your own fork
+git clone git@github.com:whizpool/inappfeedback.git # or clone your own fork
 ```
 ## Default SQL
 Please insert the admin details in the user table. 
