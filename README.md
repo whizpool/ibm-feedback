@@ -39,7 +39,7 @@ We have used the following IBM cloud services in this projects
 - [IBM Cloud Storage](https://cloud.ibm.com/docs/cloud-object-storage)
 We have used the Cloud Storage for storing the image / screenshots. IBM Cloud Object Storage is an application-data archive and backup platform that offers persistent cloud storage and data encryption by default. Made for electronic records retention, it helps with regulatory compliance.
 
-- [IBM Cloud User Management & access managment] (https://cloud.ibm.com/apidocs/user-management)
+- [IBM Cloud User Management & Access Managment](https://cloud.ibm.com/apidocs/user-management)
 You can access and use IBM Cloud IAM through the Access (IAM) UI, CLI, or API. To access IBM Cloud IAM by using the console, go to Manage > Access (IAM). Go to Managing IAM access, API keys, service IDs, and access groups to review the available CLI commands.
 
 - [IBM Carbon design] (https://carbondesignsystem.com/)
