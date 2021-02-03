@@ -42,7 +42,7 @@ We have used the Cloud Storage for storing the image / screenshots. IBM Cloud Ob
 - [IBM Cloud User Management & Access Managment](https://cloud.ibm.com/apidocs/user-management)
 You can access and use IBM Cloud IAM through the Access (IAM) UI, CLI, or API. To access IBM Cloud IAM by using the console, go to Manage > Access (IAM). Go to Managing IAM access, API keys, service IDs, and access groups to review the available CLI commands.
 
-- [IBM Carbon design] (https://carbondesignsystem.com/)
+- [IBM Carbon design](https://carbondesignsystem.com/)
 Carbon is the design system for IBM web and product. It is a series of individual styles, components, and guidelines used for creating unified UI.
 
 
