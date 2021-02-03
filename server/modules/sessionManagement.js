@@ -3,12 +3,12 @@
  * Author: Whizpool.
  * Version: 1.0.0
  * Release Date: 08-Dec-2020
- * Last Updated: 08-Dec-2020
- */
+ * Last Updated: 25-Jan-2021
+*/
 
 /**
  * Module dependencies.
- */
+*/
  
 var session = require('express-session');
 var Sequelize = require('sequelize');
@@ -24,10 +24,8 @@ var sequelizeSessionDB = new Sequelize(config.sessionDb.database, config.session
 var mySessionStore = new SequelizeStore({
     db: sequelizeSessionDB
 });
-
 // make sure that Session tables are in place
 mySessionStore.sync();
-
 module.exports = session({
     secret: config.sessionSecret,
     resave: false,

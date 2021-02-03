@@ -18,7 +18,6 @@ const authReducer = (state = initState, action) => {
                 authError: action.message
             }
         case 'LOGIN_SUCCESS':
-	
             return {
                 ...state,
                 authError: null, 
@@ -49,5 +48,4 @@ const authReducer = (state = initState, action) => {
             return state;
     }       
 }
-
 export default authReducer

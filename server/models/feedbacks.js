@@ -17,17 +17,17 @@ module.exports = (sequelize, Sequelize) => {
   };
   FeedBack.init({
 	  id: {
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
+      autoIncrement: true,
+      primaryKey: true,
+      type: Sequelize.INTEGER
 	  },
 	  widget_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false
+      type: Sequelize.INTEGER,
+      allowNull: false
 	  },
 		screen_shot: {
-        type: Sequelize.STRING,
-        allowNull: false
+      type: Sequelize.STRING,
+      allowNull: false
 	  },
   }, {
     sequelize,

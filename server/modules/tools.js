@@ -1,26 +1,23 @@
 /**
- * Module dependencies.
- * @private
- */
+ * Generic Functions.
+ * Author: Whizpool.
+ * Version: 1.0.0
+ * Release Date: 08-Dec-2020
+ * Last Updated: 25-Jan-2021
+*/
 
 /**
  * Module exports.
  * @public
- */
+*/
 
 var exports = module.exports = {};
-
-/**
- * Module variables.
- * @private
- */
 
 /**
  * Handles request start actions.
  *
  * @public
- */
-
+*/
 exports.onRequestStart = function(req, res, next) {
     var executions = req.app.get('executionsThisTime');
     req.app.set('executionsThisTime', ++executions);
@@ -37,20 +34,16 @@ exports.onRequestStart = function(req, res, next) {
  * Handles request end actions.
  *
  * @public
- */
-
+*/
 exports.onRequestEnd = function(req, res, next) {
     function afterResponse() {
         var executions = req.app.get('executionsThisTime');
         res.removeListener('finish', afterResponse);
         res.removeListener('close', afterResponse);
-
         console.log('Executed ' + executions + ' times');
     }
-
     res.on('finish', afterResponse);
     res.on('close', afterResponse);
-
     next();
 }
 
@@ -59,8 +52,7 @@ exports.onRequestEnd = function(req, res, next) {
  * Test function.
  *
  * @public
- */
-
+*/
 exports.testFunction = function(req, res, next) {
     console.log('This one is a test only');
     console.log(req);
@@ -72,7 +64,7 @@ exports.testFunction = function(req, res, next) {
  * Milliseconds conversion.
  *
  * @public
- */
+*/
 exports.convertMillisecondsToStringDate = function(s) {
     var d = new Date(s);
     return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" +
@@ -84,7 +76,7 @@ exports.convertMillisecondsToStringDate = function(s) {
  * Milliseconds conversion from DateString.
  *
  * @public
- */
+*/
 exports.convertStringDateToMilliseconds = function(s) {
     var d = new Date(s);
 	//return milliseconds = d.getTime() ; 
@@ -95,7 +87,7 @@ exports.convertStringDateToMilliseconds = function(s) {
  * Milliseconds conversion from DateString.
  *
  * @public
- */
+*/
 exports.convertMillisecondsTodateFormat = function(s) {
     var d = new Date(s);
 	//return milliseconds = d.getTime() ; 
@@ -105,14 +97,11 @@ exports.convertMillisecondsTodateFormat = function(s) {
         ("0" + d.getMinutes()).slice(-2) + ":" + ("0" + d.getSeconds()).slice(-2);
 }
 
-
-
-
 /**
  * IsValidJSONString 
  *
  * @public
- */
+*/
 exports.IsValidJSONString = function(str) {
     try {
         JSON.parse(str);
@@ -122,14 +111,12 @@ exports.IsValidJSONString = function(str) {
     return true;
 }
 
-
 /**
  * prepareResponseObj 
  *
  * @public
- */
-exports.successResponseObj = function(ResponseData,startDate,endDate,resource,url) {
-	
+*/
+exports.successResponseObj = function(ResponseData,startDate,endDate,resource,url) {	
 	var env = process.env.NODE_ENV || 'development',
     config = require('./../config/config.' + env);
 	var successResponse = {}
@@ -148,9 +135,8 @@ exports.successResponseObj = function(ResponseData,startDate,endDate,resource,ur
  * errorResponseObj 
  *
  * @public
- */
-exports.errorResponseObj = function(errors,erroeMsg,startDate,endDate,resource,url) {
-	
+*/
+exports.errorResponseObj = function(errors,erroeMsg,startDate,endDate,resource,url) {	
 	var env = process.env.NODE_ENV || 'development',
     config = require('./../config/config.' + env);
 	var errorResponse = {}

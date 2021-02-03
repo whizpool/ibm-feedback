@@ -11,34 +11,33 @@ module.exports = (sequelize, Sequelize) => {
      */
     static associate(models) {
       // define association here
-			//Activity.belongsTo(models.categories, { foreignKey: 'category_id' });
     }
   };
   User.init({
 	  id: {
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
+      autoIncrement: true,
+      primaryKey: true,
+      type: Sequelize.INTEGER
 	  },
 	  name: {
-        type: Sequelize.STRING,
-				allowNull: false
+      type: Sequelize.STRING,
+      allowNull: false
 	  },
 		email: {
-        type: Sequelize.STRING,
-				allowNull: false
+      type: Sequelize.STRING,
+      allowNull: false
 	  },		
 	  role: {
-        type: Sequelize.STRING,
-        allowNull: false
+      type: Sequelize.STRING,
+      allowNull: false
 	  },
-	api_key: {
-        type: Sequelize.STRING,
-        allowNull: false
+	  api_key: {
+      type: Sequelize.STRING,
+      allowNull: false
 	  },
-	account_id: {
-        type: Sequelize.STRING,
-        allowNull: false
+	  account_id: {
+      type: Sequelize.STRING,
+      allowNull: false
 	  },
 		status: {
         type: Sequelize.ENUM('invited', 'accepted'),

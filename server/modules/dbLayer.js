@@ -3,12 +3,12 @@
  * Author: Whizpool.
  * Version: 1.0.0
  * Release Date: 08-Dec-2020
- * Last Updated: 09-Dec-2020
- */
+ * Last Updated: 25-Jan-2021
+*/
 
 /**
  * Module dependencies.
- */
+*/
  
 var fs = require("fs");
 var path = require("path");
@@ -16,11 +16,8 @@ var Sequelize = require('sequelize');
 var env = process.env.NODE_ENV || 'development',
     config = require('./../config/config.' + env);
 var db = {};
-
 var sequelize = new Sequelize(config.db.database, config.db.username, config.db.password, config.db.sequelizeParams);
-
 // load models
-
 fs
     .readdirSync(__dirname + '/../models')
     .filter(function(file) {
@@ -29,7 +26,6 @@ fs
     .forEach(function(file) {
         //var model = sequelize.import(path.join(__dirname + '/../models', file));
 		const model = require(path.join(__dirname,'../models', file))(sequelize, Sequelize)
-
         db[model.name] = model;
     });
 

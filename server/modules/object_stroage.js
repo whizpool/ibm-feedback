@@ -1,14 +1,10 @@
 /**
- * Module dependencies.
- * @private
- */
-
-/**
- * Module exports.
- * @public
- */
-
-
+ * IBM OBject Storage .
+ * Author: Whizpool.
+ * Version: 1.0.0
+ * Release Date: ‎09-Dec-2020
+ * Last Updated: 25-Jan-2021
+*/
 
 /**
  * Module exports.
@@ -201,7 +197,6 @@ exports.UploadObject = async function(ImageData,imageType,ImageName) {
 }
 
 exports.getObjectSignedUrl = async function(ObjectName) {  
-
     let s3 = await getS3Object();
 		const SignedUrl = await s3.getSignedUrl('getObject', {
 				Bucket: bucketName,

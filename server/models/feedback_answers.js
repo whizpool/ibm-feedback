@@ -12,27 +12,26 @@ module.exports = (sequelize, Sequelize) => {
     static associate(models) {
       // define association here
 			FeedBackAnswer.belongsTo(models.feedback, { foreignKey: 'feedback_id' });
-			//FeedBackAnswer.belongsTo(models.widget_question_option, { foreignKey: 'widget_question_id', targetKey: 'id' });
 			FeedBackAnswer.belongsTo(models.widget_question, {foreignKey: 'widget_question_id'});
     }
   };
   FeedBackAnswer.init({
 	  id: {
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
+      autoIncrement: true,
+      primaryKey: true,
+      type: Sequelize.INTEGER
 	  },
 	  feedback_id: {
-        type: Sequelize.INTEGER,
-				allowNull: false
+      type: Sequelize.INTEGER,
+      allowNull: false
 	  },		
 	  widget_question_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false
+      type: Sequelize.INTEGER,
+      allowNull: false
 	  },
 	  answer: {
-        type: Sequelize.TEXT,
-        allowNull: false
+      type: Sequelize.TEXT,
+      allowNull: false
 	  },
   }, {
     sequelize,

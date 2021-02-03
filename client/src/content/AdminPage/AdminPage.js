@@ -1,17 +1,43 @@
 import React from 'react';
 import { connect} from 'react-redux'
-
-import { DataTable, TableContainer, Table, TableHead, TableRow, TableHeader, TableBody, TableCell,TableToolbar,TableBatchActions,TableBatchAction,TableToolbarContent,Button,TableSelectAll,TableSelectRow,Breadcrumb, BreadcrumbItem,MultiSelect,OverflowMenu,OverflowMenuItem,Pagination,TextInput,Form,Dropdown,ComposedModal,ModalHeader,ModalBody,ModalFooter,InlineLoading,DataTableSkeleton,InlineNotification} from 'carbon-components-react';
-
+import { 
+	DataTable, 
+	TableContainer, 
+	Table, 
+	TableHead, 
+	TableRow, 
+	TableHeader, 
+	TableBody, 
+	TableCell,
+	TableToolbar,
+	TableBatchActions,
+	TableBatchAction,
+	TableToolbarContent,
+	TableSelectAll,
+	TableSelectRow,
+	Button,Breadcrumb, 
+	OverflowMenu,
+	OverflowMenuItem,
+	Pagination,
+	BreadcrumbItem,
+	MultiSelect,
+	TextInput,
+	Form,
+	Dropdown,
+	ComposedModal,
+	ModalHeader,
+	ModalBody,
+	ModalFooter,
+	InlineLoading,
+	DataTableSkeleton,
+	InlineNotification
+} from 'carbon-components-react';
 import { TrashCan32 as Delete, Add16 as Add } from '@carbon/icons-react';
-
 import axios from "axios";
 
 /*********** Data GRID ************/
 import { columns } from "./TableHeader";
-
 let checkFlag = true;
-
 const roles = [
   {
     id: 'Viewer',
@@ -34,7 +60,6 @@ const mapStateToProps = (state) => {
 			name: state.auth.name, 
 			role: state.auth.role,
 			iam_id: state.auth.iam_id
-			
 		};
 };
 
@@ -88,20 +113,17 @@ class AdminPage extends React.Component {
   };
   
   saveData = event => {
-		
 		let fieldName  = ""
 		let fieldValue  = ""
 		if(event.selectedItem !== undefined)
 		{
 			fieldName = "AdminRole";
 			fieldValue = event.selectedItem.id;
-			
 		} else {
 			const target = event.target;
 			fieldName = target.name;
 			fieldValue = target.value;
 		}
-		
 		if (!fieldValue) {
 			this.setState({ [fieldName]: fieldValue, [fieldName + "Invalid"]: true });
 		} else {
@@ -152,6 +174,7 @@ class AdminPage extends React.Component {
 			};
 		});
   };  
+	 
   componentDidMount() {
 		this.getUsers();
 	} 
@@ -173,9 +196,7 @@ class AdminPage extends React.Component {
 		});
 	};
 	
-	
 	deleteAllRecords = (event) =>{
-		
 		let gridData = this.state.rows;
 		var deleteRowIDs = []
 		var widgetRows = this.state.selectedWidgetRows	
@@ -196,10 +217,8 @@ class AdminPage extends React.Component {
 				},
 				data:{deleteRowIDs}
 		};
-		
 		axios(config)
 		.then( () => {
-					
 					this.setState({ 
 						success: true,
 						isSubmitting: false,
@@ -209,7 +228,6 @@ class AdminPage extends React.Component {
 						rows: [],
 						successMessage: "You have successfully deleted the users.",
 					});	
-					
 					setTimeout(() => {
 						this.setState({ success: false })
 					}, 3000);
@@ -220,9 +238,8 @@ class AdminPage extends React.Component {
 				this.props.saveLogoutState({type: 'SIGN_OUT'})
 			}
 		});
-	
-		
 	}
+	
 	/******************** API CALL ******************************/
   getUsers = () => {
 		this.setState({ isLoading: true });
@@ -237,7 +254,6 @@ class AdminPage extends React.Component {
 		axios(config)
 		.then(result => {
 			result = result.data.data
-		
 			this.setState({
 				rows: result.resources	,
 				totalItems: result.total_results	,
@@ -245,7 +261,7 @@ class AdminPage extends React.Component {
 			});
 		})
 		.catch((error) => {
-			console.log(error)
+			//console.log(error)
 			this.setState({
 				error,
 				isLoading: false
@@ -278,13 +294,9 @@ class AdminPage extends React.Component {
 					email: "",
 					role: "",
 				});	
-				
 				this.getUsers();
-				
 		})
 		.catch((error) => {
-			console.log("error")
-			console.log(error)
 			this.setState({
 				error,
 				isLoading: false
@@ -295,13 +307,10 @@ class AdminPage extends React.Component {
 		});
 	};
 	
-	
 	deleteUser = (rowIndex) => {
 		let gridData = this.state.rows;
 		let userRow = gridData.find(obj=>obj.id===this.state.deleteRowID)
 		let currentRowID = userRow.iam_id;
-		
-	
 		this.setState({ 
 				isSubmitting: true,
 				ariaLive: "Off",
@@ -315,7 +324,6 @@ class AdminPage extends React.Component {
 					'Authorization': 'Bearer '+this.props.access_token
 				},
 		};
-		
 		axios(config)
 		.then(response => {
 				this.setState({ 
@@ -432,9 +440,7 @@ class AdminPage extends React.Component {
 						)}
 					</ModalFooter>
 				</ComposedModal>
-				
 				<ComposedModal size="sm" onClose={this.closeModal} open={this.state.deleteModalOpen} preventCloseOnClickOutside={true} >
-					
 					<ModalBody>
 						<p  style={{ fontSize: '2rem',marginTop: '2rem' }}>Are you sure you want to delete it?</p>
 					</ModalBody>
@@ -452,9 +458,7 @@ class AdminPage extends React.Component {
 						)}
 					</ModalFooter>
 				</ComposedModal>
-		
 				<ComposedModal size="sm" onClose={this.closeModal} open={this.state.deleteAllModalOpen} preventCloseOnClickOutside={true} >
-					
 					<ModalBody>
 						<p  style={{ fontSize: '2rem',marginTop: '2rem' }}>Are you sure you want to delete all these?</p>
 					</ModalBody>
@@ -472,8 +476,6 @@ class AdminPage extends React.Component {
 						)}
 					</ModalFooter>
 				</ComposedModal>
-				
-		 
 		 	{
 				this.state.isLoading ?
 						<DataTableSkeleton

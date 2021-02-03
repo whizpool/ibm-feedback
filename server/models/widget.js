@@ -17,25 +17,25 @@ module.exports = (sequelize, Sequelize) => {
   };
   Widget.init({
 	  id: {
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
+      autoIncrement: true,
+      primaryKey: true,
+      type: Sequelize.INTEGER
 	  },
 	  name: {
-        type: Sequelize.STRING,
-				allowNull: false
+      type: Sequelize.STRING,
+      allowNull: false
 	  },		
 	  creater_name: {
-        type: Sequelize.STRING,
-        allowNull: false
+      type: Sequelize.STRING,
+      allowNull: false
 	  },
 	  url: {
-        type: Sequelize.STRING,
-        allowNull: false
+      type: Sequelize.STRING,
+      allowNull: false
 	  },
 	  status: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true
+      type: Sequelize.BOOLEAN,
+      defaultValue: true
 	  },
   }, {
     sequelize,
