@@ -40,7 +40,7 @@ After configuring your “IBM Identity Access”, you can clone and install the 
 Please make sure you have [Node.js](http://nodejs.org/) installed.
 
 ```sh
-git clone git@github.com:whizpool/inappfeedback.git # or clone your own fork
+git clone git@github.com:whizpool/ibm-feedback.git # or clone your own fork
 ```
 ## Default SQL
 Import default database (default-sql) in your db.
