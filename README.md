@@ -9,13 +9,13 @@ Integrated with the IBM Cloud
 * [Installation](#installation)
 * [License](#license)
 
-Feedback widgets provide a place for customers to attach screenshots and more information, making it more likely that your agents can give customers a quality answer on their first response. You are helping your customers frame their questions in a helpful manner. 
+Feedback widgets provide a place for customers to attach screenshots and more information, making it more likely that your agents can give customers a quality answer on their first response. You are helping your customers frame their questions in a helpful manner
 
-Feedback widget also connect with the github and slack, so whenever client submit feedback automatic issue created on conencted github and posted on connected slack channel. 
+Feedback widget also connects with the GitHub and Slack, so whenever client submit feedback, automatic issues are created on connected GitHub and posted on connected Slack channel.
 
-Feedback Widget based on the IBM IAM, So you need to have IBM account and create the [IBM API keys](https://cloud.ibm.com/docs/account?topic=account-userapikey) This API key will be used to login in the system as super admin. 
+FFeedback Widget is based on the IBM IAM, so you need to have IBM account and create the [IBM API keys](https://cloud.ibm.com/docs/account?topic=account-userapikey) This API key will be used to login in the system as Super Admin.
 
-You have to add the [IBM API keys](https://cloud.ibm.com/docs/account?topic=account-userapikey) and IBM account details in the user table get access the IBM feedback widht admin panel. 
+You must add the [IBM API keys](https://cloud.ibm.com/docs/account?topic=account-userapikey) and IBM account details in the user table to get access to the IBM feedback widget Admin Panel.
 
 IBM Feedback currently supports the following types of ratings:
  - **Star**
@@ -27,17 +27,17 @@ IBM Feedback currently supports the following types of ratings:
 
 
 ## Prerequisites
-**Important following items are required to login in the IBM Feedback.**
+**Important following items are required to login the IBM Feedback.**
  - Configuring your [IBM API keys](https://cloud.ibm.com/docs/account?topic=account-userapikey)
  - Create & Configure Cloud Storage [IBM Cloud Storage](https://cloud.ibm.com/docs/cloud-object-storage).
  - Create & Configure the Slack [Webhooks] (https://api.slack.com/messaging/webhooks) *Optional*
  - Create & Configure the GitHub [Personal Access Token] (https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) *Optional*
 
 ## IBM Services 
-We have used the following IBM cloud services in this projects
+We have used the following IBM cloud services in this project:
 
 - [IBM Cloud Storage](https://cloud.ibm.com/docs/cloud-object-storage)
-We have used the Cloud Storage for storing the image / screenshots. IBM Cloud Object Storage is an application-data archive and backup platform that offers persistent cloud storage and data encryption by default. Made for electronic records retention, it helps with regulatory compliance.
+We have used the Cloud Storage for storing the images / screenshots. IBM Cloud Object Storage is an application-data archive and backup platform that offers persistent cloud storage and data encryption by default. Made for electronic records retention, it helps with regulatory compliance.
 
 - [IBM Cloud User Management & Access Managment](https://cloud.ibm.com/apidocs/user-management)
 You can access and use IBM Cloud IAM through the Access (IAM) UI, CLI, or API. To access IBM Cloud IAM by using the console, go to Manage > Access (IAM). Go to Managing IAM access, API keys, service IDs, and access groups to review the available CLI commands.
