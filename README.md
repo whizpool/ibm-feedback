@@ -13,7 +13,7 @@ Feedback widgets provide a place for customers to attach screenshots and more in
 
 Feedback widget also connects with the GitHub and Slack, so whenever client submit feedback, automatic issues are created on connected GitHub and posted on connected Slack channel.
 
-FFeedback Widget is based on the IBM IAM, so you need to have IBM account and create the [IBM API keys](https://cloud.ibm.com/docs/account?topic=account-userapikey) This API key will be used to login in the system as Super Admin.
+Feedback Widget is based on the IBM IAM, so you need to have IBM account and create the [IBM API keys](https://cloud.ibm.com/docs/account?topic=account-userapikey) This API key will be used to login in the system as Super Admin.
 
 You must add the [IBM API keys](https://cloud.ibm.com/docs/account?topic=account-userapikey) and IBM account details in the user table to get access to the IBM feedback widget Admin Panel.
 
@@ -67,7 +67,8 @@ Please make sure you have [Node.js](http://nodejs.org/) installed.
 git clone git@github.com:whizpool/ibm-feedback.git # or clone your own fork
 ```
 ## Default SQL
-Import default database (default-sql) in your db.
+Create database and Import default database (default.sql) in your db.
+Please also add the IBM keys in user table for superadmin access.(APIkey ,  Username, email, Account ID etc..)
 
 
 ## Backend-api
