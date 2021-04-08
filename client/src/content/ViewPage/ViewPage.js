@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {connect } from 'react-redux'
 
 import { useHistory } from 'react-router-dom';
 import  Rating  from "../../components/Rating/Rating";
@@ -6,28 +7,32 @@ import { Breadcrumb, BreadcrumbItem} from 'carbon-components-react';
 import {  Grid, Row, Column,Button,Loading,ToastNotification } from 'carbon-components-react';
 import { useDispatch} from 'react-redux'
 import axios from "axios";
-const ViewPage = () => {
-	
+
+const mapStateToProps = (state) => {
+	return {
+		access_token:state.auth.access_token,
+	};
+};
+
+const ViewPage = ({access_token}) => {
 	const history = useHistory()
-	const dispatch = useDispatch()	
-	const accessToken = (state => state.auth.access_token)	
+	const dispatch = useDispatch()
 	const [rows, setrows] = useState([]);
 	const [isLoading, setisLoading] = useState(0);
 	const [isNextButtonDisabled, setisNextButtonDisabled] = useState(1);
 	const [isPrevButtonDisabled, setisPrevButtonDisabled] = useState(1);
 	const [widgetNotFound, setwidgetNotFound] = useState(0);
-	
-	const getFeedbacks = () => {		
-		//this.setState({ isLoading: true });
+
+	const getFeedbacks = () => {
 		const currentUrl = window.location.href;
 		var recordID = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
 		var config = {
 			method: 'get',
 			url:process.env.REACT_APP_API_ENDPOINT+`feedbacks/`+recordID,
-			headers: { 
-				'Authorization': 'Bearer '+accessToken
+			headers: {
+				'Authorization': 'Bearer '+ access_token
 			},
-		};		
+		};
 		axios(config)
 		.then(result => {
 			var feedbackData = result.data.data;
@@ -37,7 +42,7 @@ const ViewPage = () => {
 				setisNextButtonDisabled(0)
 			} else {
 				setisNextButtonDisabled(1)
-			}			
+			}
 			if(feedbackData.previous > 0 ){
 				setisPrevButtonDisabled(0)
 			} else {
@@ -46,17 +51,17 @@ const ViewPage = () => {
 		})
 		.catch((error) => {
 			setisLoading(1)
-			if(error.response.status === 401){
+			if(error.response && error.response.status === 401){
 				dispatch({type: 'SIGN_OUT'})
 			}
-			if(error.response.status === 404){
+			if(error.response && error.response.status === 404){
 				setwidgetNotFound(1)
 				//Do anything
 			}
 		});
-		
+
 	}
-	
+
 	const loadPage = (pageType, id) => {
 		setisLoading(0);
 		if(pageType === 'prev') {
@@ -66,11 +71,11 @@ const ViewPage = () => {
 			history.push('/view/'+rows.next)
 		}
 	}
-	
+
 	if(isLoading === 0) {
 		getFeedbacks()
 	}
-  	return( 
+  	return(
 	  	<section className="bx--col-lg-13">
 			<Breadcrumb>
 				<BreadcrumbItem href="/feedbacks"  >Submitted Feedbacks</BreadcrumbItem>
@@ -78,13 +83,13 @@ const ViewPage = () => {
 			</Breadcrumb>
 			<br/>
 			<h4 >Submitted Feedbacks</h4>
-			<br/><br/>			
+			<br/><br/>
 			{
 				(isLoading === 0)  ?
 					<Loading description="Active loading indicator" withOverlay={false}/>
-			:	
-				
-				(widgetNotFound=== 1) ? 
+			:
+
+				(widgetNotFound=== 1) ?
 					<ToastNotification
 							kind="error"
 							title=""
@@ -134,7 +139,7 @@ const ViewPage = () => {
 							</Column>
 							<Column sm={12} md={8} lg={8}>
 								<div style={{ margin: "20px 0",fontSize: "20px"}}><strong>Description:</strong></div>
-								<div style={{ fontSize: "15px"}}> 
+								<div style={{ fontSize: "15px"}}>
 									<p style={{ lineHeight: "20px" }}>
 										{rows.ProvideFeedback}
 									</p>
@@ -147,15 +152,15 @@ const ViewPage = () => {
 									<div style={{ fontSize: "15px"}}><Rating type={rows.rating_type} rating={rows.RateUs} /> </div>
 							</Column>
 							<Column sm={12} md={8} lg={8} >
-								<div style={{fontSize: "15px",float:"right"}}> 									
+								<div style={{fontSize: "15px",float:"right"}}>
 									<Button kind='secondary' onClick={(event) => {loadPage('prev')}} disabled={isPrevButtonDisabled === 0  ? false :true} >Previous</Button>
-									<Button kind='secondary' onClick={(event) => {loadPage('next')}} disabled={isNextButtonDisabled === 0  ? false :true} >Next</Button>									
-								</div>								
+									<Button kind='secondary' onClick={(event) => {loadPage('next')}} disabled={isNextButtonDisabled === 0  ? false :true} >Next</Button>
+								</div>
 							</Column>
 						</Row>
-					</Grid>				
+					</Grid>
 			}
 		</section>
 	);
 };
-export default ViewPage;
+export default connect(mapStateToProps)(ViewPage);
