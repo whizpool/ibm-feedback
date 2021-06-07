@@ -11,43 +11,7 @@
  * @public
 */
 
-var exports = module.exports = {};
-
-/**
- * Handles request start actions.
- *
- * @public
-*/
-exports.onRequestStart = function(req, res, next) {
-    var executions = req.app.get('executionsThisTime');
-    req.app.set('executionsThisTime', ++executions);
-    if (req.session.startDate) {
-        req.session.lastRequestDate = Date.now();
-    } else {
-        req.session.startDate = Date.now();
-        req.session.lastRequestDate = Date.now();
-    }
-    next();
-}
-
-/**
- * Handles request end actions.
- *
- * @public
-*/
-exports.onRequestEnd = function(req, res, next) {
-    function afterResponse() {
-        var executions = req.app.get('executionsThisTime');
-        res.removeListener('finish', afterResponse);
-        res.removeListener('close', afterResponse);
-        console.log('Executed ' + executions + ' times');
-    }
-    res.on('finish', afterResponse);
-    res.on('close', afterResponse);
-    next();
-}
-
-
+var exports = module.exports = {}
 /**
  * Test function.
  *

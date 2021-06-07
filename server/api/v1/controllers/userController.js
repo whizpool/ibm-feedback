@@ -35,8 +35,6 @@ exports.UserVerifyFromIBM = [
 	body('apikey').isLength({ min: 1 }).trim().withMessage('API Key must be specified.'),
     // Process request after validation and sanitization.
     (req, res, next) => {
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "users";
 		// Extract the validation errors from a request.
 		const errors = validationResult(req);
@@ -44,7 +42,7 @@ exports.UserVerifyFromIBM = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+			return res.status(500).json(tools.errorResponseObj(error,message,resource,req.url));
 		}
 		else {
 			try {
@@ -68,7 +66,7 @@ exports.UserVerifyFromIBM = [
 								"param": "",
 								"location": "body"
 							};				
-							return res.status(404).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+							return res.status(404).json(tools.errorResponseObj(error,message,resource,req.url));
 								
 						} else {
 						let userObj = user.get();						
@@ -107,34 +105,34 @@ exports.UserVerifyFromIBM = [
 									successResponseObj.access_token = response.data.access_token
 									successResponseObj.refresh_token = response.data.refresh_token
 									successResponseObj.account_id = apiData.account_id
-									return res.status(200).json(tools.successResponseObj(successResponseObj,startDate,endDate,resource,req.url));											
+									return res.status(200).json(tools.successResponseObj(successResponseObj,resource,req.url));											
 								})
 								.catch(function (error) {
 									var message = 'Authentication failed';
-									return res.status(401).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+									return res.status(401).json(tools.errorResponseObj(error,message,resource,req.url));
 								});
 								
 							} else {
 								var message = 'Authentication failed';
-								return res.status(401).json(tools.errorResponseObj([],message,startDate,endDate,resource,req.url));
+								return res.status(401).json(tools.errorResponseObj([],message,resource,req.url));
 							}									
 						})
 						.catch(err => {
 							var message = "operation wasn't successful";
-							return res.status(500).json(tools.errorResponseObj(err,err.message,startDate,endDate,resource,req.url));
+							return res.status(500).json(tools.errorResponseObj(err,err.message,resource,req.url));
 						});
 					}
 				})
 				.catch((error) => {		  
 					var message = "operation wasn't successful";
-					return res.status(401).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+					return res.status(401).json(tools.errorResponseObj(error.message,message,resource,req.url));
 					
 				});
 			} 
 			// catch error if the operation wasn't successful
 			catch(error) {
 				var message = "operation wasn't successful";
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 			}
 		}
     }
@@ -153,8 +151,6 @@ exports.fetchUsers = [
     // Process request after validation and sanitization.
     (req, res, next) => {
 
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "users";
 		// Extract the validation errors from a request.
 		const errors = validationResult(req);
@@ -162,7 +158,7 @@ exports.fetchUsers = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+			return res.status(500).json(tools.errorResponseObj(error,message,resource,req.url));
 		}
 		else {
 			try {				
@@ -175,16 +171,16 @@ exports.fetchUsers = [
 				};
 				axios(config)
 				.then(function (response) {
-					return res.status(200).json(tools.successResponseObj(response.data,startDate,endDate,resource,req.url));							
+					return res.status(200).json(tools.successResponseObj(response.data,resource,req.url));							
 				})
 				.catch(function (error) {
 						var message = 'Authentication failed';
-						return res.status(400).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+						return res.status(400).json(tools.errorResponseObj(error,message,resource,req.url));
 				});					
 			}     
 			catch(error) {
 				var message = "operation wasn't successful";
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 			}
         }
     }
@@ -210,8 +206,6 @@ exports.inviteUsers = [
     // Process request after validation and sanitization.
     (req, res, next) => {
 
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "users";
 		
 		// Extract the validation errors from a request.
@@ -222,7 +216,7 @@ exports.inviteUsers = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));			 
+			return res.status(500).json(tools.errorResponseObj(error,message,resource,req.url));			 
 		} else {
 				
 			// InviteUser
@@ -272,10 +266,10 @@ exports.inviteUsers = [
 	
 			axios(config)
 			.then(function (result) {
-				return res.status(200).json(tools.successResponseObj(result.data.resources,startDate,endDate,resource,req.url));					
+				return res.status(200).json(tools.successResponseObj(result.data.resources,resource,req.url));					
 			})
 			.catch(function (error) {
-				return res.status(400).json(tools.errorResponseObj(error,error.message,startDate,endDate,resource,req.url));
+				return res.status(400).json(tools.errorResponseObj(error,error.message,resource,req.url));
 			});
 	
 		}
@@ -303,8 +297,6 @@ exports.updateUsers = [
 
     // Process request after validation and sanitization.
     async (req, res, next) => {		
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "user";
 		
 		// Extract the validation errors from a request.
@@ -313,7 +305,7 @@ exports.updateUsers = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+			return res.status(500).json(tools.errorResponseObj(error,message,resource,req.url));
 			 
 		}
 		else {
@@ -332,18 +324,18 @@ exports.updateUsers = [
 								"param": "",
 								"location": "body"
 							};				
-							return res.status(404).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+							return res.status(404).json(tools.errorResponseObj(error,message,resource,req.url));
 							
 					} else {
 						user.update({
 							status: req.body.status
 						});														
-						return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));;
+						return res.status(204).json(tools.successResponseObj([],resource,req.url));;
 					}
 				})
 				.catch((error) => {		  
 					var message =  'user record failed';
-					return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+					return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 					
 				});
 					
@@ -351,7 +343,7 @@ exports.updateUsers = [
 			// catch error if the operation wasn't successful
 			catch(error) {
 				var message = "operation wasn't successful";
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 			}
         }
     }
@@ -374,8 +366,6 @@ exports.deleteUser = [
 	 // Process request after validation and sanitization.
     (req, res, next) => {
 		
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "user";
 		const IAMID = req.params.id;
 		//Here we also need to delete the feedback and relevant items	
@@ -390,11 +380,11 @@ exports.deleteUser = [
 		};
 		axios(config)
 		.then(function (response) {
-			return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));
+			return res.status(204).json(tools.successResponseObj([],resource,req.url));
 		})
 		.catch(function (error) {
 			var message = 'Authentication failed';
-			return res.status(400).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+			return res.status(400).json(tools.errorResponseObj(error,message,resource,req.url));
 		});		
 	}
 ];
@@ -416,8 +406,6 @@ exports.deleteAllUsers = [
 	 // Process request after validation and sanitization.
     async (req, res, next) => {
 		
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "user";
 		const IAMID = req.params.id;
 		// Extract the validation errors from a request.
@@ -440,15 +428,15 @@ exports.deleteAllUsers = [
 			};
 			await axios(config)
 			.then(function (response) {
-				//return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));
+				//return res.status(204).json(tools.successResponseObj([],resource,req.url));
 						
 			})
 			.catch(function (error) {
 				//var message = 'Authentication failed';
-				//return res.status(400).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+				//return res.status(400).json(tools.errorResponseObj(error,message,resource,req.url));
 			});				
 		}		
-		return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));
+		return res.status(204).json(tools.successResponseObj([],resource,req.url));
 	}
 
 ];

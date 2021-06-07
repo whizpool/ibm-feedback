@@ -31,8 +31,6 @@ var objectStroage = require('../../../modules/object_stroage');
 exports.fetchWidgets = [ 
     // Process request after validation and sanitization.
     (req, res, next) => {
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "widgets";
 		// Extract the validation errors from a request.
 		const errors = validationResult(req);
@@ -40,7 +38,7 @@ exports.fetchWidgets = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+			return res.status(500).json(tools.errorResponseObj(error,message,resource,req.url));
 		} else {
 			try {				
 				dbLayer.widget.findAll({
@@ -51,7 +49,7 @@ exports.fetchWidgets = [
 				})
 				.then(async function(widgets) {					
 					if (!widgets) {				
-						return res.status(200).json(tools.successResponseObj([],startDate,endDate,resource,req.url));				
+						return res.status(200).json(tools.successResponseObj([],resource,req.url));				
 					}  
 					var widgetsList = []						
 					for(var i =0 ; i < widgets.length;i++) {
@@ -59,17 +57,17 @@ exports.fetchWidgets = [
 						widgetsObj.id = widgetsObj.id.toString()
 						widgetsList.push(widgetsObj);						
 					}
-					return res.status(200).json(tools.successResponseObj(widgetsList,startDate,endDate,resource,req.url));
+					return res.status(200).json(tools.successResponseObj(widgetsList,resource,req.url));
 				})
 				.catch((error) => {	  
 					var message = 'Widgets fetching failed';
-					return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));						
+					return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));						
 				});     
 			}
 			// catch error if the operation wasn't successful
 			catch(error) {
 				var message = "operation wasn't successful";
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 			}
 		}
 	}
@@ -86,8 +84,6 @@ exports.getWidget = [
  
     // Process request after validation and sanitization.
     (req, res, next) => {
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "widgets";
 		var widgetID = req.params.id;
 		// Extract the validation errors from a request.
@@ -96,7 +92,7 @@ exports.getWidget = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+			return res.status(500).json(tools.errorResponseObj(error,message,resource,req.url));
 		} else {
 			try {					
 				dbLayer.widget.findOne({
@@ -115,7 +111,7 @@ exports.getWidget = [
 				})
 				.then(async function(widget) {
 					if (!widget) {				
-						return res.status(404).json(tools.successResponseObj([],startDate,endDate,resource,req.url));				
+						return res.status(404).json(tools.successResponseObj([],resource,req.url));				
 					}  
 					var widgetData = widget.get();
 					widgetData.name = widgetData.name;
@@ -140,19 +136,19 @@ exports.getWidget = [
 						widgetData.webhook  = connectionWidget.webhook 
 					}
 					delete widgetData.widget_connections
-					return res.status(200).json(tools.successResponseObj(widgetData,startDate,endDate,resource,req.url));
+					return res.status(200).json(tools.successResponseObj(widgetData,resource,req.url));
 					
 					
 				})
 				.catch((error) => {		  
 					var message = 'Widgets fetching failed';
-					return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+					return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 					
 				});     
 			}     
 			catch(error) {
 				var message = "operation wasn't successful";
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 			}
 		}
 	}
@@ -173,8 +169,6 @@ exports.createWidgets = [
     // Process request after validation and sanitization.
     (req, res, next) => {
 
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "widgets";			
 		// Extract the validation errors from a request.
 		const errors = validationResult(req);
@@ -182,7 +176,7 @@ exports.createWidgets = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));			 
+			return res.status(500).json(tools.errorResponseObj(error,message,resource,req.url));			 
 		} else {				
 			var widgetPostData = {
 				creater_name: req.body.user_name,
@@ -196,12 +190,12 @@ exports.createWidgets = [
 				}).then(async function(result) {					
 					var widgetsObj = result.get();			
 					widgetsObj.id = widgetsObj.id.toString()
-					return res.status(200).json(tools.successResponseObj(widgetsObj,startDate,endDate,resource,req.url));
+					return res.status(200).json(tools.successResponseObj(widgetsObj,resource,req.url));
 				})		
 			}
 			catch(error) {
 				var message = "Error creating widget";
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 			}
 			
 		}
@@ -224,8 +218,6 @@ exports.updateWidget = [
     // Process request after validation and sanitization.
     (req, res, next) => {
 
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "widgets";
 		var widgetID = req.params.id;
 		// Extract the validation errors from a request.
@@ -234,7 +226,7 @@ exports.updateWidget = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));			 
+			return res.status(500).json(tools.errorResponseObj(error,message,resource,req.url));			 
 		} else {					
 			try {
 				dbLayer.widget.findOne({
@@ -251,23 +243,23 @@ exports.updateWidget = [
 								"param": "",
 								"location": "body"
 							};				
-							return res.status(404).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));								
+							return res.status(404).json(tools.errorResponseObj(error,message,resource,req.url));								
 					} else {
 						widget.update({
 							name: req.body.name,
 							url: req.body.url,
 						});														
-						return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));
+						return res.status(204).json(tools.successResponseObj([],resource,req.url));
 					}
 				})
 				.catch((error) => {		  
 					var message =  'Widget record failed';
-					return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));						
+					return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));						
 				});
 			}     
 			catch(error) {
 				var message = "operation wasn't successful";
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 			}				
 		}
     }
@@ -293,8 +285,6 @@ exports.updateWidgetsStatus = [
     // Process request after validation and sanitization.
     async (req, res, next) => {
 
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "widget";
 		
 		// Extract the validation errors from a request.
@@ -304,7 +294,7 @@ exports.updateWidgetsStatus = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));		 
+			return res.status(500).json(tools.errorResponseObj(error,message,resource,req.url));		 
 		} else {
 			var widgetID = req.body.id;
 			try {
@@ -321,22 +311,22 @@ exports.updateWidgetsStatus = [
 							"param": "",
 							"location": "body"
 						};				
-						return res.status(404).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));								
+						return res.status(404).json(tools.errorResponseObj(error,message,resource,req.url));								
 					} else {
 						widget.update({
 							status: req.body.status
 						});														
-						return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));;
+						return res.status(204).json(tools.successResponseObj([],resource,req.url));;
 					}
 				})
 				.catch((error) => {		  
 					var message =  'Widget record failed';
-					return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));					
+					return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));					
 				});				
 			}   
 			catch(error) {
 				var message = "operation wasn't successful";
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 			}
         }
     }
@@ -358,8 +348,6 @@ exports.deleteWidget = [
 	 // Process request after validation and sanitization.
     (req, res, next) => {
 		
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "widget";
 		const widgetID = req.params.id;
 		//Here we also need to delete the feedback and relevant items		
@@ -386,11 +374,11 @@ exports.deleteWidget = [
 			
 			//Now delete the main widet and return status 
 			await dbLayer.widget.destroy({where: {id:  widgetID}});
-			return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));			
+			return res.status(204).json(tools.successResponseObj([],resource,req.url));			
 		})
 		.catch((error) => {
 			var message =  'Widget record failed';
-			return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));		
+			return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));		
 		});
 	}
 
@@ -411,8 +399,6 @@ exports.getWidgetQuestions = [
     sanitizeBody('id').escape(),
     // Process request after validation and sanitization.
     (req, res, next) => {
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "widgets";
 		// Extract the validation errors from a request.
 		const errors = validationResult(req);
@@ -420,7 +406,7 @@ exports.getWidgetQuestions = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+			return res.status(500).json(tools.errorResponseObj(error,message,resource,req.url));
 		}
 		try {
 				
@@ -439,7 +425,7 @@ exports.getWidgetQuestions = [
 			})
 			.then(async function(questions) {
 					if (!questions) {				
-						return res.status(200).json(tools.successResponseObj([],startDate,endDate,resource,req.url));				
+						return res.status(200).json(tools.successResponseObj([],resource,req.url));				
 					} 
 					var questionsList = []			
 					var	ratingValue = 0					
@@ -481,16 +467,16 @@ exports.getWidgetQuestions = [
 					var response = {};
 					response.question = questionsList;
 					response.ratingvalue = ratingValue;
-					return res.status(200).json(tools.successResponseObj(response,startDate,endDate,resource,req.url));				
+					return res.status(200).json(tools.successResponseObj(response,resource,req.url));				
 				})
 				.catch((error) => {		  
 					var message = 'Widgets fetching failed';
-					return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+					return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 				});     
 			}    
 			catch(error) {
 				var message = "operation wasn't successful";
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 			}
 		}
 		
@@ -512,8 +498,6 @@ exports.UpdateWidgetQuestions = [
     sanitizeBody('id').escape(),
     // Process request after validation and sanitization.
     async (req, res, next) => {
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "widgets";
 		// Extract the validation errors from a request.
 		const errors = validationResult(req);
@@ -521,7 +505,7 @@ exports.UpdateWidgetQuestions = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(200).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+			return res.status(200).json(tools.errorResponseObj(error,message,resource,req.url));
 		}
 		try {
 			
@@ -549,7 +533,7 @@ exports.UpdateWidgetQuestions = [
 								
 					}) 
 				}
-				return res.status(200).json(tools.successResponseObj([],startDate,endDate,resource,req.url));						
+				return res.status(200).json(tools.successResponseObj([],resource,req.url));						
 			} else {
 					//create Function
 					var dataInsertObj = [];
@@ -568,17 +552,17 @@ exports.UpdateWidgetQuestions = [
 						dataInsertObj.push(widgetQuestionData)
 					}
 					dbLayer.widget_question.bulkCreate(dataInsertObj).then( function(result) {
-						return res.status(200).json(tools.successResponseObj([],startDate,endDate,resource,req.url));
+						return res.status(200).json(tools.successResponseObj([],resource,req.url));
 					})
 					.catch((error) => {		  
 						var message =  "operation wasn't successful";
-						return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+						return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 					});
 				}
 			}
 			catch(error) {
 				var message = "operation wasn't successful";
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 			}
 		}
 		
@@ -598,8 +582,6 @@ exports.unlinkConnection = [
     sanitizeBody('id').escape(),
     // Process request after validation and sanitization.
     async (req, res, next) => {
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "widgets";
 		const widgetID = req.params.id;
 		// Extract the validation errors from a request.
@@ -608,7 +590,7 @@ exports.unlinkConnection = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(200).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+			return res.status(200).json(tools.errorResponseObj(error,message,resource,req.url));
 		}
 		try {
 				
@@ -625,7 +607,7 @@ exports.unlinkConnection = [
 							"param": "",
 							"location": "body"
 						};				
-						return res.status(404).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+						return res.status(404).json(tools.errorResponseObj(error,message,resource,req.url));
 					}  
 					var updateData = {}
 					if(req.body.type === 'github') {
@@ -645,17 +627,17 @@ exports.unlinkConnection = [
 					}
 					//update the connection data.
 					gitHubData.update(updateData);								
-					return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));					
+					return res.status(204).json(tools.successResponseObj([],resource,req.url));					
 				})
 				.catch((error) => {		  
 					var message = 'Widgets fetching failed';
-					return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+					return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 					
 				}); 
 			}  
 			catch(error) {
 				var message = "operation wasn't successful";
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 			}
 		}
 		
@@ -683,8 +665,6 @@ exports.SaveGitHubConnection = [
     // Process request after validation and sanitization.
     async (req, res, next) => {
 
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "widgets";
 		
 		const widgetID = req.params.id;
@@ -693,7 +673,7 @@ exports.SaveGitHubConnection = [
 		if (!errors.isEmpty()) {
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(200).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+			return res.status(200).json(tools.errorResponseObj(error,message,resource,req.url));
 		}
 		try {
 				
@@ -721,11 +701,11 @@ exports.SaveGitHubConnection = [
 							gitHubConnect.save({
 								widgetConnectionData
 							}).then(function(result) {											
-								return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));
+								return res.status(204).json(tools.successResponseObj([],resource,req.url));
 							})		
 						}catch(error) {
 							var message = "Error creating widget";
-							return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+							return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 						}
 				} else {
 					//update the connection data.
@@ -739,18 +719,18 @@ exports.SaveGitHubConnection = [
 						repo_url : req.body.repo_url,
 						is_github_connected : true
 					});								
-					return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));		
+					return res.status(204).json(tools.successResponseObj([],resource,req.url));		
 				}							
 			})
 			.catch((error) => {		  
 				var message = 'Widgets fetching failed';
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 				
 			}); 
 		}  
 		catch(error) {
 			var message = "operation wasn't successful";
-			return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+			return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 		}
 	}
 		
@@ -772,8 +752,6 @@ exports.SaveSlackConnection = [
     sanitizeBody('id').escape(),
     // Process request after validation and sanitization.
     async (req, res, next) => {
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "widgets";
 		
 		const widgetID = req.params.id;
@@ -783,7 +761,7 @@ exports.SaveSlackConnection = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(200).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+			return res.status(200).json(tools.errorResponseObj(error,message,resource,req.url));
 		}
 		try {
 				
@@ -805,11 +783,11 @@ exports.SaveSlackConnection = [
 							gitHubConnect.save({
 								widgetConnectionData
 							}).then(function(result) {											
-								return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));
+								return res.status(204).json(tools.successResponseObj([],resource,req.url));
 							})		
 						}catch(error) {
 							var message = "Error creating widget";
-							return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+							return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 						}
 					}  
 					gitHubData.update({
@@ -817,16 +795,16 @@ exports.SaveSlackConnection = [
 							webhook : req.body.webhook,
 							is_slack_connected : true
 					});								
-					return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));					
+					return res.status(204).json(tools.successResponseObj([],resource,req.url));					
 				})
 				.catch((error) => {		  
 					var message = 'Widgets fetching failed';
-					return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));					
+					return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));					
 				}); 
 			}  
 			catch(error) {
 				var message = "operation wasn't successful";
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 			}
 		}
 		
@@ -843,8 +821,6 @@ exports.SaveSlackConnection = [
 exports.DeleteWidgets = [
 	 // Process request after validation and sanitization.
     (req, res, next) => {		
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "chat";
 		
 		 // Extract the validation errors from a request.
@@ -856,7 +832,7 @@ exports.DeleteWidgets = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));           
+			return res.status(500).json(tools.errorResponseObj(error,message,resource,req.url));           
 		} else {		
 			var widget_id_list= [];
 			if (typeof req.body.id  !== 'undefined' && req.body.id  !== null){
@@ -882,11 +858,11 @@ exports.DeleteWidgets = [
 				await dbLayer.widget_connection.destroy({where: {widget_id:  {[Op.in]:widget_id_list}}});				
 				//Now delete All the widges 
 				await dbLayer.widget.destroy({where: {id:  {[Op.in]:widget_id_list}}});				
-				return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));				
+				return res.status(204).json(tools.successResponseObj([],resource,req.url));				
 			})
 			.catch((error) => {		  
 				var message =  'Widget record failed';
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));				
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));				
 			});
 		}
 	}

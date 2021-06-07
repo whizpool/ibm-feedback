@@ -33,8 +33,6 @@ exports.fetchUserFeedbackWidget = [
 	// Process request after validation and sanitization.
     (req, res, next) => {
 
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "feedbacks";
 		// Extract the validation errors from a request.
 		const errors = validationResult(req);
@@ -42,7 +40,7 @@ exports.fetchUserFeedbackWidget = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+			return res.status(500).json(tools.errorResponseObj(error,message,resource,req.url));
 		} else {
 			try {	
 
@@ -66,7 +64,7 @@ exports.fetchUserFeedbackWidget = [
 				})
 				.then(async function(widgetData) {
 					if (!widgetData) {				
-						return res.status(200).json(tools.successResponseObj([],startDate,endDate,resource,req.url));				
+						return res.status(200).json(tools.successResponseObj([],resource,req.url));				
 					}  
 					var widgetObj = widgetData.get();
 					var widget_questions  = widgetObj.widget_questions;
@@ -91,18 +89,18 @@ exports.fetchUserFeedbackWidget = [
 				
 					var feedbackWidgetHTMLStr = '<header>Please fill out the following fields</header><section><form role="form" method="post" id="feedback_form"><input type="hidden" name="image" id="image" value="" />'+feedbackWidget+'<div style="width:100%"><div role="alert" kind="error" class="bx--inline-notification bx--inline-notification--error" style="max-width: inherit;width: inherit;"><div class="bx--inline-notification__text-wrapper"><div class="bx--inline-notification__subtitle"><span>&nbsp;&nbsp;&nbsp;A screenshot will be sent with your feedback</span></div></div></div></div><div style="width:100%"><button id="submitForm" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Submit Feedback</button></div></form></section><script>$("#feedback_form").submit(function(e){return e.preventDefault(),$.ajax({type:"POST",url:"'+config.apihost+'feedbacks/savefeedback/'+req.params.id+'",data:$(this).serialize(),beforeSend:function(){$("#widgetHTML").html("<div style=\'display: flex;justify-content: center;align-items: center;overflow: hidden\'><div data-loading class=\'bx--loading\'><svg class=\'bx--loading__svg\' viewBox=\'-75 -75 150 150\'><title>Loading</title><circle class=\'bx--loading__stroke\' cx=\'0\' cy=\'0\' r=\'37.5\' /></svg></div></div>")},success:function(e){$("#widgetHTML").html(e.data)}}),!1});</script>';
 						
-					return res.status(200).json(tools.successResponseObj(feedbackWidgetHTMLStr,startDate,endDate,resource,req.url));
+					return res.status(200).json(tools.successResponseObj(feedbackWidgetHTMLStr,resource,req.url));
 					
 					
 				})
 				.catch((error) => {		  
 					var message = 'Widgets fetching failed';
-					return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));					
+					return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));					
 				});     
 			}
 			catch(error) {
 				var message = "operation wasn't successful";
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 			}
         }
     }
@@ -117,15 +115,13 @@ exports.fetchUserFeedbackWidget = [
 */
 exports.saveUserFeedbackData = [ 
 	async (req, res, next) => {		
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "feedbacks";
 		// Extract the validation errors from a request.
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+			return res.status(500).json(tools.errorResponseObj(error,message,resource,req.url));
 		} else {
 			try {			
 			
@@ -160,17 +156,17 @@ exports.saveUserFeedbackData = [
 						}
 						var feedbackHTMLview = await viewUserFeedback(feedbackData.id);
 						var feedbackWidgetHTMLStr = '<header>Thank you for submitting your feedback</header><section>'+feedbackHTMLview+'</section><div style="width:100%"><button id="dismiss" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Dismiss</button></div><script>$("#dismiss").on("click",function(){$(".feedback-box").removeClass("show");});</script>';						
-						return res.status(200).json(tools.successResponseObj(feedbackWidgetHTMLStr,startDate,endDate,resource,req.url));
+						return res.status(200).json(tools.successResponseObj(feedbackWidgetHTMLStr,resource,req.url));
 					})		
 				}
 				catch(error) {
 					var message = "Error creating widget";
-					return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+					return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 				}	
 			}     
 			catch(error) {
 				var message = "operation wasn't successful";
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 			}
         }
     }
@@ -283,7 +279,7 @@ function viewUserFeedback(feedbackID) {
 			// catch error if the operation wasn't successful
 			var message = 'Feedback fetching failed';
 			var errors = {};
-			return res.status(404).json(tools.errorResponseObj(errors,message,startDate,endDate,resource,req.url));
+			return res.status(404).json(tools.errorResponseObj(errors,message,resource,req.url));
 		} 
 		var issueObj = {}
 		var slackObj = {}
@@ -481,11 +477,11 @@ function createIssuesOnConnection(widgetID, issueObj,slackObj) {
 			await axios(config)
 				.then(function (result) {
 				console.log(result)
-				//return res.status(200).json(tools.successResponseObj(result.data.resources,startDate,endDate,resource,req.url));
+				//return res.status(200).json(tools.successResponseObj(result.data.resources,resource,req.url));
 					
 			})
 			.catch(function (error) {
-				//return res.status(400).json(tools.errorResponseObj(error,error.message,startDate,endDate,resource,req.url));
+				//return res.status(400).json(tools.errorResponseObj(error,error.message,resource,req.url));
 				console.log(error)
 			});
 		
@@ -503,10 +499,10 @@ function createIssuesOnConnection(widgetID, issueObj,slackObj) {
 			await axios(config)
 			.then(function (result) {
 				console.log(result)
-				//return res.status(200).json(tools.successResponseObj(result.data.resources,startDate,endDate,resource,req.url));						
+				//return res.status(200).json(tools.successResponseObj(result.data.resources,resource,req.url));						
 			})
 			.catch(function (error) {
-				//return res.status(400).json(tools.errorResponseObj(error,error.message,startDate,endDate,resource,req.url));
+				//return res.status(400).json(tools.errorResponseObj(error,error.message,resource,req.url));
 				console.log(error)
 			});
 		}			

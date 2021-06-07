@@ -13,8 +13,6 @@ var tools = require('./tools');
 module.exports = {		
 		//jwt verification for  APIs
 		verifyToken: (req, res, next) => {		
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "modeules/Authorize";
 		var apiurl = "";
 		
@@ -27,7 +25,7 @@ module.exports = {
 			var current_time = Date.now() / 1000;
 			if ( decodedToken.exp < current_time) {
 				/* expired */ 
-				return res.status(401).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+				return res.status(401).json(tools.errorResponseObj(error,message,resource,req.url));
 			}
 				else {
 					req.body.access_token = token
@@ -44,7 +42,7 @@ module.exports = {
 					"param": "Bearer Token",
 					"location": "header"
 				};
-				return res.status(401).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+				return res.status(401).json(tools.errorResponseObj(error,message,resource,req.url));
 			}
 	},
 	

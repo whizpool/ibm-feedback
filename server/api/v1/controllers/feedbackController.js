@@ -31,8 +31,6 @@ var objectStroage = require('../../../modules/object_stroage');
 exports.fetchFeedbacks = [ 
     // Process request after validation and sanitization.
     (req, res, next) => {
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "feedbacks";
 		// Extract the validation errors from a request.
 		const errors = validationResult(req);
@@ -40,7 +38,7 @@ exports.fetchFeedbacks = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+			return res.status(500).json(tools.errorResponseObj(error,message,resource,req.url));
 		} else {
 			try {
 				var queryParams = {};	
@@ -115,7 +113,7 @@ exports.fetchFeedbacks = [
 				})
 				.then(async function(feedbacks) {						
 					if (!feedbacks) {				
-						return res.status(200).json(tools.successResponseObj([],startDate,endDate,resource,req.url));				
+						return res.status(200).json(tools.successResponseObj([],resource,req.url));				
 					}  
 					var RatingQuestionID = 0;
 					var feedbacksList = []						
@@ -153,18 +151,18 @@ exports.fetchFeedbacks = [
 					var userfeedbacks = {}
 					userfeedbacks.list = feedbacksList;
 					userfeedbacks.options = await dbLayer.question_option.findAll({where: {question_id: RatingQuestionID},attributes : ['id','label','value',]});	;
-					return res.status(200).json(tools.successResponseObj(userfeedbacks,startDate,endDate,resource,req.url))
+					return res.status(200).json(tools.successResponseObj(userfeedbacks,resource,req.url))
 				})
 				.catch((error) => {		  
 					// catch error if the operation wasn't successful
 					var message = 'feedbacks fetching failed';
-					return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+					return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 					
 				});     
 			}     
 			catch(error) {
 				var message = "operation wasn't successful";
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 			}
         }
     }
@@ -179,8 +177,6 @@ exports.fetchFeedbacks = [
    * @description gets all available results
 */
 exports.viewFeedback =function(req, res , next) {	
-	var startDate = req.session.startDate;
-	var endDate = req.session.lastRequestDate;
 	var resource = "feedback";
 	const feedbackID = req.params.id;	
 	try {		 
@@ -225,7 +221,7 @@ exports.viewFeedback =function(req, res , next) {
 				// catch error if the operation wasn't successful
 				var message = 'Feedback fetching failed';
 				var errors = {};
-				return res.status(404).json(tools.errorResponseObj(errors,message,startDate,endDate,resource,req.url));
+				return res.status(404).json(tools.errorResponseObj(errors,message,resource,req.url));
 			}
 			var feedbacksObj = feedback.get();
 			feedbacksObj.widget_id = feedbacksObj.widget_id.toString()
@@ -254,16 +250,16 @@ exports.viewFeedback =function(req, res , next) {
 			delete feedbacksObj.createdAt 
 			delete feedbacksObj.widget 
 			delete feedbacksObj.feedback_answers
-			return res.status(200).json(tools.successResponseObj(feedbacksObj,startDate,endDate,resource,req.url));
+			return res.status(200).json(tools.successResponseObj(feedbacksObj,resource,req.url));
 		})
 		.catch((error) => {		  
 			var message = 'feedback fetching failed';
-			return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));
+			return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));
 		});
 	}
 	catch(error) {
 		var message = "operation wasn't successful";
-		return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));			 
+		return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));			 
 	}
 			
 };
@@ -281,8 +277,6 @@ exports.deletefeedback = [
     sanitizeBody('id').escape(),
 	// Process request after validation and sanitization.
     async (req, res, next) => {
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "feedback";
 		const feedbackID = req.params.id;
 		dbLayer.feedback.destroy({
@@ -291,11 +285,11 @@ exports.deletefeedback = [
 			}
 		}).then(async () => {
 			await dbLayer.feedback_answer.destroy({where: {feedback_id: feedbackID}});
-			return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));			
+			return res.status(204).json(tools.successResponseObj([],resource,req.url));			
 		})
 		.catch((error) => {		  
 			var message =  'feedback record failed';
-			return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));			
+			return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));			
 		});
 	}
 
@@ -311,8 +305,6 @@ exports.deletefeedback = [
 exports.deleteAllFeedBacks = [	
     (req, res, next) => {	
 	
-		var startDate = req.session.startDate;
-		var endDate = req.session.lastRequestDate;
 		var resource = "chat";
 		
 		 // Extract the validation errors from a request.
@@ -322,7 +314,7 @@ exports.deleteAllFeedBacks = [
 			// There are errors. Render form again with sanitized values/errors messages.
 			var message = 'Validation error from form inputs';
 			var error = errors.array();
-			return res.status(500).json(tools.errorResponseObj(error,message,startDate,endDate,resource,req.url));
+			return res.status(500).json(tools.errorResponseObj(error,message,resource,req.url));
 		} else {		
 			var widget_id_list= [];
 			if (typeof req.body.id  !== 'undefined' && req.body.id  !== null){
@@ -343,11 +335,11 @@ exports.deleteAllFeedBacks = [
 					await dbLayer.feedback_answer.destroy({where: {feedback_id:  {[Op.in]:feedbackIDs_list}}});
 					await dbLayer.feedback.destroy({where: {id:  {[Op.in]:feedbackIDs_list}}});
 				}
-				return res.status(204).json(tools.successResponseObj([],startDate,endDate,resource,req.url));				
+				return res.status(204).json(tools.successResponseObj([],resource,req.url));				
 			})
 			.catch((error) => {		  
 				var message =  'Widget record failed';
-				return res.status(500).json(tools.errorResponseObj(error.message,message,startDate,endDate,resource,req.url));				
+				return res.status(500).json(tools.errorResponseObj(error.message,message,resource,req.url));				
 			});	
 		}
 	}

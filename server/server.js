@@ -23,7 +23,6 @@ var widgetsAPI = require('./api/v1/routes/widgets');
 var usersAPI = require('./api/v1/routes/users');
 var feedbacksAPI = require('./api/v1/routes/feedbacks');
 var tools = require('./modules/tools');
-var sessionManagement = require('./modules/sessionManagement');
 
 var app = express();
 
@@ -54,7 +53,8 @@ app.use(function (req, res, next) {
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
+//app.use(logger('dev'));
+
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
@@ -63,14 +63,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // session will not work for static content
 app.set('trust proxy', 1) // trust first proxy
-app.use(sessionManagement);
+
 
 //
 // General toolset
 //
 // on request start and on request end moved after static content
-app.use(tools.onRequestStart);
-app.use(tools.onRequestEnd);
 app.use('/api/v1/widgets', widgetsAPI);
 app.use('/api/v1/users', usersAPI);
 app.use('/api/v1/feedbacks', feedbacksAPI);
@@ -90,8 +88,6 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
 	
-	//var startDate = req.session.startDate;
-    //	var endDate = req.session.lastRequestDate;
 	var resource = "main";	
 	// set locals, only providing error in development
 	res.locals.message = err.message;
