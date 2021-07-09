@@ -43,9 +43,10 @@ exports.fetchFeedbacks = [
 			try {
 				var queryParams = {};	
 				var widgetQueryParams = {};	
+				widgetQueryParams.type = req.body.type
 				var widgetQuestionQueryParams = {};	
 				if (typeof req.body.filters  !== 'undefined' && req.body.filters  !== null && req.body.filters  !== "" ){
-					var filters = req.body.filters;					
+					var filters = req.body.filters;						
 					if (typeof filters.name  !== 'undefined' && filters.name  !== null && filters.name  !== "" ){							
 						widgetQueryParams.name = { [Op.iLike]: '%'+filters.name+'%' }					
 					}
@@ -150,6 +151,7 @@ exports.fetchFeedbacks = [
 					}
 					var userfeedbacks = {}
 					userfeedbacks.list = feedbacksList;
+					//userfeedbacks.widget_type = 	 (await dbLayer.widget.findOne({where: {id: requestParam.id},attributes : ['type']})).type;	
 					userfeedbacks.options = await dbLayer.question_option.findAll({where: {question_id: RatingQuestionID},attributes : ['id','label','value',]});	;
 					return res.status(200).json(tools.successResponseObj(userfeedbacks,resource,req.url))
 				})
@@ -177,6 +179,7 @@ exports.fetchFeedbacks = [
    * @description gets all available results
 */
 exports.viewFeedback =function(req, res , next) {	
+
 	var resource = "feedback";
 	const feedbackID = req.params.id;	
 	try {		 
@@ -187,13 +190,15 @@ exports.viewFeedback =function(req, res , next) {
 		} else if (typeof req.body.next  !== 'undefined' && req.body.next  !== null && req.body.next  !== "" ){				
 			queryParams.id = {[Op.gt]: feedbackID}
 		}		
+		var widgetQueryParams = {};	
 		dbLayer.feedback.findOne({
 			where: queryParams,
-			attributes : ['id','widget_id','screen_shot','createdAt'],
+			attributes : ['id','widget_id','screen_shot','createdAt','referral_url'],
 			include: [ 
 				{
 					model: dbLayer.widget,
-					attributes : ['name','url']
+					where:{type: req.body.type}	,				
+					attributes : ['name','url','type']
 				},	
 				{
 					model: dbLayer.feedback_answer,
@@ -229,6 +234,8 @@ exports.viewFeedback =function(req, res , next) {
 			feedbacksObj.screen_shot = config.apihost+"widgets/download?file="+feedbacksObj.screen_shot			
 			feedbacksObj.name = feedbacksObj.widget.name
 			feedbacksObj.url = feedbacksObj.widget.url
+			feedbacksObj.referral_url = feedbacksObj.referral_url
+			feedbacksObj.type = feedbacksObj.widget.type
 			feedbacksObj.date = tools.convertMillisecondsTodateFormat(feedbacksObj.createdAt);
 			for(var j =0 ; j < feedbacksObj.feedback_answers.length;j++) {
 				var answerObj = feedbacksObj.feedback_answers[j].get();
@@ -241,10 +248,12 @@ exports.viewFeedback =function(req, res , next) {
 			}
 			feedbacksObj.next = 0
 			feedbacksObj.previous = 0
-			var previousItem = await dbLayer.feedback.findOne({where: {id:{[Op.lt]: feedbackID}},attributes : ['id'],order: [['id', 'DESC']]})
+			
+			//where:{type: req.body.type}	
+			var previousItem = await dbLayer.feedback.findOne({where: {id:{[Op.lt]: feedbackID}},include: [ {model: dbLayer.widget,where:{type: req.body.type}}],attributes : ['id'],order: [['id', 'DESC']]})
 			if(previousItem)
 				feedbacksObj.previous = previousItem.id				
-			var NextItem = await dbLayer.feedback.findOne({where: {id:{[Op.gt]: feedbackID}},attributes : ['id'],order: [['id', 'DESC']]})
+			var NextItem = await dbLayer.feedback.findOne({where: {id:{[Op.gt]: feedbackID}},include: [ {model: dbLayer.widget,where:{type: req.body.type}}],attributes : ['id'],order: [['id', 'ASC']]})
 			if(NextItem)
 				feedbacksObj.next = NextItem.id
 			delete feedbacksObj.createdAt 

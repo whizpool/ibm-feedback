@@ -41,7 +41,7 @@ class App extends Component {
 	};
 	
 	componentDidMount() {
-		document.title = 'React Login';
+		//document.title = process.env.REACT_APP_SITE_TITLE + " Login ";
 	}
 	
  	render() {

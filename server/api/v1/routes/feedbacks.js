@@ -15,7 +15,7 @@ var feedbackController = require('../controllers/feedbackController');
 const Authorize = require("../../../modules/Authorize");
 
 router.post("/", Authorize.verifyToken, feedbackController.fetchFeedbacks);
-router.get("/:id", Authorize.verifyToken, feedbackController.viewFeedback);
+router.post("/:id", Authorize.verifyToken, feedbackController.viewFeedback);
 router.delete("/:id", Authorize.verifyToken, feedbackController.deletefeedback);
 router.post("/delete_feedbacks", Authorize.verifyToken, feedbackController.deleteAllFeedBacks);
 

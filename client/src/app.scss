@@ -8,7 +8,7 @@ $carbon--theme: $carbon--theme--g10;
 	padding-left:0;
 }
 .bx--content {
-	background: #e0e0e0;
+	background: #f3f3f3;
 }
 .bx--data-table-header {
 	background: #e0e0e0;
@@ -19,6 +19,19 @@ $carbon--theme: $carbon--theme--g10;
 body {
   background-color: $ui-03;
 }
+.bx--list-box__wrapper .bx--label{
+	display: none;
+}
+.bx--side-nav__navigation{
+	background-color: $ui-05;
+}
+a.bx--side-nav__link > .bx--side-nav__link-text,{
+color:$text-04
+}
+.bx--side-nav__icon > svg{
+fill:$text-04
+}
+
 @import './components/AppHeader/app-header.scss';
 @import './content/WidgetPage/widget-page.scss';
 @import './content/EditPage/edit-page.scss';

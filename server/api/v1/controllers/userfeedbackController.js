@@ -55,7 +55,7 @@ exports.fetchUserFeedbackWidget = [
 									include: [ 
 												{
 													model:dbLayer.question,
-													attributes : ['type','name',],			
+													attributes : ['type','name','form_key','display_text'],			
 											},
 									],	
 								}
@@ -64,30 +64,107 @@ exports.fetchUserFeedbackWidget = [
 				})
 				.then(async function(widgetData) {
 					if (!widgetData) {				
-						return res.status(200).json(tools.successResponseObj([],resource,req.url));				
+						return res.status(200).json(tools.successResponseObj('<script>$("#ibmsnippet").html("");</script>',resource,req.url));				
 					}  
 					var widgetObj = widgetData.get();
 					var widget_questions  = widgetObj.widget_questions;
-					
 					var feedbackWidget = ""
-					for(var i =0 ; i < widget_questions.length;i++)
-					{
+					if(widgetObj.type === 'feedback') {
 						
-						var questionObj = widget_questions[i].get();
-						questionObj.rating_type = ""
-						if(questionObj.display_text == ""){
-							questionObj.display_text = questionObj.question.name
+						for(var i =0 ; i < widget_questions.length;i++)
+						{							
+							var questionObj = widget_questions[i].get();
+							questionObj.rating_type = ""
+							if(questionObj.display_text == ""){
+								questionObj.display_text = questionObj.question.display_text
+							}
+							if(questionObj.option_id) {
+								questionObj.rating_type = (await dbLayer.question_option.findOne({where: {id: questionObj.option_id,question_id:questionObj.question_id},attributes : ['value']})).value;	
+							}
+							if(questionObj.is_active){
+								var questionHTML = createHTMLElement(questionObj)
+								feedbackWidget += questionHTML+"<br/>"		
+							}
 						}
-						if(questionObj.option_id) {
-							questionObj.rating_type = (await dbLayer.question_option.findOne({where: {id: questionObj.option_id,question_id:questionObj.question_id},attributes : ['value']})).value;	
-						}
-						if(questionObj.is_active){
-							var questionHTML = createHTMLElement(questionObj)
-							feedbackWidget += questionHTML+"<br/>"		
-						}
-					} 
+						
+						var feedbackWidgetHTMLStr = '<header>Please fill out the following fields</header><section><form role="form" method="post" id="feedback_form"><input type="hidden" name="referral_url" id="referral_url" value="" /><input type="hidden" name="image" id="image" value="" />'+feedbackWidget+'<div style="width:100%"><div role="alert" kind="error" class="bx--inline-notification bx--inline-notification--error" style="max-width: inherit;width: inherit;"><div class="bx--inline-notification__text-wrapper"><div class="bx--inline-notification__subtitle"><span>&nbsp;&nbsp;&nbsp;A screenshot will be sent with your feedback</span></div></div></div></div><div style="width:100%"><button id="submitForm" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Submit Feedback</button></div></form></section><script>$("#referral_url").val(window.location.href);$("#feedback_form").submit(function(e){return e.preventDefault(),$.ajax({type:"POST",url:"'+config.apihost+'feedbacks/savefeedback/'+req.params.id+'",data:$(this).serialize(),beforeSend:function(){$("#widgetHTML").html("<div style=\'display: flex;justify-content: center;align-items: center;overflow: hidden\'><div data-loading class=\'bx--loading\'><svg class=\'bx--loading__svg\' viewBox=\'-75 -75 150 150\'><title>Loading</title><circle class=\'bx--loading__stroke\' cx=\'0\' cy=\'0\' r=\'37.5\' /></svg></div></div>")},success:function(e){$("#widgetHTML").html(e.data)}}),!1});</script>';
+
+					}
+					
+					var feedbackWidgetHTMLForm = {}
+					var feedbackWidgetHTMLStr = "";
+					if(widgetObj.type === 'rating') {
+						var ratingQuestion = {};
+						
+						for(var i =0 ; i < widget_questions.length;i++)
+						{
+							
+							var questionObj = widget_questions[i].get();
+							if(!questionObj.display_label){
+								//
+								//questionObj.rating_type = ""
+								if(questionObj.question.form_key === "intro" && questionObj.is_active){
+									questionObj.IntroText = questionObj.display_text
+									if(questionObj.display_text == ""){
+										questionObj.IntroText = questionObj.question.display_text
+									}
+									feedbackWidgetHTMLForm.intro =  '<div class="bx--form-item bx--text-input-wrapper"><p>'+questionObj.IntroText+'</p></div>';
 				
-					var feedbackWidgetHTMLStr = '<header>Please fill out the following fields</header><section><form role="form" method="post" id="feedback_form"><input type="hidden" name="image" id="image" value="" />'+feedbackWidget+'<div style="width:100%"><div role="alert" kind="error" class="bx--inline-notification bx--inline-notification--error" style="max-width: inherit;width: inherit;"><div class="bx--inline-notification__text-wrapper"><div class="bx--inline-notification__subtitle"><span>&nbsp;&nbsp;&nbsp;A screenshot will be sent with your feedback</span></div></div></div></div><div style="width:100%"><button id="submitForm" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Submit Feedback</button></div></form></section><script>$("#feedback_form").submit(function(e){return e.preventDefault(),$.ajax({type:"POST",url:"'+config.apihost+'feedbacks/savefeedback/'+req.params.id+'",data:$(this).serialize(),beforeSend:function(){$("#widgetHTML").html("<div style=\'display: flex;justify-content: center;align-items: center;overflow: hidden\'><div data-loading class=\'bx--loading\'><svg class=\'bx--loading__svg\' viewBox=\'-75 -75 150 150\'><title>Loading</title><circle class=\'bx--loading__stroke\' cx=\'0\' cy=\'0\' r=\'37.5\' /></svg></div></div>")},success:function(e){$("#widgetHTML").html(e.data)}}),!1});</script>';
+								}
+
+								if(questionObj.question.form_key === "rating" && questionObj.is_active){
+										questionObj.display_text = ""									
+									if(questionObj.option_id) {
+											questionObj.rating_type = (await dbLayer.question_option.findOne({where: {id: questionObj.option_id,question_id:questionObj.question_id},attributes : ['value']})).value;	
+										}
+										if(questionObj.is_active){
+											var questionHTML = createHTMLElement(questionObj)
+											feedbackWidgetHTMLForm.rating= questionHTML+"<br/>"		
+										}				
+								}				
+								//questionObj.rating_type = ""
+								if(questionObj.question.form_key === "user_comment" && questionObj.is_active){
+									var display_text = questionObj.display_text
+									if(questionObj.display_text == "") {
+										display_text = questionObj.question.display_text
+									}
+									feedbackWidgetHTMLForm.user_comment =  '<div class="bx--form-item bx--text-input-wrapper"><p>'+display_text+'</p></div>';				
+								}
+								
+								if(questionObj.question.form_key === "response" && questionObj.is_active){
+									var display_text = questionObj.display_text
+									if(questionObj.display_text == "") {
+										display_text = questionObj.question.display_text
+									}
+									feedbackWidgetHTMLForm.response =  display_text;				
+								}
+								
+								if(questionObj.question.form_key === "feedback" && questionObj.is_active) {																
+									if(questionObj.is_active){
+										 var Options = questionObj;
+											var elementID = "elementid_"+Options.id;										
+											var questionHTML = '<div class="bx--form-item">'+
+											'<label for="text-area-4" class="bx--label">##USERCOMMENT##</label>'+
+											'<div class="bx--text-area__wrapper">'+
+											'<textarea id="'+elementID+'"  name="'+elementID+'" '+ (Options.is_required ? "required" : "")+'  class="bx--text-area bx--text-area--invalid bx--text-area--v2"  rows="4" cols="50" ></textarea>'+
+											'</div> </div>';
+											feedbackWidgetHTMLForm.feedback = questionHTML;
+										}					
+								}							
+							} 							
+						}
+						let feedbackLabel = feedbackWidgetHTMLForm.feedback;
+						let feedbackLabelText = feedbackLabel.replace(	'##USERCOMMENT##' , feedbackWidgetHTMLForm.user_comment)
+						let feedbackWidget = '<div id="ratingOptions" >'+ feedbackWidgetHTMLForm.intro +  feedbackWidgetHTMLForm.rating +" </div>";
+							
+						feedbackWidget += '<div id="feedbacktextarea" style="display:none">'+feedbackLabelText+'<div style="width:100%"><div role="alert" kind="error" class="bx--inline-notification bx--inline-notification--error" style="max-width: inherit;width: inherit;"><div class="bx--inline-notification__text-wrapper"><div class="bx--inline-notification__subtitle"><span>&nbsp;&nbsp;&nbsp;A screenshot will be sent with your feedback</span></div></div></div></div><div style="width:100%"><button id="submitForm" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Submit Feedback</button></div>';
+						//feedbackWidget += 	feedbackWidgetHTMLForm.response;
+			
+						
+						//questionObj.question.name
+						var feedbackWidgetHTMLStr = '<section><form role="form" method="post" id="feedback_form"><input type="hidden" name="referral_url" id="referral_url" value="" /><input type="hidden" name="response" id="response" value="'+feedbackWidgetHTMLForm.response+'" /><input type="hidden" name="image" id="image" value="" />'+feedbackWidget+'</div></form></section><script>$("#referral_url").val(window.location.href);$("#feedback_form").submit(function(e){return e.preventDefault(),$.ajax({type:"POST",url:"'+config.apihost+'feedbacks/savefeedback/'+req.params.id+'",data:$(this).serialize(),beforeSend:function(){$("#widgetHTML").html("<div style=\'display: flex;justify-content: center;align-items: center;overflow: hidden\'><div data-loading class=\'bx--loading\'><svg class=\'bx--loading__svg\' viewBox=\'-75 -75 150 150\'><title>Loading</title><circle class=\'bx--loading__stroke\' cx=\'0\' cy=\'0\' r=\'37.5\' /></svg></div></div>")},success:function(e){$("#widgetHTML").html(e.data)}}),!1});$("#ratting-div input:radio").change(function() {$("#feedbacktextarea").show();$("#ratingOptions").hide()})</script>';
+					}						
+						
 						
 					return res.status(200).json(tools.successResponseObj(feedbackWidgetHTMLStr,resource,req.url));
 					
@@ -125,15 +202,20 @@ exports.saveUserFeedbackData = [
 		} else {
 			try {			
 			
+			
 				let requestParam = JSON.parse(Buffer.from(req.params.id, 'base64').toString())				
 				let ImageData= req.body.image;
+				let response= req.body.response;
 				let imageType= "image/jpeg"
 				let ImageName = Date.now().toString();
 				var objectStroageData = await objectStroage.UploadObject(ImageData,imageType,ImageName);
 				var feedbackPostData = {
 					widget_id: requestParam.id,
 					screen_shot: ImageName,
+					referral_url: (req.body.referral_url) ? req.body.referral_url : 'N/A',
 				}
+				
+				let widgetType = (await dbLayer.widget.findOne({where: {id: requestParam.id},attributes : ['type']})).type;	
 				var feedback = new dbLayer.feedback(feedbackPostData);	
 				try {
 						feedback.save({
@@ -141,21 +223,26 @@ exports.saveUserFeedbackData = [
 						}).then(async function(result) {
 						var feedbackData = result.get();
 						//Saveing Answers							
-				
 						for(let i=0;i<Object.keys(req.body).length;i++){
 							let key = Object.keys(req.body)[i]
-							if(key != "widget_id" && key != "image") {
+							if(key != "widget_id" && key != "image" && key != "referral_url" && key != "response") {
 								var [_,wq_id] = key.split("_"); 								
 								var feedbackAnswerData = {}
 								feedbackAnswerData.feedback_id = feedbackData.id;	
 								feedbackAnswerData.widget_question_id = parseInt(wq_id)
 								feedbackAnswerData.answer = req.body[key]
+								
 								var feedbackAnswer = new dbLayer.feedback_answer(feedbackAnswerData);									
 								await feedbackAnswer.save({feedbackAnswer});
 							}
 						}
-						var feedbackHTMLview = await viewUserFeedback(feedbackData.id);
-						var feedbackWidgetHTMLStr = '<header>Thank you for submitting your feedback</header><section>'+feedbackHTMLview+'</section><div style="width:100%"><button id="dismiss" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Dismiss</button></div><script>$("#dismiss").on("click",function(){$(".feedback-box").removeClass("show");});</script>';						
+						if(widgetType === 'rating') {							
+								var feedbackWidgetHTMLStr = '<section>'+response+'</section>';						
+						} else {
+								var feedbackHTMLview = await viewUserFeedback(feedbackData.id);
+								var feedbackWidgetHTMLStr = '<header>Thank you for submitting your feedback</header><section>'+feedbackHTMLview+'</section><div style="width:100%"><button id="dismiss" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Dismiss</button></div><script>$("#dismiss").on("click",function(){$(".feedback-box").removeClass("show");});</script>';				
+						}
+					
 						return res.status(200).json(tools.successResponseObj(feedbackWidgetHTMLStr,resource,req.url));
 					})		
 				}
@@ -203,7 +290,7 @@ function createHTMLElement(Options) {
 				'<textarea id="'+elementID+'"  name="'+elementID+'" '+ (Options.is_required ? "required" : "")+'  class="bx--text-area bx--text-area--invalid bx--text-area--v2" maxlength="'+Options.limit+'" rows="4" cols="50" placeholder="'+elementLabel+'"></textarea>'+
 				'</div> </div>';
 		break;
-		case "select":
+		case "select":			
 			var htmlRatingStr = "";
 			if(Options.question && Options.option_id > 0 ){
 				htmlRatingStr = createUserRatingHTML(Options.rating_type,elementID);
@@ -211,7 +298,7 @@ function createHTMLElement(Options) {
 			htmlElementStr = '<div class="bx--form-item">'+
 			'<label for="text-area-4" class="bx--label">'+elementLabel+'</label>'+
 			'<div class="bx--text-area__wrapper">'+htmlRatingStr+
-			'</div></div>'
+			'</div></div>';			
 		break;
 		case "multiline":	
 		case "number":
@@ -225,10 +312,19 @@ function createUserRatingHTML(rating_type, elementID) {
 	var htmlRatingStr  = "";	
 	switch(rating_type){
 		case 'star':
-			htmlRatingStr = '<div id="ratting-div" class="start_rating">'+
+			htmlRatingStr = '<div id="ratting-div" class="star_rating">'+
 				'<input type="radio" id="star5" name="'+elementID+'"  value="5" /><label for="star5"></label>'+
 				'<input type="radio" id="star4" name="'+elementID+'"  value="4" /><label for="star4"></label>'+
 				'<input type="radio" id="star3" checked name="'+elementID+'"  value="3" /><label for="star3"></label>'+
+				'<input type="radio" id="star2" name="'+elementID+'"  value="2" /><label for="star2"></label>'+
+				'<input type="radio" id="star1" name="'+elementID+'"  value="1" /><label for="star1"></label>'+
+				'</div>';
+		break;		
+		case 'stars':
+			htmlRatingStr = '<div id="ratting-div" class="stars_rating">'+
+				'<input type="radio" id="star5" name="'+elementID+'"  value="5" /><label for="star5"></label>'+
+				'<input type="radio" id="star4" name="'+elementID+'"  value="4" /><label for="star4"></label>'+
+				'<input type="radio" id="star3"  name="'+elementID+'"  value="3" /><label for="star3"></label>'+
 				'<input type="radio" id="star2" name="'+elementID+'"  value="2" /><label for="star2"></label>'+
 				'<input type="radio" id="star1" name="'+elementID+'"  value="1" /><label for="star1"></label>'+
 				'</div>';
@@ -241,11 +337,40 @@ function createUserRatingHTML(rating_type, elementID) {
 				'<input type="radio" id="number2"  class="number2" name="'+elementID+'"  value="2" /><label class="number_2_rating_label " for="number2"></label>'+
 				'<input type="radio" id="number1"  class="number1" name="'+elementID+'" value="1" /><label class="number_1_rating_label " for="number1"></label>'+
 				'</div>';
+		break;		
+		case 'numeric':
+			htmlRatingStr = '<div id="ratting-div" class="number_rating">'+
+				'<input type="radio" id="number10" class="number10" name="'+elementID+'" value="10" /><label class=" number_10_rating_label " for="number10"></label>'+
+				'<input type="radio" id="number9" class="number9" name="'+elementID+'" value="9" /><label class=" number_9_rating_label " for="number9"></label>'+
+				'<input type="radio" id="number8" class="number8" name="'+elementID+'" value="8" /><label class=" number_8_rating_label " for="number8"></label>'+
+				'<input type="radio" id="number7" class="number7" name="'+elementID+'" value="7" /><label class=" number_7_rating_label " for="number7"></label>'+
+				'<input type="radio" id="number6" class="number6" name="'+elementID+'" value="6" /><label class=" number_6_rating_label " for="number6"></label>'+
+				'<input type="radio" id="number5" class="number5" name="'+elementID+'" value="5" /><label class=" number_5_rating_label " for="number5"></label>'+
+				'<input type="radio" id="number4"  class="number4" name="'+elementID+'" value="4" /><label class="number_4_rating_label " for="number4"></label>'+
+				'<input type="radio" id="number3" 	 class="number3" name="'+elementID+'"  value="3" /><label class="number_3_rating_label " for="number3"></label>'+
+				'<input type="radio" id="number2"  class="number2" name="'+elementID+'"  value="2" /><label class="number_2_rating_label " for="number2"></label>'+
+				'<input type="radio" id="number1"  class="number1" name="'+elementID+'" value="1" /><label class="number_1_rating_label " for="number1"></label>'+
+				'</div>';
+		break;	
+		case 'thumbs':
+			htmlRatingStr = '<div id="ratting-div" class="thumbs_rating">'+
+				'<input type="radio" id="thumbs_down" class="thumbs_down" name="'+elementID+'" value="2" /><label class=" thumbs_down_rating_label " for="thumbs_down"></label>'+		
+				'<input type="radio" id="thumbs_up" class="thumbs_up" name="'+elementID+'" value="1" /><label class=" thumbs_up_rating_label " for="thumbs_up"></label>'+
+				'</div>';
+		break;			
+		case 'emoticons':
+			htmlRatingStr = '<div id="ratting-div" class="emoticons_rating">'+
+				'<input type="radio" id="face_sad" class="face_sad" name="'+elementID+'" value="1" /><label class=" face_sad_rating_label " for="face_sad"></label>'+
+				'<input type="radio" id="face_satisfied" class="face_satisfied" name="'+elementID+'" value="2" /><label class="face_satisfied_rating_label " for="face_satisfied"></label>'+		
+				'<input type="radio" id="face_neutral" class="face_neutral" name="'+elementID+'" value="3" /><label class="face_neutral_rating_label " for="face_neutral"></label>'+		
+					'<input type="radio" id="face_dissatisfied" class="face_dissatisfied" name="'+elementID+'" value="4" /><label class="face_dissatisfied_rating_label " for="face_dissatisfied"></label>'+	
+				'<input type="radio" id="face_activated" class="face_activated" name="'+elementID+'" value="5" /><label class="face_activated_rating_label " for="face_activated"></label>'+		
+				'</div>';
 		break;	
 		case 'smiley':
 			htmlRatingStr = '<div id="ratting-div" class="smiley_rating">'+
 				'<input type="radio" id="satisfied" class="satisfied" name="'+elementID+'"  value="3" /><label class="smiley_3_rating_label " for="satisfied"></label>'+
-				'<input type="radio" id="neutral" checked class="neutral" name="'+elementID+'"  value="2" /><label class="smiley_2_rating_label " for="neutral"></label>'+
+				'<input type="radio" id="neutral"  class="neutral" name="'+elementID+'"  value="2" /><label class="smiley_2_rating_label " for="neutral"></label>'+
 				'<input type="radio" id="dissatisfied" class="dissatisfied" name="'+elementID+'" value="1" /><label class="smiley_1_rating_label " for="dissatisfied"></label>'+
 				'</div>';
 		break;
@@ -381,6 +506,54 @@ function createRatingView(type, value) {
 				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--2.svg' style='width:30px' />"
 				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--3.svg' style='width:30px' />"
 				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--4.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--5.svg' style='width:30px' />"					
+				break;
+			case 2:
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--1.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--2.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--3.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--4.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--5.svg' style='width:30px' />"				
+				break;	
+			case 3:
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--1.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--2.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--3.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--4.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--5.svg' style='width:30px' />"	
+				break;
+			case 4:
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--1.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--2.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--3.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--4.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--5.svg' style='width:30px' />"	
+				break;
+			case 5:
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--1.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--2.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--3.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--4.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--5.svg' style='width:30px' />"	
+				break;
+				default:
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--1.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--2.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--3.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--4.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--5.svg' style='width:30px' />"
+				break;	
+		}
+	}
+	
+	if(type === 'numeric') {
+		
+		switch(parseInt(value)) {
+			case 1:					
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--1.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--2.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--3.svg' style='width:30px' />"
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--4.svg' style='width:30px' />"
 				ratingHTML  += "<img src='"+config.ratingImageUrl+"number--small--5.svg' style='width:30px' />"
 					
 				break;
@@ -447,6 +620,16 @@ function createRatingView(type, value) {
 				break;
 		}						 
 		
+	}	
+
+var ratingHTML = ""
+	if(type === 'star') {
+		for(var i =1 ; i <= 5;i++) {
+			if(i <= value)
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"star--filled.svg' style='max-width:30px;width:30px' />"
+			else
+				ratingHTML  += "<img src='"+config.ratingImageUrl+"star.svg' style='max-width:30px;width:30px' />"
+		}
 	}		
 	return ratingHTML;
 }

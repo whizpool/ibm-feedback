@@ -1,32 +1,36 @@
 export const columns = [
   {
     id: 0,
-    header: 'Date',
+    header: 'Received',
     key: 'date',
   },
-  {
-    id: 1,
-    header: 'Rating',
-    key: 'rating',
-  },
-  {
-   id: 2,  
-    header: 'URL',
-    key: 'url',
-  } ,
 {
-    id: 3,  
-    header: 'Widget Name',
+    id: 1,  
+    header: 'Widget',
     key: 'name',
   }  ,
-{
-    id: 4,  
-    header: 'email',
-    key: 'email',
-  },
  {
-    id: 5,  
-    header: 'Feedback',
+    id: 2,  
+    header: 'User comment preview',
     key: 'ProvideFeedback',
+  }  
+];
+
+
+export const columnsV2 = [
+   {
+    id: 0,
+    header: 'Received',
+    key: 'date',
+  },
+{
+    id: 1,  
+    header: 'Widget',
+    key: 'name',
+  }  ,
+ {
+    id: 2,  
+    header: 'User feedback',
+    key: 'rating',
   }  
 ];

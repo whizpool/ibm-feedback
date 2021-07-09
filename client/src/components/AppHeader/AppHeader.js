@@ -41,25 +41,25 @@ const AppHeader = ({onClickSideNavExpand,isSideNavExpanded, onClickSignOut,userD
 	  </HeaderName>
 						<HeaderGlobalBar>
 						<HeaderGlobalAction
-							aria-label="App Switcher"
+							aria-label="Logout"							
 							isActive
 							onClick={(event) => {onClickSignOut(event)}}
 						>
-							<Logout20 />
+						<Logout20 />
 						</HeaderGlobalAction>
 					</HeaderGlobalBar>
 	  <SideNav 
 		aria-label="Side navigation" 
 		expanded={isSideNavExpanded} className="global_sidenav">
 		<SideNavItems>
-		  <SideNavLink renderIcon={ColorSwitch32} element={Link} to="/" onClick={hideSideNav}>
-			Widgets
-		  </SideNavLink>
 		  <SideNavLink renderIcon={Document32} element={Link} to="/feedbacks" onClick={hideSideNav}>
-			Submittted Feedback
+			Feedbacks
 		  </SideNavLink>
+			<SideNavLink renderIcon={ColorSwitch32} element={Link} to="/" onClick={hideSideNav}>
+			Widgets
+		  </SideNavLink>		  
 		  <SideNavLink renderIcon={UserMultiple32} element={Link} to="/admins" onClick={hideSideNav}>
-			Manage admins
+			Teams
 		  </SideNavLink>
 		</SideNavItems>
 	  </SideNav>

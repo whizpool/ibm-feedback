@@ -1,0 +1,385 @@
+/************ Feedback *************/
+
+.feedback-box {
+	background: #fff;
+    color: #000;
+    padding: 10px;
+}
+
+.feedback-box .content {
+  max-height: 100vh;
+	height: 100%;
+	overflow: auto;
+	filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+  opacity: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-right: none;
+  border-bottom: none;
+  -moz-transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  -moz-transform-origin: 100% 100%;
+  -ms-transform-origin: 100% 100%;
+  -webkit-transform-origin: 100% 100%;
+  transform-origin: 100% 100%;
+  -moz-transform: rotateY(-180deg);
+  -webkit-transform: rotateY(-180deg);
+  transform: rotateY(-180deg);
+  -moz-transition: all 0.4s cubic-bezier(0.685, -0.245, 0.19, 1.315);
+  -o-transition: all 0.4s cubic-bezier(0.685, -0.245, 0.19, 1.315);
+  -webkit-transition: all 0.4s cubic-bezier(0.685, -0.245, 0.19, 1.315);
+  transition: all 0.4s cubic-bezier(0.685, -0.245, 0.19, 1.315);
+}
+/************ Start star_rating *************/
+
+
+.star_rating label {
+  float: right;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+.star_rating label:not(:first-of-type) {
+  padding-right: 2px;
+}
+.star_rating label:before {
+  content: url(/assets/star.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.star_rating input {
+  display: none;
+}
+.star_rating input:checked ~ label:before, 
+.star_rating:not(:checked) > label:hover:before, 
+.star_rating:not(:checked) > label:hover ~ label:before {
+ content: url(/assets/star--filled.svg);
+ 
+}
+
+/************ Number Rating *************/
+
+
+.number_rating label{
+  float: right;
+  position: relative;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+.number_rating label:not(:first-of-type) {
+  padding-right: 2px;
+}
+.number_rating .number_1_rating_label:before {
+  content: url(/assets/number--1.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.number_rating .number_2_rating_label:before {
+  content: url(/assets/number--2.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.number_rating .number_3_rating_label:before {
+  content: url(/assets/number--3.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.number_rating .number_4_rating_label:before {
+  content: url(/assets/number--4.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.number_rating .number_5_rating_label:before {
+  content: url(/assets/number--5.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+
+.number_rating .number_6_rating_label:before {
+  content: url(/assets/number--6.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.number_rating .number_7_rating_label:before {
+  content: url(/assets/number--7.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.number_rating .number_8_rating_label:before {
+  content: url(/assets/number--8.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.number_rating .number_9_rating_label:before {
+  content: url(/assets/number--9.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.number_rating .number_10_rating_label:before {
+  content: url(/assets/number--10.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+
+
+.number_rating input {
+  display: none;
+}
+
+.number_rating input:checked ~ .number_1_rating_label:before, 
+.number_rating:not(:checked) > .number_1_rating_label:hover:before, 
+.number_rating:not(:checked) > .number_1_rating_label:hover ~ .number_1_rating_label:before {
+ filter: invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%);
+}
+
+.number_rating input:checked ~ .number_2_rating_label:before, 
+.number_rating:not(:checked) > .number_2_rating_label:hover:before, 
+.number_rating:not(:checked) > .number_2_rating_label:hover ~ .number_2_rating_label:before {
+   filter: invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%)
+}
+
+.number_rating input:checked ~ .number_3_rating_label:before, 
+.number_rating:not(:checked) > .number_3_rating_label:hover:before, 
+.number_rating:not(:checked) > .number_3_rating_label:hover ~ .number_3_rating_label:before {
+   filter: invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%)
+}
+
+.number_rating input:checked ~ .number_4_rating_label:before, 
+.number_rating:not(:checked) > .number_4_rating_label:hover:before, 
+.number_rating:not(:checked) > .number_4_rating_label:hover ~ .number_4_rating_label:before {
+   filter: invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%)
+}
+.number_rating input:checked ~ .number_5_rating_label:before, 
+.number_rating:not(:checked) > .number_5_rating_label:hover:before, 
+.number_rating:not(:checked) > .number_5_rating_label:hover ~ .number_5_rating_label:before {
+   filter: invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%)
+}
+.number_rating input:checked ~ .number_6_rating_label:before, 
+.number_rating:not(:checked) > .number_6_rating_label:hover:before, 
+.number_rating:not(:checked) > .number_6_rating_label:hover ~ .number_6_rating_label:before {
+   filter: invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%)
+}
+.number_rating input:checked ~ .number_7_rating_label:before, 
+.number_rating:not(:checked) > .number_7_rating_label:hover:before, 
+.number_rating:not(:checked) > .number_7_rating_label:hover ~ .number_7_rating_label:before {
+   filter:invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%)
+}
+.number_rating input:checked ~ .number_8_rating_label:before, 
+.number_rating:not(:checked) > .number_8_rating_label:hover:before, 
+.number_rating:not(:checked) > .number_8_rating_label:hover ~ .number_8_rating_label:before {
+   filter: invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%)
+}
+.number_rating input:checked ~ .number_9_rating_label:before, 
+.number_rating:not(:checked) > .number_9_rating_label:hover:before, 
+.number_rating:not(:checked) > .number_9_rating_label:hover ~ .number_9_rating_label:before {
+   filter:invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%)
+}
+.number_rating input:checked ~ .number_10_rating_label:before, 
+.number_rating:not(:checked) > .number_10_rating_label:hover:before, 
+.number_rating:not(:checked) > .number_10_rating_label:hover ~ .number_10_rating_label:before {
+   filter: invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%)
+}
+
+
+/************ Smily Rating *************/
+
+
+.smiley_rating label{
+  float: right;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+.smiley_rating label:not(:first-of-type) {
+  padding-right: 2px;
+}
+.smiley_rating .smiley_1_rating_label:before {
+  content: url(/assets/face--dissatisfied.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.smiley_rating .smiley_2_rating_label:before {
+  content: url(/assets/face--neutral.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.smiley_rating .smiley_3_rating_label:before {
+  content: url(/assets/face--satisfied.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+
+.smiley_rating input {
+  display: none;
+}
+.smiley_rating input:checked + .smiley_1_rating_label:before{
+ content: url(/assets/face--dissatisfied--filled.svg);
+}
+
+.smiley_rating input:checked + .smiley_2_rating_label:before {
+ content: url(/assets/face--neutral--filled.svg);
+}
+
+.smiley_rating input:checked + .smiley_3_rating_label:before {
+ content: url(/assets/face--satisfied--filled.svg);
+}
+
+/************ Thumbes Rating *************/
+.thumbs_rating label{
+  float: right;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+.thumbs_rating label:not(:first-of-type) {
+  padding-right: 2px;
+}
+.thumbs_rating .thumbs_up_rating_label:before {
+  content: url(/assets/thumbs-up.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.thumbs_rating .thumbs_down_rating_label:before {
+  content: url(/assets/thumbs-down.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.thumbs_rating input {
+  display: none;
+}
+
+.thumbs_rating input:checked ~ .thumbs_up_rating_label:before, 
+.thumbs_rating:not(:checked) > .thumbs_up_rating_label:hover:before, 
+.thumbs_rating:not(:checked) > .thumbs_up_rating_label:hover ~ .thumbs_up_rating_label:before {
+  filter: invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%)
+}
+
+.thumbs_rating input:checked ~ .thumbs_down_rating_label:before, 
+.thumbs_rating:not(:checked) > .thumbs_down_rating_label:hover:before, 
+.thumbs_rating:not(:checked) > .thumbs_down_rating_label:hover ~ .thumbs_down_rating_label:before {
+  filter: invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%)
+}
+
+/************ Emoticons Rating *************/
+.emoticons_rating label{
+  float: right;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+.emoticons_rating label:not(:first-of-type) {
+  padding-right: 2px;
+}
+.emoticons_rating .face_sad_rating_label:before {
+  content: url(/assets/face--sade.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.emoticons_rating .face_satisfied_rating_label:before {
+  content: url(/assets/face--satisfied.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.emoticons_rating .face_neutral_rating_label:before {
+  content: url(/assets/face--neutral.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.emoticons_rating .face_dissatisfied_rating_label:before {
+  content: url(/assets/face--dissatisfied.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.emoticons_rating .face_activated_rating_label:before {
+  content: url(/assets/face--activated.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.emoticons_rating input {
+  display: none;
+}
+
+.emoticons_rating input:checked ~ .face_sad_rating_label:before, 
+.emoticons_rating:not(:checked) > .face_sad_rating_label:hover:before, 
+.emoticons_rating:not(:checked) > .face_sad_rating_label:hover ~ .face_sad_rating_label:before {
+  filter: invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%)
+}
+
+.emoticons_rating input:checked ~ .face_satisfied_rating_label:before, 
+.emoticons_rating:not(:checked) > .face_satisfied_rating_label:hover:before, 
+.emoticons_rating:not(:checked) > .face_satisfied_rating_label:hover ~ .face_satisfied_rating_label:before {
+  filter: invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%)
+}
+
+.emoticons_rating input:checked ~ .face_dissatisfied_rating_label:before, 
+.emoticons_rating:not(:checked) > .face_dissatisfied_rating_label:hover:before, 
+.emoticons_rating:not(:checked) > .face_dissatisfied_rating_label:hover ~ .face_dissatisfied_rating_label:before {
+  filter: invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%)
+}
+.emoticons_rating input:checked ~ .face_neutral_rating_label:before, 
+.emoticons_rating:not(:checked) > .face_neutral_rating_label:hover:before, 
+.emoticons_rating:not(:checked) > .face_neutral_rating_label:hover ~ .face_neutral_rating_label:before {
+  filter: invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%)
+}
+.emoticons_rating input:checked ~ .face_activated_rating_label:before, 
+.emoticons_rating:not(:checked) > .fface_activated_rating_label:hover:before, 
+.emoticons_rating:not(:checked) > .face_activated_rating_label:hover ~ .face_activated_rating_label:before {
+  filter: invert(27%) sepia(50) saturate(3351%) hue-rotate(200deg) brightness(119%) contrast(119%)
+}
+
+
+/************ Stars stars_rating *************/
+
+
+.stars_rating label {
+  float: right;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+.stars_rating label:not(:first-of-type) {
+  padding-right: 2px;
+}
+.stars_rating label:before {
+  content: url(/assets/star.svg);
+  font-size: 42px;
+  color: #CCCCCC;
+  line-height: 1;
+}
+.stars_rating input {
+  display: none;
+}
+.stars_rating input:checked ~ label:before, 
+.stars_rating:not(:checked) > label:hover:before, 
+.stars_rating:not(:checked) > label:hover ~ label:before {
+ content: url(/assets/star--filled.svg);
+ 
+}

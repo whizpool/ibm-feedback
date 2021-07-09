@@ -57,6 +57,11 @@ module.exports = (sequelize, Sequelize) => {
     option_id:{
       type: Sequelize.INTEGER,
       allowNull: true
+    }	,		
+		//Null or 0 mean no Options for this field
+    display_label:{
+      type: Sequelize.BOOLEAN,
+      defaultValue: false
     }			
   }, {
     sequelize,

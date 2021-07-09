@@ -40,6 +40,21 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.ENUM('string', 'singleline','multiline','number','select','choice'),
       defaultValue: 'singleline' 
     },
+		//Type of the widget like feedback or rating
+    widget_type: {
+      type: Sequelize.ENUM('feedback', 'rating'),
+      defaultValue: 'feedback' 
+    },		
+		//Editable or not in the backend 
+    is_editable: {
+			 type: Sequelize.BOOLEAN,
+			defaultValue: true
+    },
+		//this key is used if we need to search question based on the form keys 
+    form_key: {
+			type: Sequelize.STRING,
+      allowNull: true
+    },
     // 0 value means no limit apply for the field
     limit:{
       type: Sequelize.INTEGER,

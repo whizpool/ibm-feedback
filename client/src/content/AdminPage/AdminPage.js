@@ -176,6 +176,7 @@ class AdminPage extends React.Component {
   };  
 	 
   componentDidMount() {
+		document.title = process.env.REACT_APP_SITE_TITLE + " Teams ";
 		this.getUsers();
 	} 
 	

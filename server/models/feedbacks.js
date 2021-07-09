@@ -28,6 +28,10 @@ module.exports = (sequelize, Sequelize) => {
 		screen_shot: {
       type: Sequelize.STRING,
       allowNull: false
+	  },	
+		referral_url: {
+      type: Sequelize.STRING,
+      allowNull: false
 	  },
   }, {
     sequelize,

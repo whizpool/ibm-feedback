@@ -120,31 +120,31 @@ button:hover { background-color: #f3830b; }
   transition: all ease;
 }
 
-/************ Start start_rating *************/
+/************ Start star_rating *************/
 
 
-.start_rating label {
+.star_rating label {
   float: right;
   position: relative;
   width: 40px;
   height: 40px;
   cursor: pointer;
 }
-.start_rating label:not(:first-of-type) {
+.star_rating label:not(:first-of-type) {
   padding-right: 2px;
 }
-.start_rating label:before {
+.star_rating label:before {
   content: url(/assets/star.svg);
   font-size: 42px;
   color: #CCCCCC;
   line-height: 1;
 }
-.start_rating input {
+.star_rating input {
   display: none;
 }
-.start_rating input:checked ~ label:before, 
-.start_rating:not(:checked) > label:hover:before, 
-.start_rating:not(:checked) > label:hover ~ label:before {
+.star_rating input:checked ~ label:before, 
+.star_rating:not(:checked) > label:hover:before, 
+.star_rating:not(:checked) > label:hover ~ label:before {
  content: url(/assets/star--filled.svg);
  
 }

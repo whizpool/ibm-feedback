@@ -25,3 +25,23 @@ export const columns = [
     key: 'option_id',
   },  
 ];
+
+
+export const columnsV2 = [
+  {
+    id: 0,
+    header: '#',
+    key: 'id',
+  },
+  {
+    id: 1,
+    header: 'Label	',
+    key: 'display_text',
+  },
+  {
+    id: 2,
+    header: 'On/Off',
+    key: 'is_active',
+  },
+
+];

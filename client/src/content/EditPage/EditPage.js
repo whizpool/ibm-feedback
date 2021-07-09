@@ -8,15 +8,18 @@ import {
 import {  
 	Grid, 
 	Row, 
-	Column,Toggle,
+	Column,
+	Toggle,
 	ContentSwitcher,
 	Switch,
 	TextInput,
 	ToastNotification 
 } from 'carbon-components-react';
 import WidgetTable from "./WidgetTable";
+import WidgetTableV2 from "./WidgetTableV2";
 import ConfigurePage from "./ConfigurePage";
 import SnippetPage from "./SnippetPage";
+import SnippetPageV2 from "./SnippetPageV2";
 import {Edit24 as Edit ,Save24 as Save } from '@carbon/icons-react';
 import axios from "axios";
 
@@ -47,6 +50,8 @@ class EditPage extends React.Component {
 			this.state = {
 			widgetName: "",
 			widgetURL: "",
+			widgetType: "",
+			ratingOption: "",
 			widgetStatus: true,
 			selectedIndex: 0,
 			editWigetName: 0,
@@ -169,7 +174,24 @@ class EditPage extends React.Component {
   	};
 	
 	componentDidMount() {
+		document.title = process.env.REACT_APP_SITE_TITLE + " Widgets ";
 		this.getWidgets();
+	}
+	
+	displayRating  = (rating) => {
+		if(rating === "stars"){
+			return "Stars"
+		} 
+		else if(rating === "numeric"){
+			return "Number"
+		}
+		else if(rating === "emoticons"){
+			return "Emoticons"
+		}
+		else if(rating === "thumbs"){
+			return "Thumbs up or down"
+		}
+		
 	}
 	
 	//*********** API ************/	
@@ -250,11 +272,14 @@ class EditPage extends React.Component {
 		axios(config)
 		.then(result => {
 			var dataObj = result.data.data
+			//let columnSize = (dataObj.type === "feedback") ? 4 :3
 			this.setState({
 				widgetData: dataObj,
 				widgetName: dataObj.name,
 				widgetURL: dataObj.url,
 				widgetStatus: dataObj.status,
+				widgetType: dataObj.type,
+				ratingOption: dataObj.rating_option,
 				isLoading: false,
 			});
 		})
@@ -279,6 +304,7 @@ class EditPage extends React.Component {
 		});
 	}
 
+
 	render() {	
 		return (
 		<section className="bx--col-lg-13">
@@ -302,8 +328,8 @@ class EditPage extends React.Component {
 			:
 				<Grid style={{padding: "0" }}>
 					<Row>
-						<Column sm={12} md={6} lg={9}>
-							<h3 className="displayFlex">
+					<Column sm={12} md={12} lg={12} style={{marginBottom: "20px" }}>
+						<h3 className="displayFlex">
 								<span className={`${this.state.editWigetName === 0  ? "":"hiddenDiv"}`}>			
 									{this.state.widgetName}  
 								</span>								
@@ -315,7 +341,6 @@ class EditPage extends React.Component {
 										onChange={this.saveData}
 										labelText=""
 										placeholder="Enter widget name"
-										style={{ marginBottom: '1rem' }}
 										invalid={this.state.widgetNameInvalid}
 										invalidText="Please enter a widget name.."
 										/>
@@ -328,90 +353,87 @@ class EditPage extends React.Component {
 										/>
 									: 
 										<>
-											<Edit className={`${this.state.editWigetName === 0  ? "":"hiddenDiv"}`} onClick={() => {this.showTextBox("widgetName")}} /> 
-											<Save className={`${this.state.editWigetName === 0  ? "hiddenDiv":""}`} onClick={() => {this.SaveTextBox("widgetName")}} /> 
+											<Edit color="#0f62fe" className={`${this.state.editWigetName === 0  ? "btIcon":"btIcon hiddenDiv"}`} onClick={() => {this.showTextBox("widgetName")}} /> 
+											<Save color="#0f62fe" className={`${this.state.editWigetName === 0  ? "btIcon hiddenDiv":"btIcon"}`} onClick={() => {this.SaveTextBox("widgetName")}} /> 
 										</>
 								}									
 							</h3>
+					</Column>
+						<Column sm={12} md={2} lg={2}>							
 							<div style={{ margin: "10px 0",fontSize: "15px"}}  >
-								<div className="displayFlex">
-									<span className={`${this.state.editWigetURL === 0  ? "":"hiddenDiv"}`}>
-										{this.state.widgetURL}  
-									</span>								
-									<span className={`${this.state.editWigetURL === 1  ? "widgetNameInputText":" hiddenDiv"}`}	 >
-										<TextInput
-											id="widgetURL"
-											name="widgetURL"
-											value={this.state.widgetURL || ""}
-											onChange={this.saveData}
-											labelText=""
-											placeholder="Enter widget url"
-											invalid={this.state.widgetURLInvalid}
-											invalidText="Please enter a widget url.."
-										/>
-									</span>
-										{
-											this.state.isWidgetURLLoading ? 
-											<InlineLoading
-												style={{ marginLeft: '1rem' }}
-												className="statusInputSubmit"
-											/>
-										: 
-											<>
-												<Edit className={`${this.state.editWigetURL === 0  ? "":"hiddenDiv"}`} onClick={() => {this.showTextBox("widgetURL")}} /> 
-												<Save className={`${this.state.editWigetURL === 0  ? "hiddenDiv":""}`} onClick={() => {this.SaveTextBox("widgetURL")}} /> 	
-											</>
-										}										
+									<div style={{ margin: "10px 0",fontSize: "20px"}}><strong>Type</strong></div>															
+									<p>{(this.state.widgetType === "feedback" ? "Feedback form" : "Rating widget" )}</p>
 								</div>
-							</div>
 						</Column>
-						<Column sm={12} md={6} lg={3}>
+						{
+								this.state.ratingOption ? 												
+									<Column sm={12} md={2} lg={2}>							
+										<div style={{ margin: "10px 0",fontSize: "15px"}}  >
+												<div style={{ margin: "10px 0",fontSize: "20px"}}><strong>Rating option</strong></div>															
+												<p>{this.displayRating(this.state.ratingOption)}</p>
+											</div>
+									</Column>
+									: ""
+						}
+						
+						<Column sm={12} md={3} lg={3}>							
+							<div style={{ margin: "10px 0",fontSize: "15px"}}>
+									<div style={{ margin: "10px 0",fontSize: "20px"}}><strong>URL</strong></div>				
+									<p>{this.state.widgetURL}</p>
+								</div>
+						</Column>
+						
+						<Column sm={12} md={4} lg={4}>
 							<div style={{ margin: "10px 0",fontSize: "20px"}}><strong>Status</strong></div>
-							<div style={{ fontSize: "15px",width:"250px",background:"white"}}>
-								<div style={{ float: "left",fontSize: "20px",width:"100%",background:"white",padding: ".8rem"}}>
-									<span>{ (this.state.widgetStatus ) ? "Active" :"inActive" } </span>		
-									{
-										this.state.isSubmitting || this.state.success || this.state.isLoading ? 
-											<InlineLoading
-												style={{ marginLeft: '1rem' }}
-												className="statusInputSubmit"
-												description={this.state.description}
-												status={this.state.success ? 'finished' : 'active'}
-												aria-live={this.state.ariaLive}
-											/>
-										: 
-											<Toggle
-											aria-label="toggle button"
-											className="statusInputText"
-											defaultToggled = {(this.state.widgetStatus) ? true:false}
-											onChange={(e)=>this.UpdateWidgetStatus(e)}
-											{...this.toggleProps()}
-											id={'Toggle_status'}
-										/>
-									}
+							<div style={{ fontSize: "15px"}}>
+								<div style={{fontSize: "15px",display: "inline-flex",alignItems: "center"}}>								
+										{
+											this.state.isSubmitting || this.state.success || this.state.isLoading ? 
+												<InlineLoading
+													style={{ marginLeft: '1rem' }}
+													className="statusInputSubmit"
+													description={this.state.description}
+													status={this.state.success ? 'finished' : 'active'}
+													aria-live={this.state.ariaLive}
+												/>
+											: 
+												<>
+												<Toggle size="sm"
+													aria-label="toggle button"
+													className="statusInputText"
+													defaultToggled = {(this.state.widgetStatus) ? true:false}
+													onChange={(e)=>this.UpdateWidgetStatus(e)}
+													{...this.toggleProps()}
+													id={'Toggle_status'}
+												/>
+												<p>{ (this.state.widgetStatus ) ? "Active" :" inActive" } </p>
+											</>
+										}									
 								</div>
 							</div>
 						</Column>
 					</Row>
 					<Row style={{ marginTop: '1rem' }}>
-						<Column sm={12} md={6} lg={6}>
-							<ContentSwitcher onChange={(e)=>this.setselectedIndex(e.index)} selectedIndex={this.state.selectedIndex} light>
-								<Switch name="manage" role="tab" text="Manage"  data-target=".manage" />
-								<Switch name="snippet" role="tab" text="Snippet"  data-target=".snippet" />
-								<Switch name="connections" role="tab" text="Connections"  data-target=".connections" />
+						<Column sm={12} md={6} lg={4}>
+							<ContentSwitcher onChange={(e)=>this.setselectedIndex(e.index)} selectedIndex={this.state.selectedIndex} size="md">
+								<Switch name="manage"  text="Manage"   />
+								<Switch name="snippet"  text="Snippet"   />
+								<Switch name="connections"  text="Connections"  />
 							</ContentSwitcher>							
 						</Column>
 					</Row>
 					<Row className={`${this.state.selectedIndex === 0  ? "":"hiddenDiv"}`}>
 						<Column sm={12} md={12} lg={12}>
-							<WidgetTable
-								recordID={this.state.recordID}
-							/>
+							{
+								(this.state.widgetType === "feedback")  ? <WidgetTable recordID={this.state.recordID} /> : <WidgetTableV2 recordID={this.state.recordID} />								
+							}							
 						</Column>
 					</Row>
 					<Row className={`${this.state.selectedIndex === 1  ? "":"hiddenDiv"}`}>
 						<Column sm={12} md={12} lg={12}>
-							<SnippetPage 	recordID={this.state.recordID} widgetURL={this.state.widgetURL}/>
+							{
+								(this.state.widgetType === "feedback")  ? <SnippetPage 	recordID={this.state.recordID} widgetURL={this.state.widgetURL}/> : <SnippetPageV2 recordID={this.state.recordID} widgetURL={this.state.widgetURL} />								
+							}	
 						</Column>
 					</Row>
 					<Row className={`${this.state.selectedIndex === 2  ? "":"hiddenDiv"}`}>

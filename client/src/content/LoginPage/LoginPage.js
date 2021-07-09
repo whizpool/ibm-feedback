@@ -39,6 +39,10 @@ class LoginPage extends React.Component {
 		}
 	}
 	
+	componentDidMount() {
+		document.title = process.env.REACT_APP_SITE_TITLE + " Login ";
+	}
+	
   	saveData = event => {
 		const target = event.target;
 		let fieldName = target.name;

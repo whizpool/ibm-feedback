@@ -1,9 +1,8 @@
 .statusInputText{
-    display: inline-block;
-		float: right;
+	display: inline-block;
+	margin-right: 10px;
 }
 .statusInputSubmit{
-	float: right;
 	width: 29%;
 	margin-right:3rem;
 }
@@ -24,6 +23,7 @@
 }
 .displayFlex{
 	display: flex;
+	align-items: center;	
 }
 .widgetNameInputText{ 
 	display: inline-block;
@@ -51,3 +51,7 @@
 	max-width: 100%;
 }
 .widgetsRow td:first-child {cursor:move}
+.btIcon{cursor:pointer;margin-left:10px;}
+.bx--content-switcher-btn{background:#fff}
+.bx--data-table-header{display:none;}
+.bx--data-table-container{margin-top:20px; }

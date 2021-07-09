@@ -29,12 +29,9 @@ import {
 	OverflowMenu,
 	OverflowMenuItem,
 	Pagination,
-	TextInput,
-	Form,
 	DataTableSkeleton,
 	Toggle,
 	ComposedModal,
-	ModalHeader,
 	ModalBody,
 	ModalFooter,
 	InlineLoading,
@@ -42,10 +39,10 @@ import {
 } from 'carbon-components-react';
 import { TrashCan32 as Delete, Add16 as Add } from '@carbon/icons-react';
 import axios from "axios";
-
 /*********** Data GRID ************/
 import { columns } from "./TableHeader";
-let checkFlag = true;
+import SidePanelWidget from "./sidePanelWidget";
+
 const mapStateToProps = (state) => {
 	return {
 		isLogged: state.auth.isLogged,
@@ -83,6 +80,7 @@ class WidgetPage extends React.Component {
 			success : false,
 			successMessage : "",
 			updateRowStatus: false,
+			openSidePanel: false,
 			selectedWidgetRows: [],
 			headers: columns,
 			rows: [],
@@ -99,48 +97,10 @@ class WidgetPage extends React.Component {
 	});
 
 	componentDidMount() {
+		document.title = process.env.REACT_APP_SITE_TITLE + " Widgets ";
 		this.getWidgets();
 	}
 	
-	checkForm = () => {
-		checkFlag = true;
-		if (!this.state.widgetName) {
-			this.setState({ widgetNameInvalid: true });
-			checkFlag = false;
-		}
-		if (!this.state.widgetURL) {
-			this.setState({ widgetURLInvalid: true });
-			checkFlag = false;
-		} else {
-			var widgetURL = this.state.widgetURL;
-			if (widgetURL.indexOf("http://") !== 0 && widgetURL.indexOf("https://") !== 0) {
-				widgetURL = "https://"+this.state.widgetURL
-			}			
-			var regexp = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
-			if (!regexp.test(widgetURL))
-			{
-				this.setState({ widgetURLInvalid: true });
-				checkFlag = false;
-			}
-		
-		}
-		return checkFlag;
-	};
-  
-	saveData = event => {
-		const target = event.target;
-		let fieldName = target.name;
-		let fieldValue = target.value;
-		if (!fieldValue) {
-			this.setState({ [fieldName]: fieldValue, [fieldName + "Invalid"]: true });
-		} else {
-			this.setState({
-				[fieldName]: fieldValue,
-				[fieldName + "Invalid"]: false
-			});
-		}
-	};
-
 	closeModal = event => {
 		event.preventDefault();
 		this.setState({ 
@@ -166,7 +126,7 @@ class WidgetPage extends React.Component {
 				ariaLive: "Off",
 				description: "Submitting" 
 			});			
-			this.createWidgets(this.state.widgetName,this.state.widgetURL)
+		
 		}
 	};
 
@@ -275,6 +235,65 @@ class WidgetPage extends React.Component {
 		});
 		
 	}
+	
+	updateSidePanelState = (sidePanel) => {					
+		this.setState({
+			openSidePanel: sidePanel
+		});
+	}
+	
+	displayRating  = (rating) => {
+	console.log(rating,"rating")
+		if(rating === "stars"){
+			return "Star"
+		} 
+		else if(rating === "numeric"){
+			return "Number"
+		}
+		else if(rating === "emoticons"){
+			return "Emoticons"
+		}
+		else if(rating === "thumbs"){
+			return "Thumbs up or down"
+		}
+		
+	}
+	
+	formateDateString = (dateStr) => {
+		const today = new Date(dateStr);
+		
+		let options = {
+				hour: 'numeric', minute: 'numeric', second: 'numeric',
+				//timeZone: 'Australia/Sydney',
+				//timeZoneName: 'short'
+		};		
+		return (<p>{ (new Intl.DateTimeFormat("en-US").format(today))}<br/>{ (new Intl.DateTimeFormat('en-US', options).format(today))}</p>)
+		
+	}
+	
+	updateGridRows = (response) => { 			
+			let gridData = this.state.rows; 
+			gridData.unshift(response.data.data)
+			this.setState({ 
+					isSubmitting: false,
+					widgetModalOpen: false,
+					success: true,
+					successMessage: "You have successfully created the widget.",
+					description: "Submitted",
+					widgetName: "",
+					widgetURL: "",
+			});
+			setTimeout(() => {
+				this.setState({ success: false })
+			}, 3000)		
+
+			this.setState((state) => {
+				return gridData
+			});
+			this.setState({
+				openSidePanel: false
+			});
+	}
 	/******************** API CALL ***************/
 	deleteWidgets = (rowID,rowIndex) => {
 		this.setState({ 
@@ -320,51 +339,6 @@ class WidgetPage extends React.Component {
 			}
 		});		
 	};	
-	
-	createWidgets = (name, url) => {		
-		var config = {
-			method: 'post',
-			url:process.env.REACT_APP_API_ENDPOINT+`widgets/`,
-			headers: { 
-				'Authorization': 'Bearer '+this.props.access_token
-			},
-			data:{name:name,url:url}
-		};		
-		axios(config)
-		.then(response => {
-			let gridData = this.state.rows; 
-			gridData.unshift(response.data.data)
-			this.setState({ 
-					isSubmitting: false,
-					widgetModalOpen: false,
-					success: true,
-					successMessage: "You have successfully created the widget.",
-					description: "Submitted",
-					widgetName: "",
-					widgetURL: "",
-			});
-			setTimeout(() => {
-				this.setState({ success: false })
-			}, 3000)
-
-
-			this.setState((state) => {
-				return gridData
-			});
-		})
-		.catch((error) => {
-			this.setState({ 
-				errorMessage: true,
-				isSubmitting: false,
-				ariaLive: "Off",
-				description: "Submitting" 
-			});	
-			if(error.response.status === 401){
-				this.props.saveLogoutState({type: 'SIGN_OUT'})
-			}
-		});
-		
-	};
 	
 	getWidgets = () => {
 		this.setState({ isLoading: true });		
@@ -445,7 +419,7 @@ class WidgetPage extends React.Component {
 				style={{ marginLeft: '1rem' }}
 			/>
 		 : 
-			(this.state.rows.length > rowIndex ) ? <Toggle
+			(this.state.rows.length > rowIndex ) ? <Toggle size="sm"
 				aria-label="toggle button"
 				defaultToggled = {this.state.rows[rowIndex].status}
 				onChange={(e)=>this.UpdateWidgetStatus(e, rowIndex)}
@@ -470,63 +444,9 @@ class WidgetPage extends React.Component {
 				<Breadcrumb>
 					<BreadcrumbItem href="/"  >Widgets</BreadcrumbItem>
 				</Breadcrumb>
-				<br/>
-				{/*Create Widget model*/}
-				<ComposedModal size="sm"  onClose={this.closeModal} open={this.state.widgetModalOpen} preventCloseOnClickOutside={true} >
-					<ModalHeader>
-						<h4>Create Widget</h4>
-					</ModalHeader>
-					<ModalBody style={{ paddingRight: '1rem' }}>
-						<>
-							<p>Please enter widget name.</p><br/>
-						</>
-						<Form>
-							<TextInput
-								id="widgetName"
-								name="widgetName"
-								value={this.state.widgetName || ""}
-								onChange={this.saveData}
-								labelText="Widget Name"
-								placeholder="Enter widget name"								
-								invalid={this.state.widgetNameInvalid}
-								invalidText="Please enter a widget name"
-							/>
-							<br/>
-							<TextInput
-								id="widgetURL"
-								name="widgetURL"
-								value={this.state.widgetURL || ""}
-								onChange={this.saveData}
-								labelText="Enter URL"
-								placeholder="Enter URL"
-								invalid={this.state.widgetURLInvalid}
-								invalidText="Please enter a widget url"
-							/>			  
-						</Form>
-						{this.state.errorMessage  ? 
-									<InlineNotification
-										kind="error"
-										subtitle={<span>Unabl to create widget please try again.</span>}
-										title="Failed"
-									/> : ""
-							}
-									
-					</ModalBody>
-					<ModalFooter>
-						<Button kind="secondary" onClick={(event) => {this.closeModal(event)}}>Cancel</Button>
-						{this.state.isSubmitting ? (
-							<InlineLoading
-								style={{ marginLeft: '1rem' }}
-								description={this.state.description}
-								status={this.state.success ? 'finished' : 'active'}
-								aria-live={this.state.ariaLive}
-							/>
-						) : (
-							<Button kind='primary' onClick={(event) => {this.saveForm(event)}}>Create</Button>
-						)}
-					</ModalFooter>
-				</ComposedModal>	
 				
+				<SidePanelWidget openSidePanel = {this.state.openSidePanel} updateSidePanelState={this.updateSidePanelState} access_token={this.props.access_token} updateGridRows={this.updateGridRows} />
+								
 				{/*Single Delete confirmation model*/}
 				<ComposedModal size="sm" onClose={this.closeModal} open={this.state.deleteModalOpen} preventCloseOnClickOutside={true} >					
 					<ModalBody>
@@ -623,13 +543,15 @@ class WidgetPage extends React.Component {
 										</div>
 										<Button
 											tabIndex={getBatchActionProps().shouldShowBatchActions ? -1 : 0}
-											onClick={() => {this.setState({ widgetModalOpen: true });}}
+											onClick={() => {this.setState({ openSidePanel: true });}}
 											renderIcon={Add}
 											size="small"
 											kind="primary"
 										>
 											Create New
 										</Button>
+										
+										
 									</TableToolbarContent>
 									<TableBatchActions {...getBatchActionProps()}>
 										<TableBatchAction
@@ -654,12 +576,23 @@ class WidgetPage extends React.Component {
 										</TableRow>
 									</TableHead>
 									<TableBody>
-										{rows.map((row,rowIndex) => {									
+										{rows.map((row,rowIndex) => {		
+											
 											let dataRowIndex = this.state.pageSize * (this.state.page-1)+ rowIndex
 											return <TableRow {...getRowProps({ row })}>
 												<TableSelectRow {...getSelectionProps({ row })} />
 												{row.cells.map((cell) => {
-													
+													/*widgetsObj.type = (widgetsObj.type === "feedback") ? "Feedback form" : "Rating widget";				*/
+													if(cell.info.header === 'name') {
+															return <TableCell key={cell.id}>{cell.value}<br/>{(this.state.rows[dataRowIndex]) ? this.state.rows[dataRowIndex].url : ""} </TableCell> 
+													}
+													if(cell.info.header === 'createdAt') {
+															return <TableCell key={cell.id}>{this.formateDateString(cell.value)}</TableCell> 
+													}
+													if(cell.info.header === 'type') {
+															return <TableCell key={cell.id}>{(cell.value === "feedback" ? "Feedback form" : "Rating widget" )}<br/>{
+																(this.state.rows[dataRowIndex]) ? this.displayRating(this.state.rows[dataRowIndex].rating_option): ""}</TableCell> 
+													}													
 													if(cell.info.header === 'status') {
 														return <TableCell key={cell.id}>{this.ToggleSwitch(dataRowIndex)}</TableCell> 
 													}

@@ -43,7 +43,7 @@ exports.fetchWidgets = [
 			try {				
 				dbLayer.widget.findAll({
 					where: {},
-					attributes : ['id','name','creater_name','url','status','createdAt'],
+					attributes : ['id','name','creater_name','url','type','status','createdAt','rating_option'],
 					order: [['id', 'ASC']],
 					//limit: Limit,
 				})
@@ -54,7 +54,7 @@ exports.fetchWidgets = [
 					var widgetsList = []						
 					for(var i =0 ; i < widgets.length;i++) {
 						var widgetsObj = widgets[i].get();
-						widgetsObj.id = widgetsObj.id.toString()
+						widgetsObj.id = widgetsObj.id.toString()								
 						widgetsList.push(widgetsObj);						
 					}
 					return res.status(200).json(tools.successResponseObj(widgetsList,resource,req.url));
@@ -97,7 +97,7 @@ exports.getWidget = [
 			try {					
 				dbLayer.widget.findOne({
 					where: {id:widgetID},							
-					attributes : ['name','url','status'],
+					attributes : ['name','url','status','type','rating_option'],
 						include: [ 
 									{
 										model:dbLayer.widget_connection,
@@ -117,6 +117,7 @@ exports.getWidget = [
 					widgetData.name = widgetData.name;
 					widgetData.url = widgetData.url;
 					widgetData.status = widgetData.status;
+					
 					
 					widgetData.is_github_connected  = false
 					widgetData.repo_id  = ""
@@ -182,6 +183,8 @@ exports.createWidgets = [
 				creater_name: req.body.user_name,
 				name: req.body.name,
 				url: req.body.url,
+				type: req.body.type,
+				rating_option: (req.body.rating) ? req.body.rating : "",
 			}
 			var widget = new dbLayer.widget(widgetPostData);	
 			try {
@@ -409,13 +412,13 @@ exports.getWidgetQuestions = [
 			return res.status(500).json(tools.errorResponseObj(error,message,resource,req.url));
 		}
 		try {
-				
 			dbLayer.question.findAll({
-					attributes : ['id','name','display_text','tooltip','type','limit'],
+					attributes : ['id','name','display_text','tooltip','type','limit','is_editable','form_key'],
+					where:{widget_type:req.body.type},
 					include: [ 
 								{
 									model:dbLayer.widget_question,
-									where: {widget_id:req.body.id},
+									where: {widget_id:req.body.id,},
 									attributes : ['id','widget_id','question_id','order','display_text','is_required','is_active','limit','option_id'],
 									required: false,
 								}
@@ -509,6 +512,8 @@ exports.UpdateWidgetQuestions = [
 		}
 		try {
 			
+			//Get Widget Type  & Rating Option:			
+			var widgetData = await dbLayer.widget.findOne({where: {id: req.body.id},attributes : ['type','rating_option']});		
 			var dataRow = JSON.parse(req.body.rows);
 			//If first rows Does not contains widget_question_id or its values 0 than it mean we need to create the question otherwise we have to update it.
 			if(dataRow[0].widget_question_id > 0 ){						
@@ -527,7 +532,12 @@ exports.UpdateWidgetQuestions = [
 							widgetQuestionData.is_required = (dataObj.is_required) ? true : false
 							widgetQuestionData.is_active = (dataObj.is_active) ? true : false
 							widgetQuestionData.limit = dataObj.limit
-							widgetQuestionData.option_id = dataObj.option_id
+							if(widgetData.type === "rating" && dataObj.form_key === 'rating'){
+									widgetQuestionData.option_id = (await dbLayer.question_option.findOne({where: {value:widgetData.rating_option},attributes : ['id']})).id			
+							}else {
+								widgetQuestionData.option_id = dataObj.option_id
+							}
+							widgetQuestionData.display_label = dataObj.is_editable 
 							await obj.update(widgetQuestionData);							
 						}
 								
@@ -548,7 +558,12 @@ exports.UpdateWidgetQuestions = [
 						widgetQuestionData.is_required = (dataObj.is_required) ? true : false
 						widgetQuestionData.is_active = (dataObj.is_active) ? true : false
 						widgetQuestionData.limit = dataObj.limit
-						widgetQuestionData.option_id = dataObj.option_id
+						if(widgetData.type === "rating" && dataObj.form_key === 'rating'){
+								widgetQuestionData.option_id = (await dbLayer.question_option.findOne({where: {value:widgetData.rating_option},attributes : ['id']})).id			
+						}else {
+							widgetQuestionData.option_id = dataObj.option_id
+						}
+						widgetQuestionData.display_label = dataObj.is_editable 					
 						dataInsertObj.push(widgetQuestionData)
 					}
 					dbLayer.widget_question.bulkCreate(dataInsertObj).then( function(result) {
@@ -882,7 +897,6 @@ exports.getDownloadUrl = async (req, res) => {
 		res.redirect(ObjectSignedUrl)
 		res.end();	
 	} catch (err) {
-		//console.log(err)
 		throw err
 	}
 }

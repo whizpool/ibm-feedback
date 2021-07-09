@@ -178,7 +178,7 @@ class WidgetTable extends PureComponent {
 				style={{ marginLeft: '1rem' }}
 			/>
 		 : 
-			(this.state.rows.length > rowIndex ) ? <Toggle
+			(this.state.rows.length > rowIndex ) ? <Toggle size="sm"
 				aria-label="toggle button"
 				defaultToggled = {this.state.rows[rowIndex][header]}
 				onChange={(e)=>this.UpdateWidgetRowsValue(e, rowIndex,header,true)}
@@ -331,7 +331,7 @@ class WidgetTable extends PureComponent {
 			headers: { 
 				'Authorization': 'Bearer '+this.props.access_token
 			},
-			data :{id:this.props.recordID}
+			data :{id:this.props.recordID, type:"feedback"}
 		};
 		axios(config)
 		.then(result	 => {
