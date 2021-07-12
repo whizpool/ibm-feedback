@@ -91,10 +91,11 @@ exports.fetchUserFeedbackWidget = [
 
 					}
 					
-					var feedbackWidgetHTMLForm = {}
-					var feedbackWidgetHTMLStr = "";
+			
 					if(widgetObj.type === 'rating') {
 						var ratingQuestion = {};
+					var feedbackWidgetHTMLForm = {}
+					var feedbackWidgetHTMLStr = "";
 						
 						for(var i =0 ; i < widget_questions.length;i++)
 						{
