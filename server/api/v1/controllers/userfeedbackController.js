@@ -361,11 +361,11 @@ function createUserRatingHTML(rating_type, elementID) {
 		break;			
 		case 'emoticons':
 			htmlRatingStr = '<div id="ratting-div" class="emoticons_rating">'+
-				'<input type="radio" id="face_sad" class="face_sad" name="'+elementID+'" value="1" /><label class=" face_sad_rating_label " for="face_sad"></label>'+
-				'<input type="radio" id="face_satisfied" class="face_satisfied" name="'+elementID+'" value="2" /><label class="face_satisfied_rating_label " for="face_satisfied"></label>'+		
+				'<input type="radio" id="face_activated" class="face_activated" name="'+elementID+'" value="5" /><label class="face_activated_rating_label " for="face_activated"></label>'+
+				'<input type="radio" id="face_satisfied" class="face_satisfied" name="'+elementID+'" value="4" /><label class="face_satisfied_rating_label " for="face_satisfied"></label>'+		
 				'<input type="radio" id="face_neutral" class="face_neutral" name="'+elementID+'" value="3" /><label class="face_neutral_rating_label " for="face_neutral"></label>'+		
-					'<input type="radio" id="face_dissatisfied" class="face_dissatisfied" name="'+elementID+'" value="4" /><label class="face_dissatisfied_rating_label " for="face_dissatisfied"></label>'+	
-				'<input type="radio" id="face_activated" class="face_activated" name="'+elementID+'" value="5" /><label class="face_activated_rating_label " for="face_activated"></label>'+		
+					'<input type="radio" id="face_dissatisfied" class="face_dissatisfied" name="'+elementID+'" value="2" /><label class="face_dissatisfied_rating_label " for="face_dissatisfied"></label>'+	
+				'<input type="radio" id="face_sad" class="face_sad" name="'+elementID+'" value="1" /><label class=" face_sad_rating_label " for="face_sad"></label>'+
 				'</div>';
 		break;	
 		case 'smiley':
