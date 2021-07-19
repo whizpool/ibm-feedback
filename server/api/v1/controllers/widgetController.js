@@ -183,8 +183,10 @@ exports.createWidgets = [
 				creater_name: req.body.user_name,
 				name: req.body.name,
 				url: req.body.url,
-				type: req.body.type,
-				rating_option: (req.body.rating) ? req.body.rating : "",
+				type: req.body.type			
+			}			
+			if(req.body.type === "rating"){
+					widgetPostData.rating_option =  (req.body.rating) ? req.body.rating : "";
 			}
 			var widget = new dbLayer.widget(widgetPostData);	
 			try {

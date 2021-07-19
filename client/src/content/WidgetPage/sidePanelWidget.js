@@ -75,6 +75,7 @@ class SidePanelWidget extends React.Component {
 			success : false,
 			successMessage : "",
 			ratingOption : "stars",
+			widgetType : "feedback",
 		
 		};
 	}
@@ -109,7 +110,7 @@ class SidePanelWidget extends React.Component {
 	saveData = event => {	
 		let fieldName;
 		let fieldValue;		
-		if(event === "rating" || event ==="feedeback") {			
+		if(event === "rating" || event ==="feedback") {			
 			fieldName = "widgetType"
 			fieldValue = event			
 			if(event ==="rating") {
@@ -251,11 +252,11 @@ class SidePanelWidget extends React.Component {
 							<br/>							
 							<TileGroup
 								name="widgetType"
-								defaultSelected="feedeback"
+								defaultSelected="feedback"
 								style={{width:"50%"}}
 								onChange={this.saveData}
 								legend="Type">
-								<RadioTile value="feedeback"  id="tile-1" >
+								<RadioTile value="feedback"  id="tile-1" >
 									<strong>Feedback form</strong><br /><br />Users launch your custom feedback form from a button
 								</RadioTile>
 								<RadioTile  value="rating" id="tile-2">
