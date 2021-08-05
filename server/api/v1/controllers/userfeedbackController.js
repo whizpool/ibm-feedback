@@ -237,10 +237,11 @@ exports.saveUserFeedbackData = [
 								await feedbackAnswer.save({feedbackAnswer});
 							}
 						}
+						
+						var feedbackHTMLview = await viewUserFeedback(feedbackData.id);
 						if(widgetType === 'rating') {							
 								var feedbackWidgetHTMLStr = '<section>'+response+'</section>';						
 						} else {
-								var feedbackHTMLview = await viewUserFeedback(feedbackData.id);
 								var feedbackWidgetHTMLStr = '<header>Thank you for submitting your feedback</header><section>'+feedbackHTMLview+'</section><div style="width:100%"><button id="dismiss" class="bx--btn bx--btn--primary" style="max-width: inherit;width: inherit;" type="submit">Dismiss</button></div><script>$("#dismiss").on("click",function(){$(".feedback-box").removeClass("show");});</script>';				
 						}
 					
@@ -433,6 +434,8 @@ function viewUserFeedback(feedbackID) {
 			Options['rating_type'] = ratingType
 			var htmlElement = createHTMLViewElement(Options)						
 			returnfeedbackView += htmlElement					
+			issueObj.title = "A New user"
+			issueObj.text = "A New user"
 			if(fieldName == "Name") {
 					issueObj.title = answerObj.answer + " submitted a feedback."; 
 					slackObj.text = answerObj.answer + " submitted a feedback."; 
@@ -445,7 +448,8 @@ function viewUserFeedback(feedbackID) {
 			
 		}
 		//var ObjectSignedUrl = await objectStroage.getObjectSignedUrl(feedbacksObj.screen_shot);
-		var ObjectSignedUrl  = config.apihost+"widgets/download?file="+feedbacksObj.screen_shot;
+		//var ObjectSignedUrl  = config.apihost+"widgets/download?file="+feedbacksObj.screen_shot;
+		var ObjectSignedUrl  = config.publicURL+feedbacksObj.screen_shot
 		returnfeedbackView += "<img src='"+ObjectSignedUrl+"' style='height: 200px;width: 100%;' />"
 		//Create Issues
 		issueObj.body = issueBody + "<img src='"+ObjectSignedUrl+"' style='height: 200px;width: 100%;' />"

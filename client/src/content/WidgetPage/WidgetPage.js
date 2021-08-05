@@ -243,7 +243,6 @@ class WidgetPage extends React.Component {
 	}
 	
 	displayRating  = (rating) => {
-	console.log(rating,"rating")
 		if(rating === "stars"){
 			return "Star"
 		} 

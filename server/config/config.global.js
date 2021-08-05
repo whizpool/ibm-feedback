@@ -19,4 +19,4 @@ config.IBMCONFIG = {
 };
 /*S3 API*/
 config.defaultEndpoint = 's3.us.cloud-object-storage.appdomain.cloud';
-
+config.publicURL    = 'https://cloud-object-storage-2u-cos-standard-8k6.s3.jp-tok.cloud-object-storage.appdomain.cloud/';

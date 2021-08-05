@@ -125,7 +125,7 @@ const SidePanelViewFeedback = ({opensidepanel,updatesidepanelstate,access_token,
 			if(isLoading === 0) {
 				getFeedbacks(recordid)
 			}
-	},[recordid,getFeedbacks])
+	},[recordid,getFeedbacks,isLoading])
 
  const closeModal= ()=>{	 
 	 updatesidepanelstate(false)

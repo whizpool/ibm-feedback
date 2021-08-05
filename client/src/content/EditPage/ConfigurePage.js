@@ -14,7 +14,9 @@ import {
 	Form,
 	Select,
 	SelectItem,
-	InlineNotification
+	InlineNotification,
+	TileGroup,
+ 	RadioTile,
 } from 'carbon-components-react';
 import {LogoGithub32 as GitHub, LogoSlack32 as Slack, CheckmarkFilled24 as Verified} from '@carbon/icons-react';
 import axios from "axios";
@@ -57,11 +59,16 @@ class ConfigurePage extends React.Component {
 			slackUnlink: false, 
 			githubUnlink: false, 
 			successMessage : "",
+			AllRepoListItem : [],
 			RepoListItem : "",
+			RepoDetail : "",
 			gitHubRepoName : "",
 			repo_name : "",
 			repo_ID : "",
 			webhook : "",
+			repoIDOption : "repolist",
+			page_count : 100,
+			page : 1,
 		};
 	}
 	
@@ -101,9 +108,27 @@ class ConfigurePage extends React.Component {
  	};
   
   	saveData = event => {
+		let fieldName;
+		let fieldValue;		
+		if(event === 'repourl' || event ==='repolist') {
+			fieldName = "repoIDOption"
+			fieldValue = event	
+			if(event === 'repourl'){
+					this.setState({
+							scan: false,
+					});					
+			}
+			if (event === 'repolist' && this.state.RepoListItem === '') {
+					this.setState({
+							scan: true,
+					});
+			}
+		}
+		else {
 		const target = event.target;
-		let fieldName = target.name;
-		let fieldValue = target.value;
+			fieldName = target.name;
+			fieldValue = target.value;
+		}
 		if (!fieldValue) {
 			this.setState({ [fieldName]: fieldValue, [fieldName + "Invalid"]: true });
 		} else {
@@ -115,6 +140,13 @@ class ConfigurePage extends React.Component {
   	};
 	
 	saveForm = event => {
+		event.preventDefault();
+		if (this.checkForm()) {				
+			this.getGitHubRepoList()
+		}
+	};
+	
+	showRepoIDSelection = event => {
 		event.preventDefault();
 		if (this.checkForm()) {				
 			this.getGitHubRepoList()
@@ -133,18 +165,60 @@ class ConfigurePage extends React.Component {
 	}  
   
  	/******************** API CALL ***************/
+	getGitHubRepoDetail = () => {
+  return new Promise(async (resolve, reject) => {
+				if (this.checkForm()) {
+					axios.get(this.state.gitHubRepoURL,{
+					headers: {
+						'Authorization': `token ${this.state.gitHubPAC}` ,
+						'Accept': `application/vnd.github.baptiste-preview+json` 
+					}})
+					.then(result => {
+						var repos = result.data;
+						this.setState({
+							RepoDetail: repos,
+							api_response: result.data
+						})
+						resolve(result)
+					})
+					.catch( (error)   => {
+							this.setState({
+								error,
+								isSubmitting: false
+							})
+							resolve(error)
+						}
+					);
+				}
+		})
+	}
+
 	getGitHubRepoList = event => {
-		event.preventDefault();
+		//event.preventDefault();
+		event.persist()
+		let page_count = this.state.page_count;
+		let page = this.state.page;
+		
 		if (this.checkForm()) {
 			this.setState({ isSubmitting: true });			
-			axios.get(this.state.githuburl+'/user/repos?type=all',{
+			axios.get(this.state.githuburl+'/user/repos?type=all&per_page='+page_count+'&page='+page,{
 			headers: {
 				'Authorization': `token ${this.state.gitHubPAC}` ,
 				'Accept': `application/vnd.github.baptiste-preview+json` 
 			}})
 			.then(result => {
 				var repos = result.data;
-				var reposList = repos.map(function(obj) {
+				//console.log(reposData)
+				//var count = 
+				var reposData = this.state.AllRepoListItem;
+				for(let i=0;i<repos.length;i++){
+					reposData.push(repos[i])
+				}
+				//repos.map(function(obj) {
+				//	reposData.push(obj)
+				//});		
+				if(repos.length < page_count) {				
+						var reposList = reposData.map(function(obj) {
 					return (
 						<SelectItem key={obj.id}
 							text={obj.name}
@@ -159,6 +233,14 @@ class ConfigurePage extends React.Component {
 					scan: false,
 					isSubmitting: false
 				});
+				} else {
+						this.setState({
+							page: page+1,
+							AllRepoListItem: reposData
+						});
+						this.getGitHubRepoList(event)
+				}
+			
 			})
 			.catch(error =>
 				this.setState({
@@ -169,21 +251,49 @@ class ConfigurePage extends React.Component {
 		}
 	};
   
-	saveGitHubData = () => {
+	saveGitHubData = async () => {
 		let repos = this.state.api_response;
-		let repo = repos.filter(obj => obj.id === parseInt(this.state.gitHubRepoID));
-		let RepoName= repo[0].name;
-		let RepoUrl= repo[0].html_url;
-		let OwnerName= repo[0].owner.login;
-		let ApiResponse = JSON.stringify(this.state.api_response);
+		this.setState({invalidURL:false});
+		
+		let RepoName;
+		let RepoUrl;
+		let OwnerName;
+		let ApiResponse = '';
+		let RepoID = this.state.gitHubRepoID;
+		let isValidDataToSubmit = true
 		this.setState({ isSubmitting:true });
+		if (this.state.repoIDOption === 'repolist')	 {		
+		let repo = repos.filter(obj => obj.id === parseInt(this.state.gitHubRepoID));
+			RepoName= repo[0].name;
+			RepoUrl= repo[0].html_url;
+			OwnerName= repo[0].owner.login;
+			ApiResponse = JSON.stringify(this.state.api_response);
+		}  else {	
+		
+			await this.getGitHubRepoDetail();			
+		
+			let repo = this.state.RepoDetail
+			if(repo) {
+				RepoID = repo.name;
+				RepoUrl= repo.html_url;
+				RepoName = repo.name
+				OwnerName = repo.owner.login;
+				ApiResponse = JSON.stringify(this.state.api_response);
+			} else {
+				isValidDataToSubmit = false;
+				this.setState({ 
+					invalidURL:true
+				});
+			}
+		}			
+		if(isValidDataToSubmit) {	
 		var config = {
 			method: 'post',
 			url:process.env.REACT_APP_API_ENDPOINT+`widgets/github/`+this.props.recordID,
 			headers: { 
 				'Authorization': 'Bearer '+this.props.access_token
 			},
-			data : {pac:this.state.gitHubPAC,api_url:this.state.githuburl,api_response:ApiResponse,repo_id:this.state.gitHubRepoID,repo_name:RepoName,repo_url:RepoUrl,repo_owner:OwnerName}
+				data : {pac:this.state.gitHubPAC,api_url:this.state.githuburl,api_response:ApiResponse,repo_id:RepoID,repo_name:RepoName,repo_url:RepoUrl,repo_owner:OwnerName}
 		};
 		axios(config)
 		.then(response => {				
@@ -213,6 +323,7 @@ class ConfigurePage extends React.Component {
 				this.props.saveLogoutState({type: 'SIGN_OUT'})
 			}
 		});
+		}
 		
 			
 	};	
@@ -343,7 +454,18 @@ class ConfigurePage extends React.Component {
 				<ModalHeader>
 					<h4>Connect GitHub</h4>
 				</ModalHeader>
-				<ModalBody style={{ paddingRight: '1rem' }}>
+				<ModalBody style={{ paddingRight: '1rem' ,marginBottom:'1rem'}}  className="configModel" >
+				{ this.state.invalidURL  ? 
+						<InlineNotification
+							kind="error"
+							title=""
+							subtitle='Please check the GitHub URL again'
+							caption=""
+							style={{
+								minWidth: "100%",
+							}}
+						/> : ""
+					}		
 					<>
 						<p>Please fill out the following information below in order to connect with GitHub</p><br/>
 					</>
@@ -371,15 +493,30 @@ class ConfigurePage extends React.Component {
 							invalidText="Please enter personal access token.."
 						/>	
 						<br/>
+						
+					<TileGroup
+							name="repoIDOption"
+							onChange={this.saveData}
+							defaultSelected="repolist"
+							style={{width:"50%",height:"auto"}}
+							legend="GitHub repository selection">
+							<RadioTile value="repolist"  id="tile-1" >
+								GitHub repository List
+							</RadioTile>
+							<RadioTile  value="repourl" id="tile-2">
+								GitHub repository URL
+							</RadioTile>		
+						</TileGroup>
+						
+						{this.state.repoIDOption === 'repolist' ?
 						<Select
-							//onChange={(e)=>this.UpdateWidgetRowsValue(e, currentRowIndex,header)}
 							defaultValue={(this.state.gitHubRepoID) ? this.state.gitHubRepoID : "placeholder-item"}
 							disabled={this.state.gitHubRepodisabled}
 							onChange={this.saveData}
 							id="gitHubRepoID"							
 							name="gitHubRepoID"
 							labelText="GitHub repository"
-							invalid={this.state.gitHubRepoNameInvalid}
+							invalid={this.state.gitHubRepoIDInvalid}
 							invalidText="Please select Github repo "
 						>
 							<SelectItem
@@ -388,6 +525,18 @@ class ConfigurePage extends React.Component {
 							/>
 							{this.state.RepoListItem}
 						</Select>
+						: 						
+							<TextInput
+									id="gitHubRepoURL"
+									name="gitHubRepoURL"
+									value={this.state.gitHubRepoURL || ""}
+									onChange={this.saveData}
+									labelText='GitHub repository URL'
+									placeholder="https://api.github.com/repos/owner/repo"
+									invalid={this.state.gitHubRepoURLInvalid}
+									invalidText="Please enter valid gitHub repo url"
+								/>	
+						}
 					</Form>
 				</ModalBody>
 				<ModalFooter>
